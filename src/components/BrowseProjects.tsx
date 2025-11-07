@@ -23,6 +23,12 @@ export default function BrowseProjects({
   const [error, setError] = useState('');
 
   const handleApplyClick = (project: Project) => {
+    // Prevent opening modal if user has already applied
+    if (hasApplied(project.id)) {
+      console.log('User has already applied to this project');
+      return;
+    }
+
     setSelectedProject(project);
     setShowApplicationModal(true);
     setCoverLetter('');
@@ -40,6 +46,12 @@ export default function BrowseProjects({
 
   const handleSubmitApplication = async () => {
     if (!selectedProject) return;
+
+    // Double-check if user has already applied
+    if (hasApplied(selectedProject.id)) {
+      setError('You have already applied to this project');
+      return;
+    }
 
     // Validation
     if (!coverLetter.trim()) {
@@ -111,9 +123,14 @@ export default function BrowseProjects({
           <h1 className="text-5xl font-bold text-dreamxec-navy font-display mb-4">
             Browse Projects 🚀
           </h1>
-          <p className="text-xl text-dreamxec-navy font-sans opacity-80">
+          <p className="text-xl text-dreamxec-navy font-sans opacity-80 mb-2">
             Find exciting project opportunities from companies and donors
           </p>
+          {userApplications.length > 0 && (
+            <p className="text-dreamxec-orange font-bold font-sans text-lg">
+              📝 You have applied to {userApplications.length} project{userApplications.length !== 1 ? 's' : ''}
+            </p>
+          )}
         </div>
 
         {/* Projects grid */}
@@ -208,29 +225,29 @@ export default function BrowseProjects({
 
       {/* Application Modal */}
       {showApplicationModal && selectedProject && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="card-pastel-offwhite rounded-2xl border-5 border-dreamxec-navy max-w-2xl w-full shadow-pastel-saffron">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="card-pastel-offwhite rounded-2xl border-5 border-dreamxec-navy max-w-2xl w-full max-h-[95vh] overflow-y-auto shadow-pastel-saffron mx-2 sm:mx-4">
             <div className="card-tricolor-tag"></div>
             
             {/* Modal header */}
-            <div className="p-6 border-b-4 border-dreamxec-navy bg-dreamxec-beige">
+            <div className="p-4 sm:p-6 border-b-4 border-dreamxec-navy bg-dreamxec-beige">
               <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h2 className="text-3xl font-bold text-dreamxec-navy font-display mb-2">
+                <div className="flex-1 pr-2">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-dreamxec-navy font-display mb-2">
                     Apply to Project
                   </h2>
-                  <p className="text-dreamxec-orange font-bold font-sans text-lg">
+                  <p className="text-dreamxec-orange font-bold font-sans text-sm sm:text-base lg:text-lg">
                     {selectedProject.title}
                   </p>
-                  <p className="text-dreamxec-navy font-sans text-sm">
+                  <p className="text-dreamxec-navy font-sans text-xs sm:text-sm">
                     {selectedProject.companyName}
                   </p>
                 </div>
                 <button
                   onClick={handleCloseModal}
-                  className="text-dreamxec-navy hover:text-dreamxec-orange transition-colors"
+                  className="text-dreamxec-navy hover:text-dreamxec-orange transition-colors flex-shrink-0"
                 >
-                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -238,16 +255,16 @@ export default function BrowseProjects({
             </div>
 
             {/* Modal body */}
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {error && (
-                <div className="mb-4 p-4 bg-red-100 border-3 border-red-500 rounded-xl">
-                  <p className="text-red-700 font-sans font-bold">{error}</p>
+                <div className="mb-3 sm:mb-4 p-3 sm:p-4 bg-red-100 border-3 border-red-500 rounded-xl">
+                  <p className="text-red-700 font-sans font-bold text-sm sm:text-base">{error}</p>
                 </div>
               )}
 
-              <div className="mb-6">
-                <label htmlFor="coverLetter" className="block text-dreamxec-navy font-bold font-sans text-lg mb-2">
-                  Cover Letter * <span className="text-sm font-normal opacity-70">(min. 50 characters)</span>
+              <div className="mb-4 sm:mb-6">
+                <label htmlFor="coverLetter" className="block text-dreamxec-navy font-bold font-sans text-base sm:text-lg mb-2">
+                  Cover Letter * <span className="text-xs sm:text-sm font-normal opacity-70">(min. 50 characters)</span>
                 </label>
                 <textarea
                   id="coverLetter"
@@ -257,18 +274,18 @@ export default function BrowseProjects({
                     setError('');
                   }}
                   placeholder="Tell the company why you're a good fit for this project, your relevant skills, and what you hope to contribute..."
-                  rows={8}
+                  rows={6}
                   minLength={50}
-                  className="w-full px-4 py-3 border-4 border-dreamxec-navy rounded-xl font-sans text-dreamxec-navy text-lg focus:outline-none focus:ring-4 focus:ring-dreamxec-orange/30 transition-all resize-none"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border-4 border-dreamxec-navy rounded-xl font-sans text-dreamxec-navy text-sm sm:text-lg focus:outline-none focus:ring-4 focus:ring-dreamxec-orange/30 transition-all resize-none"
                 />
-                <p className="mt-1 text-sm text-dreamxec-navy opacity-60 font-sans">
+                <p className="mt-1 text-xs sm:text-sm text-dreamxec-navy opacity-60 font-sans">
                   {coverLetter.length}/50 characters minimum
                 </p>
               </div>
 
-              <div className="mb-6">
-                <label htmlFor="skills" className="block text-dreamxec-navy font-bold font-sans text-lg mb-2">
-                  Your Skills <span className="text-sm font-normal opacity-70">(optional)</span>
+              <div className="mb-4 sm:mb-6">
+                <label htmlFor="skills" className="block text-dreamxec-navy font-bold font-sans text-base sm:text-lg mb-2">
+                  Your Skills <span className="text-xs sm:text-sm font-normal opacity-70">(optional)</span>
                 </label>
                 <input
                   type="text"
@@ -276,33 +293,33 @@ export default function BrowseProjects({
                   value={skillsInput}
                   onChange={(e) => setSkillsInput(e.target.value)}
                   placeholder="e.g., Teaching, Mentoring, Communication (comma-separated)"
-                  className="w-full px-4 py-3 border-4 border-dreamxec-navy rounded-xl font-sans text-dreamxec-navy text-lg focus:outline-none focus:ring-4 focus:ring-dreamxec-orange/30 transition-all"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border-4 border-dreamxec-navy rounded-xl font-sans text-dreamxec-navy text-sm sm:text-lg focus:outline-none focus:ring-4 focus:ring-dreamxec-orange/30 transition-all"
                 />
               </div>
 
               {/* Project details recap */}
-              <div className="bg-dreamxec-cream/50 border-3 border-dreamxec-navy rounded-xl p-4 mb-6">
-                <h4 className="font-bold text-dreamxec-navy font-sans mb-2">Project Summary:</h4>
-                <p className="text-dreamxec-navy font-sans text-sm mb-2">
+              <div className="bg-dreamxec-cream/50 border-3 border-dreamxec-navy rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
+                <h4 className="font-bold text-dreamxec-navy font-sans mb-2 text-sm sm:text-base">Project Summary:</h4>
+                <p className="text-dreamxec-navy font-sans text-xs sm:text-sm mb-2">
                   <strong>Skills Required:</strong> {selectedProject.skillsRequired.join(', ')}
                 </p>
-                <p className="text-dreamxec-navy font-sans text-sm">
+                <p className="text-dreamxec-navy font-sans text-xs sm:text-sm">
                   <strong>Timeline:</strong> {formatDate(selectedProject.timeline.startDate)} - {formatDate(selectedProject.timeline.endDate)}
                 </p>
               </div>
 
               {/* Action buttons */}
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button
                   onClick={handleCloseModal}
-                  className="flex-1 px-6 py-3 bg-dreamxec-cream border-4 border-dreamxec-navy rounded-xl font-bold text-dreamxec-navy font-display hover:bg-dreamxec-beige transition-all"
+                  className="w-full sm:flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-dreamxec-cream border-4 border-dreamxec-navy rounded-xl font-bold text-dreamxec-navy font-display hover:bg-dreamxec-beige transition-all text-sm sm:text-base"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSubmitApplication}
                   disabled={isSubmitting || coverLetter.trim().length < 50}
-                  className="flex-1 px-6 py-3 bg-dreamxec-green border-4 border-dreamxec-navy rounded-xl font-bold text-white font-display hover:bg-dreamxec-orange hover:scale-105 transition-all shadow-pastel-saffron disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="w-full sm:flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-dreamxec-green border-4 border-dreamxec-navy rounded-xl font-bold text-white font-display hover:bg-dreamxec-orange hover:scale-105 transition-all shadow-pastel-saffron disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm sm:text-base"
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Application'}
                 </button>

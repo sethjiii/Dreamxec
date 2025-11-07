@@ -1,8 +1,5 @@
 import type { Campaign } from '../types';
 import { StarDecoration } from './icons/StarDecoration';
-import imageIcon from '../assets/image.png';
-import image1Icon from '../assets/image1.png';
-import imageCopyIcon from '../assets/imagecopy.png';
 
 interface StudentDashboardProps {
   studentName: string;
@@ -86,7 +83,7 @@ export default function StudentDashboard({
       </div>
 
       {/* Enhanced decorative images - LEFT SIDE - Brighter and animated */}
-      <div className="absolute top-32 left-5 z-0 opacity-5 animate-pulse">
+      {/* <div className="absolute top-32 left-5 z-0 opacity-5 animate-pulse">
         <img src={imageIcon} alt="" className="w-40 h-40 md:w-52 md:h-52 object-contain drop-shadow-lg" />
       </div>
       <div className="absolute top-1/3 left-8 z-0 opacity-10 animate-bounce" style={{ animationDuration: '3s' }}>
@@ -97,10 +94,10 @@ export default function StudentDashboard({
       </div>
       <div className="absolute top-2/3 left-4 z-0 opacity-20 hidden lg:block">
         <img src={imageIcon} alt="" className="w-40 h-40 object-contain drop-shadow-lg animate-pulse" style={{ animationDuration: '2.5s' }} />
-      </div>
+      </div> */}
 
       {/* Enhanced decorative images - RIGHT SIDE - Brighter and animated */}
-      <div className="absolute top-24 right-8 z-0 opacity-25 animate-bounce" style={{ animationDuration: '2.5s' }}>
+      {/* <div className="absolute top-24 right-8 z-0 opacity-25 animate-bounce" style={{ animationDuration: '2.5s' }}>
         <img src={image1Icon} alt="" className="w-44 h-44 md:w-56 md:h-56 object-contain drop-shadow-lg" />
       </div>
       <div className="absolute top-1/2 right-5 z-0 opacity-20 animate-pulse" style={{ animationDuration: '3s' }}>
@@ -114,7 +111,7 @@ export default function StudentDashboard({
       </div>
       <div className="absolute bottom-1/4 right-4 z-0 opacity-20 hidden md:block">
         <img src={imageCopyIcon} alt="" className="w-36 h-36 object-contain drop-shadow-xl animate-pulse" />
-      </div>
+      </div> */}
       {/* Header Section with Tricolor Accent */}
       <div className="relative bg-dreamxec-navy border-b-8 border-dreamxec-orange shadow-pastel-saffron z-10">
         <div className="card-tricolor-tag"></div>

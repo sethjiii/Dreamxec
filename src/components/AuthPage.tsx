@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StarDecoration } from './icons/StarDecoration';
+import { Header } from '../sections/Header';
 import imageIcon from '../assets/image.png';
 import image1Icon from '../assets/image1.png';
 import imageCopyIcon from '../assets/imagecopy.png';
@@ -56,9 +57,12 @@ interface AuthPageProps {
   onGoogleAuth?: (role: 'student' | 'donor') => void;
   onLinkedInAuth?: (role: 'student' | 'donor') => void;
   onForgotPassword?: (email: string) => void;
+  currentUser?: { name: string; role: 'student' | 'donor' | 'admin' } | null;
+  onHeaderLogin?: () => void;
+  onLogout?: () => void;
 }
 
-export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAuth, onForgotPassword }: AuthPageProps) {
+export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAuth, onForgotPassword, currentUser, onHeaderLogin, onLogout }: AuthPageProps) {
   const [isSignup, setIsSignup] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [role, setRole] = useState<'student' | 'donor'>('student');
@@ -155,63 +159,97 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
     : email.trim() && password;
 
   return (
-    <div className="min-h-screen bg-dreamxec-cream relative overflow-hidden flex items-center justify-center">
-      {/* Decorative stars */}
-      <div className="absolute top-20 left-10 z-0 opacity-20">
-        <StarDecoration className="w-16 h-16" color="#FF7F00" />
+    <>
+      {/* Header */}
+      <Header 
+        currentUser={currentUser} 
+        onLogin={onHeaderLogin}
+        onLogout={onLogout}
+      />
+      
+      {/* Auth Page Content */}
+      <div className="min-h-screen bg-transparent relative overflow-hidden flex items-center justify-center py-4 sm:py-6 md:py-8">
+      {/* Decorative stars - Far from center */}
+      <div className="absolute top-8 left-1 z-0 opacity-8 pointer-events-none">
+        <StarDecoration className="w-6 h-6" color="#FF7F00" />
       </div>
-      <div className="absolute top-40 right-20 z-0 opacity-20">
-        <StarDecoration className="w-12 h-12" color="#0B9C2C" />
+      <div className="absolute top-20 right-2 z-0 opacity-6 pointer-events-none">
+        <StarDecoration className="w-5 h-5" color="#0B9C2C" />
       </div>
-      <div className="absolute bottom-32 left-1/4 z-0 opacity-15">
-        <StarDecoration className="w-20 h-20" color="#000080" />
-      </div>
-
-      {/* Enhanced decorative images - LEFT SIDE - Brighter and animated */}
-      <div className="absolute top-32 left-5 z-0 opacity-5 animate-pulse">
-        <img src={imageIcon} alt="" className="w-40 h-40 md:w-52 md:h-52 object-contain drop-shadow-lg" />
-      </div>
-      <div className="absolute top-1/3 left-8 z-0 opacity-10 animate-bounce" style={{ animationDuration: '3s' }}>
-        <img src={image1Icon} alt="" className="w-44 h-44 md:w-56 md:h-56 object-contain drop-shadow-xl" />
-      </div>
-      <div className="absolute bottom-40 left-12 z-0 opacity-25 animate-pulse" style={{ animationDuration: '2s' }}>
-        <img src={imageCopyIcon} alt="" className="w-48 h-48 md:w-60 md:h-60 object-contain drop-shadow-2xl" />
-      </div>
-      <div className="absolute top-2/3 left-4 z-0 opacity-20 hidden lg:block">
-        <img src={imageIcon} alt="" className="w-40 h-40 object-contain drop-shadow-lg animate-pulse" style={{ animationDuration: '2.5s' }} />
+      <div className="absolute bottom-12 left-4 z-0 opacity-5 pointer-events-none">
+        <StarDecoration className="w-8 h-8" color="#000080" />
       </div>
 
-      {/* Enhanced decorative images - RIGHT SIDE - Brighter and animated */}
-      <div className="absolute top-24 right-8 z-0 opacity-25 animate-bounce" style={{ animationDuration: '2.5s' }}>
-        <img src={image1Icon} alt="" className="w-44 h-44 md:w-56 md:h-56 object-contain drop-shadow-lg" />
-      </div>
-      <div className="absolute top-1/2 right-5 z-0 opacity-20 animate-pulse" style={{ animationDuration: '3s' }}>
-        <img src={imageCopyIcon} alt="" className="w-40 h-40 md:w-52 md:h-52 object-contain drop-shadow-xl" />
-      </div>
-      <div className="absolute bottom-48 right-10 z-0 opacity-25 animate-bounce" style={{ animationDuration: '3.5s' }}>
-        <img src={imageIcon} alt="" className="w-48 h-48 md:w-60 md:h-60 object-contain drop-shadow-2xl" />
-      </div>
-      <div className="absolute top-1/4 right-6 z-0 opacity-20 hidden lg:block">
-        <img src={image1Icon} alt="" className="w-40 h-40 object-contain drop-shadow-lg animate-pulse" style={{ animationDuration: '2s' }} />
-      </div>
-      <div className="absolute bottom-1/4 right-4 z-0 opacity-20 hidden md:block">
-        <img src={imageCopyIcon} alt="" className="w-36 h-36 object-contain drop-shadow-xl animate-pulse" />
-      </div>
+      {/* === Decorative Floating Background Images (Tricolor aligned) === */}
+{/* === Decorative Floating Background Images (Final Polished) === */}
+
+{/* LEFT SIDE (Green Zone) */}
+<div className="absolute top-[14%] left-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden xl:block">
+  <img
+    src={imageIcon}
+    alt="Left Decor Wellness"
+    className="w-52 sm:w-60 md:w-72 lg:w-80 xl:w-88 2xl:w-96 h-auto object-contain"
+    style={{
+      animationDelay: '0s',
+      filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
+    }}
+  />
+</div>
+
+<div className="absolute bottom-[8%] left-[5%] z-0 opacity-85 animate-float-fast pointer-events-none hidden 2xl:block">
+  <img
+    src={image1Icon}
+    alt="Left Decor Research"
+    className="w-56 sm:w-64 md:w-72 lg:w-80 xl:w-96 2xl:w-[26rem] h-auto object-contain"
+    style={{
+      animationDelay: '2s',
+      filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
+    }}
+  />
+</div>
+
+{/* RIGHT SIDE (Saffron Zone) */}
+<div className="absolute top-[14%] right-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden xl:block">
+  <img
+    src={imageCopyIcon}
+    alt="Right Decor Technology"
+    className="w-52 sm:w-60 md:w-72 lg:w-80 xl:w-88 2xl:w-96 h-auto object-contain"
+    style={{
+      animationDelay: '1.5s',
+      filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
+    }}
+  />
+</div>
+
+<div className="absolute bottom-[8%] right-[5%] z-0 opacity-85 animate-float-fast pointer-events-none hidden 2xl:block">
+  <img
+    src={imageIcon}
+    alt="Right Decor Wellness"
+    className="w-56 sm:w-64 md:w-72 lg:w-80 xl:w-96 2xl:w-[26rem] h-auto object-contain"
+    style={{
+      animationDelay: '3s',
+      filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
+    }}
+  />
+</div>
+
+
+
 
       {/* Main Auth Card */}
-      <div className="w-full max-w-2xl px-4 sm:px-6 relative z-10">
-        <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-6 sm:p-8 md:p-10">
+      <div className="w-full max-w-4xl px-4 sm:px-6 relative z-10 my-4 sm:my-6">
+        <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-4 sm:p-6 md:p-8 lg:p-10">
           <div className="card-tricolor-tag"></div>
 
           {/* Logo/Header */}
           <div className="text-center mb-6 mt-4">
             <div className="flex items-center justify-center gap-3 mb-3">
-              <h1 className="text-4xl sm:text-5xl font-bold text-dreamxec-navy font-display">
+              <h1 className="text-3xl sm:text-4xl font-bold text-dreamxec-navy font-display">
                 {isForgotPassword ? 'Reset Password' : isSignup ? 'Join Us!' : 'Welcome Back!'}
               </h1>
-              <StarDecoration className="w-10 h-10" color="#FF7F00" />
+              <StarDecoration className="w-8 h-8" color="#FF7F00" />
             </div>
-            <p className="text-dreamxec-navy text-lg font-sans opacity-80">
+            <p className="text-dreamxec-navy text-base font-sans opacity-80">
               {isForgotPassword 
                 ? 'Enter your email to receive a reset link' 
                 : isSignup 
@@ -223,14 +261,14 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
           {/* Role Toggle - Hidden for Forgot Password */}
           {!isForgotPassword && (
             <div className="mb-6">
-              <label className="block text-base font-bold text-dreamxec-navy mb-3 font-display text-center">
+              <label className="block text-sm font-bold text-dreamxec-navy mb-3 font-display text-center">
                 I am a:
               </label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
                 <button
                   type="button"
                   onClick={() => setRole('student')}
-                  className={`px-4 py-3 rounded-lg font-bold font-display border-4 transition-all ${
+                  className={`px-3 py-2 rounded-lg font-bold font-display border-3 transition-all text-sm ${
                     role === 'student'
                       ? 'bg-dreamxec-orange text-white border-dreamxec-navy shadow-pastel-saffron scale-105'
                       : 'bg-white text-dreamxec-navy border-dreamxec-navy hover:bg-dreamxec-cream'
@@ -241,7 +279,7 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                 <button
                   type="button"
                   onClick={() => setRole('donor')}
-                  className={`px-4 py-3 rounded-lg font-bold font-display border-4 transition-all ${
+                  className={`px-3 py-2 rounded-lg font-bold font-display border-3 transition-all text-sm ${
                     role === 'donor'
                       ? 'bg-dreamxec-green text-white border-dreamxec-navy shadow-pastel-green scale-105'
                       : 'bg-white text-dreamxec-navy border-dreamxec-navy hover:bg-dreamxec-cream'
@@ -261,21 +299,21 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                   <div className="w-full border-t-2 border-dreamxec-navy"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-dreamxec-beige text-dreamxec-navy font-bold font-display">
+                  <span className="px-3 bg-dreamxec-beige text-dreamxec-navy font-bold font-display text-sm">
                     Or continue with
                   </span>
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 mb-4 max-w-md mx-auto">
                 {onGoogleAuth && (
                   <button
                     type="button"
                     onClick={handleGoogleAuth}
                     disabled={isSubmitting}
-                    className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-4 border-dreamxec-navy rounded-lg font-bold font-sans hover:bg-gray-50 transition-all shadow-pastel-card disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center justify-center gap-2 px-3 py-2 bg-white border-3 border-dreamxec-navy rounded-lg font-bold font-sans hover:bg-gray-50 transition-all shadow-pastel-card disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
-                    <GoogleIcon className="w-5 h-5" />
+                    <GoogleIcon className="w-4 h-4" />
                     <span className="text-dreamxec-navy">Google</span>
                   </button>
                 )}
@@ -285,9 +323,9 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                     type="button"
                     onClick={handleLinkedInAuth}
                     disabled={isSubmitting}
-                    className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-4 border-dreamxec-navy rounded-lg font-bold font-sans hover:bg-gray-50 transition-all shadow-pastel-card disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center justify-center gap-2 px-3 py-2 bg-white border-3 border-dreamxec-navy rounded-lg font-bold font-sans hover:bg-gray-50 transition-all shadow-pastel-card disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
-                    <LinkedInIcon className="w-5 h-5" />
+                    <LinkedInIcon className="w-4 h-4" />
                     <span className="text-dreamxec-navy">LinkedIn</span>
                   </button>
                 )}
@@ -298,7 +336,7 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                   <div className="w-full border-t-2 border-dreamxec-navy"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-dreamxec-beige text-dreamxec-navy font-bold font-display">
+                  <span className="px-3 bg-dreamxec-beige text-dreamxec-navy font-bold font-display text-sm">
                     Or use email
                   </span>
                 </div>
@@ -308,150 +346,155 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-4 bg-red-100 border-4 border-red-600 text-red-700 rounded-lg font-sans text-base">
+            <div className="mb-4 p-3 bg-red-100 border-3 border-red-600 text-red-700 rounded-lg font-sans text-sm">
               {error}
             </div>
           )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name (Signup only) */}
-            {isSignup && (
-              <div>
-                <label className="block text-base font-bold text-dreamxec-navy mb-2 font-display">
-                  Full Name <span className="text-red-600">*</span>
+            {/* Form content in two columns for wider layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Name (Signup only) */}
+              {isSignup && (
+                <div className="md:col-span-1">
+                  <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
+                    Full Name <span className="text-red-600">*</span>
+                  </label>
+                  <div className="relative">
+                    <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dreamxec-navy opacity-60 w-4 h-4" />
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Enter your full name"
+                      required
+                      className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Email */}
+              <div className={isSignup ? "md:col-span-1" : "md:col-span-2"}>
+                <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
+                  Email Address <span className="text-red-600">*</span>
                 </label>
                 <div className="relative">
-                  <UserIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-dreamxec-navy opacity-60 w-5 h-5" />
+                  <MailIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dreamxec-navy opacity-60 w-4 h-4" />
                   <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your full name"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
                     required
-                    className="w-full pl-12 pr-4 py-3 border-4 border-dreamxec-navy rounded-lg text-base font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
+                    className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-green"
                   />
                 </div>
               </div>
-            )}
 
-            {/* Email */}
-            <div>
-              <label className="block text-base font-bold text-dreamxec-navy mb-2 font-display">
-                Email Address <span className="text-red-600">*</span>
-              </label>
-              <div className="relative">
-                <MailIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-dreamxec-navy opacity-60 w-5 h-5" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                  className="w-full pl-12 pr-4 py-3 border-4 border-dreamxec-navy rounded-lg text-base font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-green"
-                />
-              </div>
+              {/* Institution / Organization (Signup for Student and Donor) */}
+              {isSignup && (role === 'student' || role === 'donor') && (
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
+                    {role === 'student' ? 'Institution/College' : 'Organization/Company'} <span className="text-red-600">*</span>
+                  </label>
+                  <div className="relative">
+                    <BuildingIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dreamxec-navy opacity-60 w-4 h-4" />
+                    <input
+                      type="text"
+                      value={institution}
+                      onChange={(e) => setInstitution(e.target.value)}
+                      placeholder={role === 'student' ? 'Enter your institution name' : 'Enter your organization or company name'}
+                      required
+                      className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Password - Hidden for Forgot Password */}
+              {!isForgotPassword && (
+                <div className={isSignup ? "md:col-span-1" : "md:col-span-2"}>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-bold text-dreamxec-navy font-display">
+                      Password <span className="text-red-600">*</span>
+                    </label>
+                    {!isSignup && onForgotPassword && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsForgotPassword(true);
+                          setError('');
+                        }}
+                        className="text-xs font-bold text-dreamxec-orange hover:text-dreamxec-green transition-colors font-display underline"
+                      >
+                        Forgot Password?
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <LockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dreamxec-navy opacity-60 w-4 h-4" />
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder={isSignup ? 'Create a password (min 6 characters)' : 'Enter your password'}
+                      required
+                      minLength={isSignup ? 6 : undefined}
+                      className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-green"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Confirm Password (Signup only) */}
+              {isSignup && (
+                <div className="md:col-span-1">
+                  <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
+                    Confirm Password <span className="text-red-600">*</span>
+                  </label>
+                  <div className="relative">
+                    <LockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dreamxec-navy opacity-60 w-4 h-4" />
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Re-enter your password"
+                      required
+                      className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Institution / Organization (Signup for Student and Donor) */}
-            {isSignup && (role === 'student' || role === 'donor') && (
-              <div>
-                <label className="block text-base font-bold text-dreamxec-navy mb-2 font-display">
-                  {role === 'student' ? 'Institution/College' : 'Organization/Company'} <span className="text-red-600">*</span>
-                </label>
-                <div className="relative">
-                  <BuildingIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-dreamxec-navy opacity-60 w-5 h-5" />
-                  <input
-                    type="text"
-                    value={institution}
-                    onChange={(e) => setInstitution(e.target.value)}
-                    placeholder={role === 'student' ? 'Enter your institution name' : 'Enter your organization or company name'}
-                    required
-                    className="w-full pl-12 pr-4 py-3 border-4 border-dreamxec-navy rounded-lg text-base font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Password - Hidden for Forgot Password */}
-            {!isForgotPassword && (
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-base font-bold text-dreamxec-navy font-display">
-                    Password <span className="text-red-600">*</span>
-                  </label>
-                  {!isSignup && onForgotPassword && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsForgotPassword(true);
-                        setError('');
-                      }}
-                      className="text-sm font-bold text-dreamxec-orange hover:text-dreamxec-green transition-colors font-display underline"
-                    >
-                      Forgot Password?
-                    </button>
-                  )}
-                </div>
-                <div className="relative">
-                  <LockIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-dreamxec-navy opacity-60 w-5 h-5" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder={isSignup ? 'Create a password (min 6 characters)' : 'Enter your password'}
-                    required
-                    minLength={isSignup ? 6 : undefined}
-                    className="w-full pl-12 pr-4 py-3 border-4 border-dreamxec-navy rounded-lg text-base font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-green"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Confirm Password (Signup only) */}
-            {isSignup && (
-              <div>
-                <label className="block text-base font-bold text-dreamxec-navy mb-2 font-display">
-                  Confirm Password <span className="text-red-600">*</span>
-                </label>
-                <div className="relative">
-                  <LockIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-dreamxec-navy opacity-60 w-5 h-5" />
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Re-enter your password"
-                    required
-                    className="w-full pl-12 pr-4 py-3 border-4 border-dreamxec-navy rounded-lg text-base font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
-                  />
-                </div>
-              </div>
-            )}
-
             {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={!isFormValid || isSubmitting}
-              className={`w-full px-6 py-4 rounded-lg font-bold text-white transition-all font-display text-xl border-4 border-dreamxec-navy ${
-                isFormValid
-                  ? 'bg-dreamxec-green hover:scale-105 shadow-pastel-green'
-                  : 'bg-gray-400 cursor-not-allowed opacity-50'
-              } ${isSubmitting ? 'opacity-75 cursor-wait' : ''}`}
-            >
-              {isSubmitting 
-                ? 'Please wait...' 
-                : isForgotPassword 
-                ? 'Send Reset Link' 
-                : isSignup 
-                ? 'Create Account' 
-                : 'Sign In'}
-            </button>
+            <div className="mt-6">
+              <button
+                type="submit"
+                disabled={!isFormValid || isSubmitting}
+                className={`w-full px-4 py-3 rounded-lg font-bold text-white transition-all font-display text-lg border-3 border-dreamxec-navy ${
+                  isFormValid
+                    ? 'bg-dreamxec-green hover:scale-105 shadow-pastel-green'
+                    : 'bg-gray-400 cursor-not-allowed opacity-50'
+                } ${isSubmitting ? 'opacity-75 cursor-wait' : ''}`}
+              >
+                {isSubmitting 
+                  ? 'Please wait...' 
+                  : isForgotPassword 
+                  ? 'Send Reset Link' 
+                  : isSignup 
+                  ? 'Create Account' 
+                  : 'Sign In'}
+              </button>
+            </div>
           </form>
 
           {/* Toggle Sign In/Sign Up/Forgot Password */}
           <div className="mt-6 text-center">
             {isForgotPassword ? (
-              <p className="text-dreamxec-navy font-sans text-base">
+              <p className="text-dreamxec-navy font-sans text-sm">
                 Remember your password?{' '}
                 <button
                   type="button"
@@ -466,7 +509,7 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                 </button>
               </p>
             ) : (
-              <p className="text-dreamxec-navy font-sans text-base">
+              <p className="text-dreamxec-navy font-sans text-sm">
                 {isSignup ? 'Already have an account?' : "Don't have an account?"}{' '}
                 <button
                   type="button"
@@ -494,7 +537,7 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
 
           {/* Info */}
           <div className="text-center">
-            <p className="text-dreamxec-navy font-sans text-sm opacity-70">
+            <p className="text-dreamxec-navy font-sans text-xs opacity-70">
               {role === 'student' 
                 ? '🎓 Students can create and manage fundraising campaigns'
                 : '💼 Donors can post projects and find talented students'}
@@ -503,22 +546,24 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
         </div>
 
         {/* Additional Info Card */}
-        <div className="mt-6 card-pastel rounded-xl p-4 border-4 border-dreamxec-navy shadow-pastel-saffron">
-          <div className="flex items-start gap-3">
-            <div className="icon-pastel-container w-10 h-10 p-2 flex-shrink-0">
-              <span className="text-dreamxec-saffron text-xl">💡</span>
+        <div className="mt-4 card-pastel rounded-xl p-3 border-3 border-dreamxec-navy shadow-pastel-saffron">
+          <div className="flex items-start gap-2">
+            <div className="icon-pastel-container w-8 h-8 p-1 flex-shrink-0">
+              <span className="text-dreamxec-saffron text-lg">💡</span>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-dreamxec-navy font-display">
+              <h3 className="text-base font-bold text-dreamxec-navy font-display">
                 Secure & Trusted
               </h3>
-              <p className="text-dreamxec-navy font-sans text-sm leading-relaxed">
+              <p className="text-dreamxec-navy font-sans text-xs leading-relaxed">
                 Your data is protected with industry-standard security. Join thousands of students making a difference!
               </p>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      {/* End Auth Page Content */}
+      </div>
+    </>
   );
 }

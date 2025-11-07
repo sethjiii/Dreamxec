@@ -51,16 +51,22 @@ export const getMyApplications = async (): Promise<ApiResponse<{ applications: A
 
 // Get all applications for donor's projects (Donor)
 export const getDonorApplications = async (): Promise<ApiResponse<{ applications: Application[] }>> => {
-  return apiRequest('/applications/donor/all', {
+  console.log('ApplicationService: Calling /applications/donor/all');
+  const result = await apiRequest<{ applications: Application[] }>('/applications/donor/all', {
     method: 'GET',
   });
+  console.log('ApplicationService: getDonorApplications result:', result);
+  return result;
 };
 
 // Get applications for specific project (Donor)
 export const getProjectApplications = async (projectId: string): Promise<ApiResponse<{ applications: Application[] }>> => {
-  return apiRequest(`/applications/donor/project/${projectId}`, {
+  console.log(`ApplicationService: Calling /applications/donor/project/${projectId}`);
+  const result = await apiRequest<{ applications: Application[] }>(`/applications/donor/project/${projectId}`, {
     method: 'GET',
   });
+  console.log(`ApplicationService: getProjectApplications result for ${projectId}:`, result);
+  return result;
 };
 
 // Accept/Reject application (Donor)

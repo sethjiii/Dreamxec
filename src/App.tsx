@@ -19,11 +19,11 @@ import CampaignDetails from './components/CampaignDetails';
 import type { Campaign, User, Project } from './types';
 
 // Import API services
-import { login, register, logout as apiLogout, getCurrentUser, initiateGoogleAuth, handleGoogleCallback } from './services/authService';
-import { getPublicUserProjects, createUserProject, getMyUserProjects } from './services/userProjectService';
+import { login, register, logout as apiLogout, getCurrentUser, initiateGoogleAuth, handleGoogleCallback, initiateLinkedInAuth, handleLinkedInCallback } from './services/authService';
+import { getPublicUserProjects, createUserProject } from './services/userProjectService';
 import { getPublicDonorProjects, createDonorProject, getMyDonorProjects } from './services/donorProjectService';
 import { getAllProjects, verifyUserProject, verifyDonorProject } from './services/adminService';
-import { applyToProject } from './services/applicationService';
+import { applyToProject, getMyApplications } from './services/applicationService';
 import { mapBackendRole, mapFrontendRole, mapUserProjectToCampaign, mapDonorProjectToProject } from './services/mappers';
 
 // Main App Content Component
@@ -38,11 +38,12 @@ function AppContent() {
   const [signupEmail, setSignupEmail] = useState('');
   const navigate = useNavigate();
 
-  // Handle Google OAuth callback
+  // Handle OAuth callbacks (Google and LinkedIn)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
     const error = urlParams.get('error');
+    const provider = urlParams.get('provider'); // Could be 'google' or 'linkedin'
     
     // Only process OAuth callbacks on root path or /auth/callback
     const isOAuthCallback = window.location.pathname === '/' || 
@@ -52,10 +53,10 @@ function AppContent() {
       return; // Don't process token if not on OAuth callback route
     }
     
-    // Handle error from Google OAuth
+    // Handle error from OAuth
     if (error) {
-      console.error('Google OAuth error:', error);
-      alert(`Google authentication failed: ${error}`);
+      console.error(`${provider || 'OAuth'} error:`, error);
+      alert(`${provider || 'OAuth'} authentication failed: ${error}`);
       window.history.replaceState({}, '', '/auth');
       navigate('/auth');
       setLoading(false);
@@ -63,12 +64,21 @@ function AppContent() {
     }
     
     if (token) {
-      // Google OAuth callback detected
-      const processGoogleAuth = async () => {
+      // OAuth callback detected
+      const processOAuthCallback = async () => {
         try {
-          console.log('📥 Processing Google OAuth callback...');
-          const response = await handleGoogleCallback();
-          console.log('� Google callback response:', response);
+          console.log(`📥 Processing ${provider || 'OAuth'} callback...`);
+          
+          // Use the appropriate callback handler based on provider
+          let response;
+          if (provider === 'linkedin') {
+            response = await handleLinkedInCallback();
+          } else {
+            // Default to Google OAuth handler for backward compatibility
+            response = await handleGoogleCallback();
+          }
+          
+          console.log(`✅ ${provider || 'OAuth'} callback response:`, response);
 
           if (response.data?.user) {
             const userData = {
@@ -101,7 +111,7 @@ function AppContent() {
               setShowCheckEmail(true);
               navigate('/check-email');
             } else {
-              alert('Google authentication failed. Please try again.');
+              alert(`${provider || 'OAuth'} authentication failed. Please try again.`);
               navigate('/auth');
             }
           }
@@ -110,7 +120,7 @@ function AppContent() {
         }
       };
       
-      processGoogleAuth();
+      processOAuthCallback();
     }
   }, [navigate]);
 
@@ -191,22 +201,11 @@ function AppContent() {
     loadAdminData();
   }, [user?.role]);
 
-  // Load user-specific data for students and donors
+  // Load user-specific data for donors only
+  // Students and admins use the public campaigns data
   useEffect(() => {
     const loadUserData = async () => {
-      if (user?.role === 'student') {
-        try {
-          console.log('📚 Loading student campaigns...');
-          const response = await getMyUserProjects();
-          if (response.data?.userProjects) {
-            const mappedCampaigns = response.data.userProjects.map(mapUserProjectToCampaign);
-            console.log('✅ Student campaigns loaded:', mappedCampaigns);
-            setCampaigns(mappedCampaigns);
-          }
-        } catch (error) {
-          console.error('Failed to load student campaigns:', error);
-        }
-      } else if (user?.role === 'donor') {
+      if (user?.role === 'donor') {
         try {
           console.log('💼 Loading donor projects...');
           const response = await getMyDonorProjects();
@@ -222,6 +221,36 @@ function AppContent() {
     };
 
     loadUserData();
+  }, [user?.role, user?.id]);
+
+  // Load user applications for students to check which projects they've already applied to
+  useEffect(() => {
+    const loadUserApplications = async () => {
+      if (user?.role === 'student') {
+        try {
+          console.log('📝 Loading user applications for student:', user.name);
+          const response = await getMyApplications();
+          if (response.status === 'success' && response.data?.applications) {
+            // Extract project IDs from applications
+            const appliedProjectIds = response.data.applications.map(app => app.donorProjectId);
+            console.log('✅ User has applied to projects:', appliedProjectIds);
+            setUserApplications(appliedProjectIds);
+          } else {
+            console.log('No applications found for user');
+            setUserApplications([]);
+          }
+        } catch (error) {
+          console.error('Failed to load user applications:', error);
+          setUserApplications([]);
+        }
+      } else {
+        // Clear applications if not a student
+        console.log('Clearing user applications (user is not a student)');
+        setUserApplications([]);
+      }
+    };
+
+    loadUserApplications();
   }, [user?.role, user?.id]);
 
   const approvedCampaigns = campaigns.filter((c) => c.status === 'approved');
@@ -449,42 +478,19 @@ function AppContent() {
 
   const handleLinkedInAuth = async (role: 'student' | 'donor') => {
     console.log('🔐 LinkedIn Auth:', { role });
-    setIsSubmitting(true);
     
     try {
-      // Mock LinkedIn OAuth - Replace with actual LinkedIn OAuth implementation
-      // This would typically:
-      // 1. Redirect to LinkedIn OAuth consent screen
-      // 2. Get authorization code
-      // 3. Exchange for access token
-      // 4. Get user profile from LinkedIn
+      // Convert frontend role to backend role format
+      const backendRole = role === 'student' ? 'USER' : 'DONOR';
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Initiate LinkedIn OAuth by redirecting to backend endpoint
+      initiateLinkedInAuth(backendRole);
       
-      // Mock user data from LinkedIn
-      const linkedInUser: User = {
-        id: 'linkedin-' + Date.now().toString(),
-        name: 'LinkedIn User', // Would come from LinkedIn profile
-        email: 'user@linkedin.com', // Would come from LinkedIn profile
-        role: role,
-      };
-      
-      setUser(linkedInUser);
-      
-      // Navigate based on role
-      if (role === 'student') {
-        navigate('/dashboard');
-      } else if (role === 'donor') {
-        navigate('/donor/dashboard');
-      } else {
-        navigate('/admin');
-      }
+      // Note: After LinkedIn authentication, the backend will redirect back to the frontend
+      // with a token, and the OAuth callback handling in useEffect will process it
     } catch (error) {
       console.error('LinkedIn auth error:', error);
       throw new Error('LinkedIn authentication failed');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -580,6 +586,12 @@ function AppContent() {
     if (!user) {
       console.error('User must be logged in to apply');
       throw new Error('Please log in to apply');
+    }
+
+    // Check if user has already applied to this project
+    if (userApplications.includes(projectId)) {
+      console.error('User has already applied to this project');
+      throw new Error('You have already applied to this project');
     }
 
     try {
@@ -723,7 +735,10 @@ function AppContent() {
                                       onLogin={handleLoginClick}
                                       onLogout={handleLogout}
                                     /> */}
-                                    <CampaignDetails currentUser={user} />
+                                    <CampaignDetails 
+                                      currentUser={user} 
+                                      campaigns={approvedCampaigns}
+                                    />
                                   </>
                                 }
                               />
@@ -833,6 +848,9 @@ function AppContent() {
                                     onGoogleAuth={handleGoogleAuth}
                                     onLinkedInAuth={handleLinkedInAuth}
                                     onForgotPassword={handleForgotPassword}
+                                    currentUser={user}
+                                    onHeaderLogin={handleLoginClick}
+                                    onLogout={handleLogout}
                                   />
                                 }
                               />
@@ -847,6 +865,9 @@ function AppContent() {
                                     onGoogleAuth={handleGoogleAuth}
                                     onLinkedInAuth={handleLinkedInAuth}
                                     onForgotPassword={handleForgotPassword}
+                                    currentUser={user}
+                                    onHeaderLogin={handleLoginClick}
+                                    onLogout={handleLogout}
                                   />
                                 }
                               />
@@ -1052,7 +1073,7 @@ function AppContent() {
 };
 
 // Main App Component with Router
-export const App = () => {
+const App = () => {
   return (
     <Router>
       <AppContent />

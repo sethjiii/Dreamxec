@@ -1,19 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getUserProject } from '../services/userProjectService';
-import { mapUserProjectToCampaign } from '../services/mappers';
 import type { Campaign, User } from '../types';
 import { Header } from '../sections/Header';
 import { StarDecoration } from './icons/StarDecoration';
 
 interface CampaignDetailsProps {
   currentUser: User | null;
+  campaigns: Campaign[];
   onLogin?: () => void;
   onLogout?: () => void;
   onDonate?: (campaignId: string, amount: number) => void;
 }
 
-export default function CampaignDetails({ currentUser, onLogin, onLogout, onDonate }: CampaignDetailsProps) {
+export default function CampaignDetails({ currentUser, campaigns, onLogin, onLogout, onDonate }: CampaignDetailsProps) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
@@ -23,39 +22,31 @@ export default function CampaignDetails({ currentUser, onLogin, onLogout, onDona
   const [showDonateModal, setShowDonateModal] = useState(false);
 
   useEffect(() => {
-    const fetchCampaign = async () => {
+    const findCampaign = () => {
       if (!id) return;
       
       try {
         setLoading(true);
         setError(null);
-        const resp = await getUserProject(id) as any;
-        let userProject: any = null;
-        if (resp && resp.data && resp.data.userProject) {
-          userProject = resp.data.userProject;
-        } else if (resp && resp.userProject) {
-          userProject = resp.userProject;
-        } else if (resp && resp.id) {
-          // resp already looks like a UserProject
-          userProject = resp;
+        
+        // Find the campaign from the passed campaigns array
+        const foundCampaign = campaigns.find(c => c.id === id);
+        
+        if (!foundCampaign) {
+          throw new Error('Campaign not found');
         }
 
-        if (!userProject) {
-          throw new Error('No user project returned from API');
-        }
-
-        const mappedCampaign = mapUserProjectToCampaign(userProject);
-        setCampaign(mappedCampaign);
+        setCampaign(foundCampaign);
       } catch (err) {
-        console.error('Failed to fetch campaign:', err);
+        console.error('Failed to find campaign:', err);
         setError('Failed to load campaign details');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCampaign();
-  }, [id]);
+    findCampaign();
+  }, [id, campaigns]);
 
   if (loading) {
     return (
@@ -152,18 +143,18 @@ export default function CampaignDetails({ currentUser, onLogin, onLogout, onDona
   <Header currentUser={currentUser} onLogin={onLogin} onLogout={onLogout} />
 
       {/* Decorative elements */}
-      <div className="absolute top-20 left-10 z-0 opacity-20">
+      <div className="absolute top-20 left-10 z-0 opacity-20 pointer-events-none">
         <StarDecoration className="w-16 h-16" color="#FF7F00" />
       </div>
-      <div className="absolute top-40 right-20 z-0 opacity-20">
+      <div className="absolute top-40 right-20 z-0 opacity-20 pointer-events-none">
         <StarDecoration className="w-12 h-12" color="#0B9C2C" />
       </div>
-      <div className="absolute bottom-32 left-1/4 z-0 opacity-15">
+      <div className="absolute bottom-32 left-1/4 z-0 opacity-15 pointer-events-none">
         <StarDecoration className="w-20 h-20" color="#000080" />
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 py-8 mt-20">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 py-8 mt-20 pb-16">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
@@ -175,7 +166,7 @@ export default function CampaignDetails({ currentUser, onLogin, onLogout, onDona
           Back
         </button>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-8 mb-16">
           {/* Left Column - Campaign Image & Details */}
           <div className="lg:col-span-2 space-y-6">
             {/* Campaign Image */}
@@ -232,7 +223,7 @@ export default function CampaignDetails({ currentUser, onLogin, onLogout, onDona
               </p>
             </div>
 
-            {/* Timeline */}
+            {/* Timeline
             <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-6">
               <div className="card-tricolor-tag"></div>
               <h2 className="text-2xl font-bold text-dreamxec-navy mb-4 font-display mt-4">
@@ -266,12 +257,12 @@ export default function CampaignDetails({ currentUser, onLogin, onLogout, onDona
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Right Column - Funding Card */}
           <div className="lg:col-span-1">
-            <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-6 sticky top-24">
+            <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-6 lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] overflow-y-auto">`
               <div className="card-tricolor-tag"></div>
               
               {/* Funding Amount */}
@@ -299,19 +290,19 @@ export default function CampaignDetails({ currentUser, onLogin, onLogout, onDona
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 gap-4 mb-6">
                 <div className="p-4 bg-dreamxec-cream rounded-lg border-3 border-dreamxec-orange text-center">
                   <p className="text-2xl font-bold text-dreamxec-navy font-display">
                     ₹{remainingAmount.toLocaleString()}
                   </p>
                   <p className="text-sm text-dreamxec-navy opacity-70 font-sans">Remaining</p>
                 </div>
-                <div className="p-4 bg-dreamxec-cream rounded-lg border-3 border-dreamxec-green text-center">
+                {/* <div className="p-4 bg-dreamxec-cream rounded-lg border-3 border-dreamxec-green text-center">
                   <p className="text-2xl font-bold text-dreamxec-navy font-display">
                     {Math.ceil((new Date(campaign.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
                   </p>
                   <p className="text-sm text-dreamxec-navy opacity-70 font-sans">Days Left</p>
-                </div>
+                </div> */}
               </div>
 
               {/* Donate Button */}
@@ -329,25 +320,69 @@ export default function CampaignDetails({ currentUser, onLogin, onLogout, onDona
 
               {/* Share */}
               <div className="mt-6 pt-6 border-t-4 border-dreamxec-navy">
-                <p className="text-sm font-bold text-dreamxec-navy mb-3 font-display">Share this campaign:</p>
-                <div className="flex gap-3">
-                  <button className="flex-1 p-3 bg-blue-600 text-white rounded-lg border-3 border-dreamxec-navy hover:scale-105 transition-transform">
-                    <svg className="w-5 h-5 mx-auto" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                  </button>
-                  <button className="flex-1 p-3 bg-blue-400 text-white rounded-lg border-3 border-dreamxec-navy hover:scale-105 transition-transform">
-                    <svg className="w-5 h-5 mx-auto" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                    </svg>
-                  </button>
-                  <button className="flex-1 p-3 bg-green-600 text-white rounded-lg border-3 border-dreamxec-navy hover:scale-105 transition-transform">
-                    <svg className="w-5 h-5 mx-auto" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
+  <p className="text-sm font-bold text-dreamxec-navy mb-3 font-display">Share this campaign:</p>
+
+  <div className="flex gap-3">
+    {/* Facebook Share */}
+    <button
+      onClick={() => {
+        const campaignUrl = window.location.href; // auto fetch current page
+        const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(campaignUrl)}`;
+        window.open(url, "_blank");
+      }}
+      className="flex-1 p-3 bg-blue-600 text-white rounded-lg border-3 border-dreamxec-navy hover:scale-105 transition-transform"
+    >
+      <svg className="w-5 h-5 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+      </svg>
+    </button>
+
+    {/* Twitter / X Share */}
+    <button
+      onClick={() => {
+        const campaignUrl = window.location.href;
+        const message = encodeURIComponent("Check out this amazing campaign!");
+        const url = `https://twitter.com/intent/tweet?text=${message}&url=${encodeURIComponent(campaignUrl)}`;
+        window.open(url, "_blank");
+      }}
+      className="flex-1 p-3 bg-blue-400 text-white rounded-lg border-3 border-dreamxec-navy hover:scale-105 transition-transform"
+    >
+      <svg className="w-5 h-5 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+      </svg>
+    </button>
+
+    {/* WhatsApp Share */}
+    <button
+      onClick={() => {
+        const campaignUrl = window.location.href;
+        const message = encodeURIComponent("Check out this amazing campaign!");
+        const url = `https://api.whatsapp.com/send?text=${message}%20${encodeURIComponent(campaignUrl)}`;
+        window.open(url, "_blank");
+      }}
+      className="flex-1 p-3 bg-green-600 text-white rounded-lg border-3 border-dreamxec-navy hover:scale-105 transition-transform"
+    >
+      <svg className="w-5 h-5 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+      </svg>
+    </button>
+
+    {/* Copy Link */}
+    {/* <button
+      onClick={() => {
+        const campaignUrl = window.location.href;
+        navigator.clipboard.writeText(campaignUrl);
+        alert("✅ Campaign link copied!");
+      }}
+      className="flex-1 p-3 bg-gray-700 text-white rounded-lg border-3 border-dreamxec-navy hover:scale-105 transition-transform"
+    >
+      <svg className="w-5 h-5 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4..." />
+      </svg>
+    </button> */}
+  </div>
+</div>
+
             </div>
           </div>
         </div>

@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import type { Campaign, Project } from '../types';
 import { StarDecoration } from './icons/StarDecoration';
-import imageIcon from '../assets/image.png';
-import image1Icon from '../assets/image1.png';
-import imageCopyIcon from '../assets/imagecopy.png';
 
 // Simple SVG Icons
 const ClockIcon = ({ className }: { className?: string }) => (
@@ -291,7 +288,7 @@ export default function AdminDashboard({
         </div>
 
         {/* Enhanced decorative images - LEFT SIDE */}
-        <div className="absolute top-32 left-5 z-0 opacity-5 animate-pulse">
+        {/* <div className="absolute top-32 left-5 z-0 opacity-5 animate-pulse">
           <img src={imageIcon} alt="" className="w-40 h-40 md:w-52 md:h-52 object-contain drop-shadow-lg" />
         </div>
         <div className="absolute top-1/3 left-8 z-0 opacity-10 animate-bounce" style={{ animationDuration: '3s' }}>
@@ -299,10 +296,10 @@ export default function AdminDashboard({
         </div>
         <div className="absolute bottom-40 left-12 z-0 opacity-25 animate-pulse" style={{ animationDuration: '2s' }}>
           <img src={imageCopyIcon} alt="" className="w-48 h-48 md:w-60 md:h-60 object-contain drop-shadow-2xl" />
-        </div>
+        </div> */}
 
         {/* Enhanced decorative images - RIGHT SIDE */}
-        <div className="absolute top-24 right-8 z-0 opacity-25 animate-bounce" style={{ animationDuration: '2.5s' }}>
+        {/* <div className="absolute top-24 right-8 z-0 opacity-25 animate-bounce" style={{ animationDuration: '2.5s' }}>
           <img src={image1Icon} alt="" className="w-44 h-44 md:w-56 md:h-56 object-contain drop-shadow-lg" />
         </div>
         <div className="absolute top-1/2 right-5 z-0 opacity-20 animate-pulse" style={{ animationDuration: '3s' }}>
@@ -310,7 +307,7 @@ export default function AdminDashboard({
         </div>
         <div className="absolute bottom-48 right-10 z-0 opacity-25 animate-bounce" style={{ animationDuration: '3.5s' }}>
           <img src={imageIcon} alt="" className="w-48 h-48 md:w-60 md:h-60 object-contain drop-shadow-2xl" />
-        </div>
+        </div> */}
 
         {/* Header Section with Tricolor Accent */}
         <div className="relative bg-dreamxec-navy border-b-8 border-dreamxec-orange shadow-pastel-saffron z-10">

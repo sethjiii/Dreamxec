@@ -54,104 +54,67 @@ export const SectionHeader = (props: SectionHeaderProps) => {
   }
 
   return (
-    <div
-      role=""
-      className="relative caret-transparent flex flex-col mx-[0%] self-start col-end-2 col-start-1 row-end-2 row-start-1 justify-self-center mt-[-25.8197%] pointer-events-auto w-[98.2563%] mb-[0%] md:self-center md:mb-[-0.499135%] md:w-[92.9286%] md:mr-[0.787076%] md:mt-[0%]"
-    >
-      <div className="absolute bg-transparent caret-transparent inset-0"></div>
-      <div className="relative caret-transparent box-border flex flex-col grow pointer-events-none">
-        {showDecorations && (
-          <>
-            <div className="relative self-start aspect-[1_/_1.31601] caret-transparent mb-[-14.289%] max-h-[99999px] max-w-[99999px] order-1 pointer-events-auto w-[22.2448%] mt-[0%] mx-[0%] md:aspect-[1_/_1.1589] md:mb-[-13.5333%] md:w-[14.3333%] md:ml-[2.46622%]">
-              <div className="absolute box-border caret-transparent overflow-hidden inset-0">
-                <div className="caret-transparent">
-                  <div className="absolute caret-transparent block h-full w-full overflow-clip inset-0">
-                    <picture className="caret-transparent">
-                      <img
-                        src="https://c.animaapp.com/mhd6hm18SGcCN3/assets/4dcc2d_8b1f3b1a918543b091599ea4f1da13e2~mv2.png"
-                        alt=""
-                        className="caret-transparent h-full [mask-repeat:no-repeat] [mask-size:100%_100%] object-cover w-full"
-                      />
-                    </picture>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="relative self-start aspect-[1_/_1.13443] caret-transparent order-5 pointer-events-auto w-[1.53816%] ml-[52.2793%] mr-[0%] my-[0%] md:aspect-square md:order-2 md:ml-[92.7042%] md:mb-[1.43336%]">
-              <div className="absolute caret-transparent inset-0">
-                <img
-                  src="https://c.animaapp.com/mhd6hm18SGcCN3/assets/icon-22.svg"
-                  alt="Icon"
-                  className="absolute caret-transparent h-full w-full m-auto inset-0"
-                />
-              </div>
-            </div>
-            <div className="relative self-start aspect-[1_/_1.13687] caret-transparent mb-[-14.4667px] order-2 pointer-events-auto w-[3.73819%] ml-[51.1132%] mr-[0%] mt-[0%] md:aspect-square md:mb-[-2.29158%] md:order-3 md:w-[4.08803%] md:ml-[88.9434%]">
-              <div className="absolute caret-transparent inset-0">
-                <img
-                  src="https://c.animaapp.com/mhd6hm18SGcCN3/assets/icon-23.svg"
-                  alt="Icon"
-                  className="absolute caret-transparent h-full w-full m-auto inset-0"
-                />
-              </div>
-            </div>
-          </>
-        )}
-        <div className="relative self-center caret-transparent max-h-[99999px] max-w-[99999px] order-3 break-words pointer-events-auto w-[87.4994%] mt-[0%] mb-[2.19405%] mx-[0%] md:order-4 md:w-[98.5472%] md:mb-3">
-          <h2 className="text-neutral-700 text-[36.0968px] caret-transparent leading-[36.0968px] break-words text-center font-wfont_ce99ac_4ed46f60929d456da1a6bed910d343f8 md:text-[42.001px] md:leading-[42.001px]">
-            <span className="text-[36.0968px] caret-transparent leading-[36.0968px] break-words md:text-[42.001px] md:leading-[42.001px]">
-              {title || "What WTFund brings to the table"}
-            </span>
-          </h2>
-        </div>
-        {stages && stages.length > 0 && (
-          <div
-            role=""
-            className="relative self-center box-border caret-transparent flex min-h-[39px] order-4 pointer-events-auto w-max mt-[0%] mx-[0%] md:order-5"
-          >
-            <div className="absolute bg-transparent caret-transparent inset-0"></div>
-            {stages.map((stage, index) => (
-              <>
-                <div
-                  role=""
-                  className="relative self-start box-border caret-transparent flex flex-col order-1 w-[99.2649px] mr-[2.98334px] md:w-[161.653px] md:mr-[18.3011px]"
-                  key={`stage-${index}`}
-                >
-                  <div className="absolute bg-transparent caret-transparent inset-0"></div>
-                  <div className="relative self-center caret-transparent max-h-[99999px] max-w-[99999px] order-1 break-words w-max mt-[0%] mb-[9.01665px] mx-[0%] md:mb-[8.99995px]">
-                    <h2 className="text-neutral-700 text-[15.0401px] caret-transparent leading-[19.5522px] break-words text-center font-wfont_ce99ac_126efc2a7a2f40f487bb18022eaaa9b4 md:text-[24.4px] md:leading-[31.72px]">
-                      <span className="text-[15.0401px] caret-transparent leading-[19.5522px] break-words md:text-[24.4px] md:leading-[31.72px]">
-                        {stage.day}
-                      </span>
-                    </h2>
-                  </div>
-                  <div className="relative self-center caret-transparent max-h-[99999px] max-w-[99999px] order-2 break-words w-max mt-[0%] mx-[0%]">
-                    <h2 className="text-neutral-700 text-[13.2473px] font-bold caret-transparent leading-[17.2215px] break-words text-center font-wfont_ce99ac_577db5f1461144f1b2361498caa2f537 md:text-[24.4px] md:leading-[31.72px]">
-                      <span className="text-[13.2473px] caret-transparent leading-[17.2215px] break-words md:text-[24.4px] md:leading-[31.72px]">
-                        {stage.label}
-                      </span>
-                    </h2>
-                  </div>
-                </div>
-                {index < stages.length - 1 && (
-                  <div
-                    className="relative self-center aspect-square caret-transparent order-2 w-[18.048px] mr-[2.98332px] mt-0 md:self-start md:w-[18.3011px] md:mr-[18.3011px] md:mt-[27.126px]"
-                    key={`icon-${index}`}
-                  >
-                    <div className="absolute caret-transparent inset-0">
-                      <img
-                        src="https://c.animaapp.com/mhd6hm18SGcCN3/assets/icon-6.svg"
-                        alt="Icon"
-                        className="absolute caret-transparent h-full w-full m-auto inset-0"
-                      />
-                    </div>
-                  </div>
-                )}
-              </>
-            ))}
-          </div>
-        )}
+    <div className="relative flex flex-col items-center w-full py-8 md:py-16">
+      {/* Main title */}
+      <div className="text-center max-w-4xl mx-auto px-4 mb-8">
+        <h2 className="text-neutral-700 text-3xl md:text-5xl font-bold leading-tight text-center">
+          {title || "What WTFund brings to the table"}
+        </h2>
       </div>
+      
+      {/* Stages */}
+      {stages && stages.length > 0 && (
+        <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8 max-w-6xl mx-auto px-4">
+          {stages.map((stage, index) => (
+            <div key={`stage-${index}`} className="flex items-center">
+              <div className="text-center">
+                <div className="text-neutral-700 text-lg md:text-2xl font-medium mb-2">
+                  {stage.day}
+                </div>
+                <div className="text-neutral-700 text-sm md:text-xl font-bold">
+                  {stage.label}
+                </div>
+              </div>
+              {index < stages.length - 1 && (
+                <div className="w-4 h-4 md:w-6 md:h-6 mx-4 md:mx-6">
+                  <img
+                    src="https://c.animaapp.com/mhd6hm18SGcCN3/assets/icon-6.svg"
+                    alt="Arrow"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      
+      {/* Decorative elements - simplified */}
+      {showDecorations && (
+        <>
+          <div className="absolute top-4 left-4 w-16 h-16 opacity-20 pointer-events-none">
+            <img
+              src="https://c.animaapp.com/mhd6hm18SGcCN3/assets/4dcc2d_8b1f3b1a918543b091599ea4f1da13e2~mv2.png"
+              alt=""
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div className="absolute top-8 right-8 w-4 h-4 opacity-30 pointer-events-none">
+            <img
+              src="https://c.animaapp.com/mhd6hm18SGcCN3/assets/icon-22.svg"
+              alt=""
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div className="absolute bottom-4 right-12 w-6 h-6 opacity-30 pointer-events-none">
+            <img
+              src="https://c.animaapp.com/mhd6hm18SGcCN3/assets/icon-23.svg"
+              alt=""
+              className="w-full h-full object-contain"
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };

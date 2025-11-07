@@ -136,7 +136,7 @@ export default function UserProfile({ user, onBack, onUpdateBankDetails, onLogou
       </div>
 
       {/* Enhanced decorative images */}
-      <div className="absolute top-32 left-5 z-0 opacity-5 animate-pulse">
+      {/* <div className="absolute top-32 left-5 z-0 opacity-5 animate-pulse">
         <img src={imageIcon} alt="" className="w-40 h-40 md:w-52 md:h-52 object-contain drop-shadow-lg" />
       </div>
       <div className="absolute top-1/3 left-8 z-0 opacity-10 animate-bounce" style={{ animationDuration: '3s' }}>
@@ -150,7 +150,57 @@ export default function UserProfile({ user, onBack, onUpdateBankDetails, onLogou
       </div>
       <div className="absolute bottom-48 right-10 z-0 opacity-25 animate-bounce" style={{ animationDuration: '3.5s' }}>
         <img src={imageIcon} alt="" className="w-48 h-48 md:w-60 md:h-60 object-contain drop-shadow-2xl" />
-      </div>
+      </div> */}
+
+      {/* LEFT SIDE (Green Zone) */}
+<div className="absolute top-[14%] left-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden xl:block">
+  <img
+    src={imageIcon}
+    alt="Left Decor Wellness"
+    className="w-52 sm:w-60 md:w-72 lg:w-80 xl:w-88 2xl:w-96 h-auto object-contain"
+    style={{
+      animationDelay: '0s',
+      filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
+    }}
+  />
+</div>
+
+<div className="absolute bottom-[8%] left-[5%] z-0 opacity-85 animate-float-fast pointer-events-none hidden 2xl:block">
+  <img
+    src={image1Icon}
+    alt="Left Decor Research"
+    className="w-56 sm:w-64 md:w-72 lg:w-80 xl:w-96 2xl:w-[26rem] h-auto object-contain"
+    style={{
+      animationDelay: '2s',
+      filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
+    }}
+  />
+</div>
+
+{/* RIGHT SIDE (Saffron Zone) */}
+<div className="absolute top-[14%] right-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden xl:block">
+  <img
+    src={imageCopyIcon}
+    alt="Right Decor Technology"
+    className="w-52 sm:w-60 md:w-72 lg:w-80 xl:w-88 2xl:w-96 h-auto object-contain"
+    style={{
+      animationDelay: '1.5s',
+      filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
+    }}
+  />
+</div>
+
+<div className="absolute bottom-[8%] right-[5%] z-0 opacity-85 animate-float-fast pointer-events-none hidden 2xl:block">
+  <img
+    src={imageIcon}
+    alt="Right Decor Wellness"
+    className="w-56 sm:w-64 md:w-72 lg:w-80 xl:w-96 2xl:w-[26rem] h-auto object-contain"
+    style={{
+      animationDelay: '3s',
+      filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
+    }}
+  />
+</div>
 
       {/* Header */}
       <Header currentUser={user} onLogout={onLogout} />

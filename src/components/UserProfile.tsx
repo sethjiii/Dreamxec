@@ -152,8 +152,8 @@ export default function UserProfile({ user, onBack, onUpdateBankDetails, onLogou
         <img src={imageIcon} alt="" className="w-48 h-48 md:w-60 md:h-60 object-contain drop-shadow-2xl" />
       </div> */}
 
-      {/* LEFT SIDE (Green Zone) */}
-<div className="absolute top-[14%] left-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden xl:block">
+      {/* LEFT SIDE (Green Zone) - Only visible on screens wider than 1360px */}
+<div className="absolute top-[14%] left-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden min-[1400px]:block">
   <img
     src={imageIcon}
     alt="Left Decor Wellness"
@@ -165,7 +165,7 @@ export default function UserProfile({ user, onBack, onUpdateBankDetails, onLogou
   />
 </div>
 
-<div className="absolute bottom-[8%] left-[5%] z-0 opacity-85 animate-float-fast pointer-events-none hidden 2xl:block">
+<div className="absolute bottom-[8%] left-[5%] z-0 opacity-85 animate-float-fast pointer-events-none hidden min-[1600px]:block">
   <img
     src={image1Icon}
     alt="Left Decor Research"
@@ -177,8 +177,8 @@ export default function UserProfile({ user, onBack, onUpdateBankDetails, onLogou
   />
 </div>
 
-{/* RIGHT SIDE (Saffron Zone) */}
-<div className="absolute top-[14%] right-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden xl:block">
+{/* RIGHT SIDE (Saffron Zone) - Only visible on screens wider than 1360px */}
+<div className="absolute top-[14%] right-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden min-[1400px]:block">
   <img
     src={imageCopyIcon}
     alt="Right Decor Technology"
@@ -190,7 +190,7 @@ export default function UserProfile({ user, onBack, onUpdateBankDetails, onLogou
   />
 </div>
 
-<div className="absolute bottom-[8%] right-[5%] z-0 opacity-85 animate-float-fast pointer-events-none hidden 2xl:block">
+<div className="absolute bottom-[8%] right-[5%] z-0 opacity-85 animate-float-fast pointer-events-none hidden min-[1600px]:block">
   <img
     src={imageIcon}
     alt="Right Decor Wellness"

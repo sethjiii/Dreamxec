@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StarDecoration } from './icons/StarDecoration';
 import { Header } from '../sections/Header';
 import imageIcon from '../assets/image.png';
@@ -66,6 +66,7 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
   const [isSignup, setIsSignup] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [role, setRole] = useState<'student' | 'donor'>('student');
+  const [showBackgroundImages, setShowBackgroundImages] = useState(false);
   
   // Form fields
   const [name, setName] = useState('');
@@ -75,6 +76,18 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
   const [institution, setInstitution] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Check window width to show/hide background images
+  useEffect(() => {
+    const checkWindowWidth = () => {
+      setShowBackgroundImages(window.innerWidth > 1360);
+    };
+
+    checkWindowWidth();
+    window.addEventListener('resize', checkWindowWidth);
+    
+    return () => window.removeEventListener('resize', checkWindowWidth);
+  }, []);
 
   const handleGoogleAuth = async () => {
     setError('');
@@ -168,77 +181,85 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
       />
       
       {/* Auth Page Content */}
-      <div className="min-h-screen bg-transparent relative overflow-hidden flex items-center justify-center py-4 sm:py-6 md:py-8">
+      <div className="min-h-screen bg-transparent relative overflow-hidden flex items-center justify-center py-4 sm:py-6 md:py-8 px-4">
       {/* Decorative stars - Far from center */}
-      <div className="absolute top-8 left-1 z-0 opacity-8 pointer-events-none">
+      <div className="absolute top-8 left-1 -z-30 opacity-8 pointer-events-none">
         <StarDecoration className="w-6 h-6" color="#FF7F00" />
       </div>
-      <div className="absolute top-20 right-2 z-0 opacity-6 pointer-events-none">
+      <div className="absolute top-20 right-2 -z-30 opacity-6 pointer-events-none">
         <StarDecoration className="w-5 h-5" color="#0B9C2C" />
       </div>
-      <div className="absolute bottom-12 left-4 z-0 opacity-5 pointer-events-none">
+      <div className="absolute bottom-12 left-4 -z-30 opacity-5 pointer-events-none">
         <StarDecoration className="w-8 h-8" color="#000080" />
       </div>
 
-      {/* === Decorative Floating Background Images (Tricolor aligned) === */}
-{/* === Decorative Floating Background Images (Final Polished) === */}
+      {/* === Decorative Floating Background Images === */}
+      {/* Only visible on screens wider than 1360px to prevent overlap */}
 
-{/* LEFT SIDE (Green Zone) */}
-<div className="absolute top-[14%] left-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden xl:block">
-  <img
-    src={imageIcon}
-    alt="Left Decor Wellness"
-    className="w-52 sm:w-60 md:w-72 lg:w-80 xl:w-88 2xl:w-96 h-auto object-contain"
-    style={{
-      animationDelay: '0s',
-      filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
-    }}
-  />
-</div>
+      {showBackgroundImages && (
+        <>
+          {/* LEFT SIDE - Only on very wide screens (wider than 1360px) */}
+          <div className="absolute top-[12%] left-[2%] -z-20 opacity-70 animate-float-slow pointer-events-none">
+            <img
+              src={imageIcon}
+              alt="Left Decor Wellness"
+              className="w-40 sm:w-48 md:w-56 lg:w-64 h-auto object-contain"
+              style={{
+                animationDelay: '0s',
+                filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
+                maxWidth: '280px'
+              }}
+            />
+          </div>
 
-<div className="absolute bottom-[8%] left-[5%] z-0 opacity-85 animate-float-fast pointer-events-none hidden 2xl:block">
-  <img
-    src={image1Icon}
-    alt="Left Decor Research"
-    className="w-56 sm:w-64 md:w-72 lg:w-80 xl:w-96 2xl:w-[26rem] h-auto object-contain"
-    style={{
-      animationDelay: '2s',
-      filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
-    }}
-  />
-</div>
+          <div className="absolute bottom-[8%] left-[3%] -z-20 opacity-65 animate-float-fast pointer-events-none">
+            <img
+              src={image1Icon}
+              alt="Left Decor Research"
+              className="w-44 sm:w-52 md:w-60 lg:w-68 h-auto object-contain"
+              style={{
+                animationDelay: '2s',
+                filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
+                maxWidth: '300px'
+              }}
+            />
+          </div>
 
-{/* RIGHT SIDE (Saffron Zone) */}
-<div className="absolute top-[14%] right-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden xl:block">
-  <img
-    src={imageCopyIcon}
-    alt="Right Decor Technology"
-    className="w-52 sm:w-60 md:w-72 lg:w-80 xl:w-88 2xl:w-96 h-auto object-contain"
-    style={{
-      animationDelay: '1.5s',
-      filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
-    }}
-  />
-</div>
+          {/* RIGHT SIDE - Only on very wide screens (wider than 1360px) */}
+          <div className="absolute top-[12%] right-[2%] -z-20 opacity-70 animate-float-slow pointer-events-none">
+            <img
+              src={imageCopyIcon}
+              alt="Right Decor Technology"
+              className="w-40 sm:w-48 md:w-56 lg:w-64 h-auto object-contain"
+              style={{
+                animationDelay: '1.5s',
+                filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
+                maxWidth: '280px'
+              }}
+            />
+          </div>
 
-<div className="absolute bottom-[8%] right-[5%] z-0 opacity-85 animate-float-fast pointer-events-none hidden 2xl:block">
-  <img
-    src={imageIcon}
-    alt="Right Decor Wellness"
-    className="w-56 sm:w-64 md:w-72 lg:w-80 xl:w-96 2xl:w-[26rem] h-auto object-contain"
-    style={{
-      animationDelay: '3s',
-      filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
-    }}
-  />
-</div>
+          <div className="absolute bottom-[8%] right-[3%] -z-20 opacity-65 animate-float-fast pointer-events-none">
+            <img
+              src={imageIcon}
+              alt="Right Decor Wellness"
+              className="w-44 sm:w-52 md:w-60 lg:w-68 h-auto object-contain"
+              style={{
+                animationDelay: '3s',
+                filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
+                maxWidth: '300px'
+              }}
+            />
+          </div>
+        </>
+      )}
 
 
 
 
       {/* Main Auth Card */}
-      <div className="w-full max-w-4xl px-4 sm:px-6 relative z-10 my-4 sm:my-6">
-        <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-4 sm:p-6 md:p-8 lg:p-10">
+      <div className="w-full max-w-4xl px-4 sm:px-6 relative z-50 my-4 sm:my-6">
+        <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-4 sm:p-6 md:p-8 lg:p-10 bg-white relative" style={{zIndex: 1000}}>
           <div className="card-tricolor-tag"></div>
 
           {/* Logo/Header */}

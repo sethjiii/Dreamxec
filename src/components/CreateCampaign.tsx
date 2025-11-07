@@ -182,7 +182,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
         <img src={imageCopyIcon} alt="" className="w-36 h-36 object-contain drop-shadow-xl animate-pulse" />
       </div> */}
 
-      <div className="absolute top-[14%] left-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden xl:block">
+      <div className="absolute top-[14%] left-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden min-[1400px]:block">
   <img
     src={imageIcon}
     alt="Left Decor Wellness"
@@ -193,7 +193,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
     }}
   />
 </div>
-<div className="absolute top-[25%] left-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden xl:block">
+<div className="absolute top-[25%] left-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden min-[1400px]:block">
   <img
     src={imageIcon}
     alt="Left Decor Wellness"
@@ -205,7 +205,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
   />
 </div>
 
-<div className="absolute bottom-[8%] left-[5%] z-0 opacity-85 animate-float-fast pointer-events-none hidden 2xl:block">
+<div className="absolute bottom-[8%] left-[5%] z-0 opacity-85 animate-float-fast pointer-events-none hidden min-[1600px]:block">
   <img
     src={image1Icon}
     alt="Left Decor Research"
@@ -218,7 +218,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
 </div>
 
 {/* RIGHT SIDE (Saffron Zone) */}
-<div className="absolute top-[14%] right-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden xl:block">
+<div className="absolute top-[14%] right-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden min-[1400px]:block">
   <img
     src={imageCopyIcon}
     alt="Right Decor Technology"
@@ -230,7 +230,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
   />
 </div>
 
-<div className="absolute bottom-[8%] right-[5%] z-0 opacity-85 animate-float-fast pointer-events-none hidden 2xl:block">
+<div className="absolute bottom-[8%] right-[5%] z-0 opacity-85 animate-float-fast pointer-events-none hidden min-[1600px]:block">
   <img
     src={imageIcon}
     alt="Right Decor Wellness"

@@ -16,6 +16,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "noUnusedLocals": false,
+    "types": ["vite/client"],
     "noUnusedParameters": false
   },
   "include": ["src"]

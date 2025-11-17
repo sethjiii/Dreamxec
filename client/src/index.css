@@ -1,0 +1,546 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Replace your entire @layer components with this */
+@layer components {
+
+  /* The scroller NO LONGER has a fixed height or overflow */
+  .scroll-stack-scroller {
+    position: relative;
+    width: 100%;
+    /* 
+      REMOVED: height, overflow-y, scrollbar styles.
+      This is because we are now using the main window scroll.
+    */
+  }
+
+  .scroll-stack-inner {
+    padding: 20vh 5rem 50rem;
+    min-height: 100vh;
+  }
+
+  .scroll-stack-card-wrapper {
+    position: relative;
+  }
+
+  /* --- SINGLE, CORRECTED DEFINITION FOR .scroll-stack-card --- */
+  .scroll-stack-card {
+    /* From your @apply rule */
+    @apply h-80 w-full my-8 p-12 rounded-[40px] shadow-lg box-border origin-top relative;
+
+    /* From the second, more detailed rule */
+    transform-origin: top center;
+    will-change: transform, filter;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  .scroll-stack-end {
+    width: 100%;
+    height: 1px;
+  }
+}
+
+
+
+@layer base {
+  body {
+    @apply text-dreamxec-navy;
+    /* Pastel watercolor diagonal tricolor */
+    background: url("/assets/textures/tri-bg.png");
+    background-size: 100% 100%;
+    background-repeat: repeat;
+    background-attachment: fixed;
+    overflow-x: hidden;
+    overflow-y: auto;
+    min-height: 100vh;
+    position: relative;
+  }
+
+
+  /* Ensure main content is properly layered */
+  main {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    overflow: visible;
+  }
+
+  /* Fix for sections getting cut off */
+  section {
+    position: relative;
+    width: 100%;
+    overflow: visible;
+  }
+
+  /* Oil pastel paper texture overlay */
+  
+
+  /* Optional: Rough edge mask for hand-drawn effect */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    /* Use your SVG mask for rough edges */
+    -webkit-mask-image: url("/assets/masks/rough-edge-mask.svg");
+    mask-image: url("/assets/masks/rough-edge-mask.svg");
+    mask-size: 100% 100%;
+    mask-repeat: no-repeat;
+    background: inherit;
+  }
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer utilities {
+
+  /* Oil Pastel Stroke Effects */
+  .pastel-stroke-saffron {
+    border: 5px solid #FF7F00;
+    box-shadow:
+      inset 0 0 0 2px rgba(255, 255, 255, 0.3),
+      4px 4px 0 rgba(255, 127, 0, 0.4),
+      8px 8px 0 rgba(255, 127, 0, 0.2);
+  }
+
+  .pastel-stroke-green {
+    border: 5px solid #0B9C2C;
+    box-shadow:
+      inset 0 0 0 2px rgba(255, 255, 255, 0.3),
+      4px 4px 0 rgba(11, 156, 44, 0.4),
+      8px 8px 0 rgba(11, 156, 44, 0.2);
+  }
+
+  .pastel-stroke-navy {
+    border: 5px solid #000080;
+    box-shadow:
+      inset 0 0 0 2px rgba(255, 255, 255, 0.3),
+      4px 4px 0 rgba(0, 0, 128, 0.4),
+      8px 8px 0 rgba(0, 0, 128, 0.2);
+  }
+
+  /* Tricolor Block Backgrounds - No Gradients */
+  .bg-tricolor-horizontal {
+    background: linear-gradient(to right,
+        #FF7F00 0%,
+        #FF7F00 33.33%,
+        #FFFFFF 33.33%,
+        #FFFFFF 66.66%,
+        #0B9C2C 66.66%,
+        #0B9C2C 100%);
+  }
+
+  .bg-tricolor-vertical {
+    background: linear-gradient(to bottom,
+        #FF7F00 0%,
+        #FF7F00 33.33%,
+        #FFFFFF 33.33%,
+        #FFFFFF 66.66%,
+        #0B9C2C 66.66%,
+        #0B9C2C 100%);
+  }
+
+  /* Solid Color Blocks with Texture */
+  .bg-saffron-pastel {
+    background-color: #FF7F00;
+    position: relative;
+  }
+
+  .bg-saffron-pastel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(90deg,
+        transparent,
+        transparent 3px,
+        rgba(255, 255, 255, 0.1) 3px,
+        rgba(255, 255, 255, 0.1) 6px);
+    pointer-events: none;
+  }
+
+  .bg-green-pastel {
+    background-color: #0B9C2C;
+    position: relative;
+  }
+
+  .bg-green-pastel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(90deg,
+        transparent,
+        transparent 3px,
+        rgba(255, 255, 255, 0.1) 3px,
+        rgba(255, 255, 255, 0.1) 6px);
+    pointer-events: none;
+  }
+
+  .bg-navy-pastel {
+    background-color: #000080;
+    position: relative;
+  }
+
+  .bg-navy-pastel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(90deg,
+        transparent,
+        transparent 3px,
+        rgba(255, 255, 255, 0.1) 3px,
+        rgba(255, 255, 255, 0.1) 6px);
+    pointer-events: none;
+  }
+
+  /* Hand-drawn Card Style */
+  .card-pastel {
+    background: #FFFFFF;
+    border: 5px solid #000080;
+    box-shadow:
+      6px 6px 0 #FF7F00,
+      12px 12px 0 rgba(0, 0, 128, 0.2);
+    position: relative;
+  }
+
+  /* Add slight rotation for hand-drawn feel */
+  .card-pastel-tilt-right {
+    transform: rotate(0.5deg);
+  }
+
+  .card-pastel-tilt-left {
+    transform: rotate(-0.5deg);
+  }
+
+  /* Off-white textured card variant */
+  .card-pastel-offwhite {
+    background: #FAFAF8;
+    border: 5px solid #000080;
+    box-shadow:
+      6px 6px 0 #FF7F00,
+      12px 12px 0 rgba(0, 0, 128, 0.2);
+    position: relative;
+  }
+
+  /* Tricolor tag bar for cards */
+  .card-tricolor-tag {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: linear-gradient(to right,
+        #FF7F00 0%,
+        #FF7F00 33.33%,
+        #FFFFFF 33.33%,
+        #FFFFFF 66.66%,
+        #0B9C2C 66.66%,
+        #0B9C2C 100%);
+    border-radius: 4px 4px 0 0;
+  }
+
+  /* Thick outline text effect */
+  .text-outlined-saffron {
+    text-shadow:
+      -2px -2px 0 #FF7F00,
+      2px -2px 0 #FF7F00,
+      -2px 2px 0 #FF7F00,
+      2px 2px 0 #FF7F00;
+  }
+
+  .text-outlined-navy {
+    text-shadow:
+      -2px -2px 0 #000080,
+      2px -2px 0 #000080,
+      -2px 2px 0 #000080,
+      2px 2px 0 #000080;
+  }
+
+  /* Progress Bar - Oil Pastel Style */
+  .progress-bar-pastel {
+    background: #FFFFFF;
+    border: 4px solid #000080;
+    position: relative;
+    overflow: visible;
+  }
+
+  .progress-bar-fill {
+    background: repeating-linear-gradient(90deg,
+        #FF7F00 0px,
+        #FF7F00 10px,
+        #0B9C2C 10px,
+        #0B9C2C 20px);
+    border-right: 4px solid #000080;
+    box-shadow: 2px 2px 0 rgba(0, 0, 128, 0.3);
+  }
+
+  /* Checklist Style */
+  .checklist-item-pastel {
+    position: relative;
+    padding-left: 2.5rem;
+  }
+
+  .checklist-item-pastel::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.5rem;
+    height: 1.5rem;
+    background: #0B9C2C;
+    color: #FFFFFF;
+    border: 3px solid #000080;
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 2px 2px 0 rgba(0, 0, 128, 0.3);
+  }
+
+  /* Hand-drawn arrow */
+  .arrow-pastel-right::after {
+    content: '→';
+    font-size: 1.5rem;
+    color: #FF7F00;
+    font-weight: bold;
+    text-shadow: 2px 2px 0 rgba(0, 0, 128, 0.2);
+  }
+
+  /* Star decoration */
+  .star-pastel {
+    position: relative;
+  }
+
+  .star-pastel::before {
+    content: '★';
+    color: #FF7F00;
+    font-size: 1.5rem;
+    text-shadow: 2px 2px 0 rgba(0, 0, 128, 0.3);
+  }
+
+  /* Button - Oil Pastel Style */
+  .btn-pastel-primary {
+    background: #FF7F00;
+    color: #FFFFFF;
+    border: 4px solid #000080;
+    box-shadow: 4px 4px 0 #000080;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .btn-pastel-primary:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #000080;
+  }
+
+  .btn-pastel-primary:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 #000080;
+  }
+
+  .btn-pastel-secondary {
+    background: #0B9C2C;
+    color: #FFFFFF;
+    border: 4px solid #000080;
+    box-shadow: 4px 4px 0 #FF7F00;
+    font-weight: bold;
+    transition: all 0.2s ease;
+  }
+
+  .btn-pastel-secondary:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #FF7F00;
+  }
+
+  /* Header with tricolor accent */
+  .header-tricolor {
+    border-bottom: 8px solid transparent;
+    border-image: linear-gradient(to right,
+        #FF7F00 0%,
+        #FF7F00 33.33%,
+        #FFFFFF 33.33%,
+        #FFFFFF 66.66%,
+        #0B9C2C 66.66%,
+        #0B9C2C 100%) 1;
+  }
+
+  /* Icon container - hand-drawn style */
+  .icon-pastel-container {
+    background: #FFFFFF;
+    border: 4px solid #000080;
+    border-radius: 50%;
+    padding: 1rem;
+    box-shadow: 4px 4px 0 rgba(255, 127, 0, 0.5);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Glassmorphism Effect */
+  .card-glass {
+    /* Frosted glass background */
+    background: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(12px); /* Backdrop filter for Safari */
+    backdrop-filter: blur(12px);
+
+    /* Subtle border to catch the light */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    /* Rounded corners and a modern shadow */
+    border-radius: 1rem; /* 16px */
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    
+    transition: all 0.3s ease-in-out;
+  }
+
+  .card-glass:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
+  }
+
+  /* Fade-in animation */
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out forwards;
+    opacity: 0;
+  }
+
+  .card-whiteboard {
+    /* Set the whiteboard image as the background */
+    background-image: url('/assets/icon-pack/DX-ILLUSTRATION-PACK/white-board.png');
+    background-size: 100% 100%; /* Stretch the image to fit */
+    background-repeat: no-repeat;
+    
+    /* Adjust padding to fit text inside the whiteboard's writing area */
+    padding: 18% 12% 20%;
+    
+    /* Ensure text color is dark and readable on the white background */
+    color: #333;
+
+    min-height: 300px; /* Give the card a minimum height */
+    
+    /* Animation and transition */
+    transition: transform 0.3s ease-out;
+  }
+
+  .card-whiteboard:hover {
+    transform: translateY(-10px) scale(2);
+  }
+
+  
+}
+
+
+
+
+@keyframes float-updown {
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.9;
+  }
+
+  50% {
+    transform: translateY(-12px);
+    opacity: 1;
+  }
+}
+
+.animate-float-slow {
+  animation: float-updown 8s ease-in-out infinite;
+}
+
+.animate-float-fast {
+  animation: float-updown 5s ease-in-out infinite;
+}
+
+
+
+
+/* Optional: fade in on load for elegance */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+img {
+  animation: fade-in 1s ease-in forwards;
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+

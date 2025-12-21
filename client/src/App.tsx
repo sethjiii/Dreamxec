@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import FloatingDoodles from './components/FloatingDoodles';
 import { Header } from './sections/Header';
-import {Main} from './components/Main';
+import { Main } from './components/Main';
 import BrowseCampaigns from './components/BrowseCampaigns';
 import StudentDashboard from './components/StudentDashboard';
 import CreateCampaign from './components/CreateCampaign';
@@ -17,6 +17,16 @@ import EmailVerification from './components/EmailVerification';
 import CheckEmail from './components/CheckEmail';
 import CampaignDetails from './components/CampaignDetails';
 import type { Campaign, User, Project } from './types';
+import ReferClub from "./components/ReferClub";
+import PresidentDashboard from "./components/president/PresidentDashboard";
+import PresidentMembers from "./components/president/PresidentMembers";
+import PresidentCampaigns from "./components/president/PresidentCampaigns";
+import UploadMembers from "./components/president/UploadMembers";
+import AddMemberManually from "./components/president/AddMemberManually";
+import PresidentLayout from "./components/president/PresidentLayout";
+import AdminClubReferrals from './components/admin/AdminClubReferrals';
+import AdminClubVerifications from './components/admin/AdminClubVerifications';
+
 
 
 
@@ -46,15 +56,15 @@ function AppContent() {
     const token = urlParams.get('token');
     const error = urlParams.get('error');
     const provider = urlParams.get('provider'); // Could be 'google' or 'linkedin'
-    
+
     // Only process OAuth callbacks on root path or /auth/callback
-    const isOAuthCallback = window.location.pathname === '/' || 
-                           window.location.pathname === '/auth/callback';
-    
+    const isOAuthCallback = window.location.pathname === '/' ||
+      window.location.pathname === '/auth/callback';
+
     if (!isOAuthCallback) {
       return; // Don't process token if not on OAuth callback route
     }
-    
+
     // Handle error from OAuth
     if (error) {
       console.error(`${provider || 'OAuth'} error:`, error);
@@ -64,13 +74,13 @@ function AppContent() {
       setLoading(false);
       return;
     }
-    
+
     if (token) {
       // OAuth callback detected
       const processOAuthCallback = async () => {
         try {
           console.log(`📥 Processing ${provider || 'OAuth'} callback...`);
-          
+
           // Use the appropriate callback handler based on provider
           let response;
           if (provider === 'linkedin') {
@@ -79,7 +89,7 @@ function AppContent() {
             // Default to Google OAuth handler for backward compatibility
             response = await handleGoogleCallback();
           }
-          
+
           console.log(`✅ ${provider || 'OAuth'} callback response:`, response);
 
           if (response.data?.user) {
@@ -121,7 +131,7 @@ function AppContent() {
           setLoading(false);
         }
       };
-      
+
       processOAuthCallback();
     }
   }, [navigate]);
@@ -182,7 +192,7 @@ function AppContent() {
           console.log('📊 Loading all projects for admin...');
           const response = await getAllProjects();
           console.log('📦 Admin projects response:', response);
-          
+
           if (response.data?.userProjects?.projects) {
             const mappedCampaigns = response.data.userProjects.projects.map(mapUserProjectToCampaign);
             console.log('✅ Mapped campaigns:', mappedCampaigns);
@@ -312,7 +322,7 @@ function AppContent() {
     try {
       console.log('✅ Approving campaign:', id);
       await verifyUserProject(id, { status: 'APPROVED' });
-      
+
       // Update local state
       setCampaigns(
         campaigns.map((c) => (c.id === id ? { ...c, status: 'approved' as const } : c))
@@ -328,7 +338,7 @@ function AppContent() {
     try {
       console.log('❌ Rejecting campaign:', id, 'Reason:', reason);
       await verifyUserProject(id, { status: 'REJECTED', reason });
-      
+
       // Update local state
       setCampaigns(
         campaigns.map((c) => (c.id === id ? { ...c, status: 'rejected' as const, rejectionReason: reason } : c))
@@ -344,7 +354,7 @@ function AppContent() {
     try {
       console.log('✅ Approving donor project:', id);
       await verifyDonorProject(id, { status: 'APPROVED' });
-      
+
       // Update local state
       setProjects(
         projects.map((p) => (p.id === id ? { ...p, status: 'approved' as const } : p))
@@ -360,7 +370,7 @@ function AppContent() {
     try {
       console.log('❌ Rejecting donor project:', id, 'Reason:', reason);
       await verifyDonorProject(id, { status: 'REJECTED', reason });
-      
+
       // Update local state
       setProjects(
         projects.map((p) => (p.id === id ? { ...p, status: 'rejected' as const, rejectionReason: reason } : p))
@@ -376,7 +386,7 @@ function AppContent() {
     setIsSubmitting(true);
     try {
       const response = await login({ email, password });
-      
+
       if (response.data?.user) {
         const userData = {
           id: response.data.user.id,
@@ -384,9 +394,9 @@ function AppContent() {
           email: response.data.user.email,
           role: mapBackendRole(response.data.user.role),
         };
-        
+
         setUser(userData);
-        
+
         // Navigate based on role from backend, not from form
         if (userData.role === 'student') {
           navigate('/dashboard');
@@ -422,7 +432,7 @@ function AppContent() {
         organizationName: institution,
       });
       console.log('🔐 Register response:', response);
-      
+
       // Check if email verification is required
       if (response.message && response.message.includes('verification email')) {
         // Show check email page
@@ -437,9 +447,9 @@ function AppContent() {
           email: response.data.user.email,
           role: mapBackendRole(response.data.user.role),
         };
-        
+
         setUser(userData);
-        
+
         // Navigate based on role
         if (userData.role === 'student') {
           navigate('/dashboard');
@@ -460,15 +470,15 @@ function AppContent() {
   const handleGoogleAuth = async (role: 'student' | 'donor') => {
     console.log('🔐 Google Auth initiated with role:', role);
     setIsSubmitting(true);
-    
+
     try {
       // Map frontend role to backend role
       const backendRole = mapFrontendRole(role);
       console.log('📤 Sending to backend with role:', backendRole);
-      
+
       // Initiate Google OAuth flow - this will redirect to Google
       initiateGoogleAuth(backendRole);
-      
+
       // Note: User will be redirected to Google, then back to our app
       // The callback will be handled in useEffect checking for ?token= param
     } catch (error) {
@@ -480,14 +490,14 @@ function AppContent() {
 
   const handleLinkedInAuth = async (role: 'student' | 'donor') => {
     console.log('🔐 LinkedIn Auth:', { role });
-    
+
     try {
       // Convert frontend role to backend role format
       const backendRole = role === 'student' ? 'USER' : 'DONOR';
-      
+
       // Initiate LinkedIn OAuth by redirecting to backend endpoint
       initiateLinkedInAuth(backendRole);
-      
+
       // Note: After LinkedIn authentication, the backend will redirect back to the frontend
       // with a token, and the OAuth callback handling in useEffect will process it
     } catch (error) {
@@ -498,17 +508,17 @@ function AppContent() {
 
   const handleForgotPassword = async (email: string) => {
     console.log('🔑 Forgot Password:', { email });
-    
+
     try {
       // Mock forgot password - Replace with actual implementation
       // This would typically:
       // 1. Verify email exists in database
       // 2. Generate password reset token
       // 3. Send email with reset link
-      
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       console.log(`✅ Password reset link sent to ${email}`);
       // In production, the success message would be shown in the AuthPage component
     } catch (error) {
@@ -541,6 +551,62 @@ function AppContent() {
     navigate('/');
   };
 
+  const handleDonate = async (campaignId: string, amount: number) => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/donations/create-order`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            projectId: campaignId,
+            amount,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      const options = {
+        key: data.key,
+        amount: data.amount,
+        currency: "INR",
+        name: "DreamXec",
+        description: "Campaign Donation",
+        order_id: data.orderId,
+        handler: async (response: any) => {
+          await fetch(
+            `${import.meta.env.VITE_API_URL}/donations/verify`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+              body: JSON.stringify({
+                ...response,
+                projectId: campaignId,
+              }),
+            }
+          );
+
+          alert("🎉 Donation successful!");
+        },
+        theme: { color: "#0B9C2C" },
+      };
+
+      // @ts-ignore
+      new window.Razorpay(options).open();
+    } catch (err) {
+      console.error(err);
+      alert("❌ Donation failed");
+    }
+  };
+
+
   // Project handlers for donors
   const handleCreateProject = async (data: {
     title: string;
@@ -552,7 +618,7 @@ function AppContent() {
   }) => {
     try {
       console.log('📤 Creating project with data:', data);
-      
+
       // Calculate timeline string from dates
       const diffTime = Math.abs(data.endDate.getTime() - data.startDate.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -567,7 +633,7 @@ function AppContent() {
         timeline,
         totalBudget: 10000, // Default budget - can be added to the form if needed
       };
-      
+
       console.log('📦 Sending to backend:', projectData);
 
       const response = await createDonorProject(projectData);
@@ -645,16 +711,16 @@ function AppContent() {
     upiId?: string;
   }) => {
     console.log('💰 Updating bank details:', bankDetails);
-    
+
     try {
       // Mock API call to save bank details
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // In production, this would:
       // 1. Send bank details to backend API
       // 2. Store securely in database
       // 3. Update user profile
-      
+
       console.log('✅ Bank details updated successfully');
       // You might want to update user state with bank details if needed
     } catch (error) {
@@ -667,7 +733,7 @@ function AppContent() {
     <div className="text-dreamxec-navy text-[10px] not-italic normal-nums font-normal accent-auto caret-transparent block h-full tracking-[normal] leading-[normal] list-outside list-disc overflow-x-auto overflow-y-scroll pointer-events-auto text-start indent-[0px] normal-case visible border-separate font-sans">
       {/* Floating doodle animations */}
       <FloatingDoodles count={8} />
-      
+
       <img
         src="https://c.animaapp.com/mhd6hm18SGcCN3/assets/icon-1.svg"
         alt="Icon"
@@ -699,8 +765,8 @@ function AppContent() {
                                 path="/"
                                 element={
                                   <>
-                                    <Header 
-                                      currentUser={user} 
+                                    <Header
+                                      currentUser={user}
                                       onLogin={handleLoginClick}
                                       onLogout={handleLogout}
                                     />
@@ -714,8 +780,8 @@ function AppContent() {
                                 path="/campaigns"
                                 element={
                                   <>
-                                    <Header 
-                                      currentUser={user} 
+                                    <Header
+                                      currentUser={user}
                                       onLogin={handleLoginClick}
                                       onLogout={handleLogout}
                                     />
@@ -726,7 +792,7 @@ function AppContent() {
                                   </>
                                 }
                               />
-
+                              {/* <Route path="/refer-club" element={<ReferClub />} /> */}
                               {/* Campaign Detail */}
                               <Route
                                 path="/campaign/:id"
@@ -737,22 +803,23 @@ function AppContent() {
                                       onLogin={handleLoginClick}
                                       onLogout={handleLogout}
                                     /> */}
-                                    <CampaignDetails 
-                                      currentUser={user} 
+                                    <CampaignDetails
+                                      currentUser={user}
                                       campaigns={approvedCampaigns}
+                                      onDonate={handleDonate}
                                     />
                                   </>
                                 }
                               />
-
+                              <Route path="/refer-club" element={<ReferClub />} />
                               {/* Student Dashboard */}
                               <Route
                                 path="/dashboard"
                                 element={
                                   user?.role === 'student' ? (
                                     <>
-                                      <Header 
-                                        currentUser={user} 
+                                      <Header
+                                        currentUser={user}
                                         onLogin={handleLoginClick}
                                         onLogout={handleLogout}
                                       />
@@ -762,6 +829,7 @@ function AppContent() {
                                         onCreateCampaign={() => navigate('/create')}
                                         onViewCampaign={(id) => navigate(`/campaign/${id}`)}
                                       />
+
                                     </>
                                   ) : (
                                     <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
@@ -782,8 +850,8 @@ function AppContent() {
                                 element={
                                   user?.role === 'student' ? (
                                     <>
-                                      <Header 
-                                        currentUser={user} 
+                                      <Header
+                                        currentUser={user}
                                         onLogin={handleLoginClick}
                                         onLogout={handleLogout}
                                       />
@@ -811,8 +879,8 @@ function AppContent() {
                                 element={
                                   user?.role === 'admin' ? (
                                     <>
-                                      <Header 
-                                        currentUser={user} 
+                                      <Header
+                                        currentUser={user}
                                         onLogin={handleLoginClick}
                                         onLogout={handleLogout}
                                       />
@@ -839,6 +907,12 @@ function AppContent() {
                                   )
                                 }
                               />
+
+                              <Route path="/admin/referrals" element={<AdminClubReferrals />} />
+                              <Route path="/admin/club-referrals" element={<AdminClubReferrals />} />
+
+                              <Route path="/admin/verifications" element={<AdminClubVerifications />} />
+                              <Route path="/admin/club-verifications" element={<AdminClubVerifications />} />
 
                               {/* Auth Page - Login/Signup */}
                               <Route
@@ -946,8 +1020,8 @@ function AppContent() {
                                 element={
                                   user?.role === 'donor' ? (
                                     <>
-                                      <Header 
-                                        currentUser={user} 
+                                      <Header
+                                        currentUser={user}
                                         onLogin={handleLoginClick}
                                         onLogout={handleLogout}
                                       />
@@ -956,6 +1030,9 @@ function AppContent() {
                                         projectsCount={donorProjects.length}
                                         onCreateProject={() => navigate('/donor/create')}
                                         onViewProjects={() => navigate('/donor/projects')}
+                                        getDonorApplications={async () => []}
+                                        updateApplicationStatus={async () => {}}
+                                        getDonationSummary={async () => ({})}
                                       />
                                     </>
                                   ) : (
@@ -977,8 +1054,8 @@ function AppContent() {
                                 element={
                                   user?.role === 'donor' ? (
                                     <>
-                                      <Header 
-                                        currentUser={user} 
+                                      <Header
+                                        currentUser={user}
                                         onLogin={handleLoginClick}
                                         onLogout={handleLogout}
                                       />
@@ -1006,8 +1083,8 @@ function AppContent() {
                                 element={
                                   user?.role === 'donor' ? (
                                     <>
-                                      <Header 
-                                        currentUser={user} 
+                                      <Header
+                                        currentUser={user}
                                         onLogin={handleLoginClick}
                                         onLogout={handleLogout}
                                       />
@@ -1035,8 +1112,8 @@ function AppContent() {
                                 path="/projects"
                                 element={
                                   <>
-                                    <Header 
-                                      currentUser={user} 
+                                    <Header
+                                      currentUser={user}
                                       onLogin={handleLoginClick}
                                       onLogout={handleLogout}
                                     />
@@ -1049,6 +1126,14 @@ function AppContent() {
                                   </>
                                 }
                               />
+                            </Routes>
+                            {/* President Dashboard */}
+                            <Routes>
+                              <Route path="/president" element={<PresidentLayout><PresidentDashboard /></PresidentLayout>} />
+                              <Route path="/president/members" element={<PresidentLayout><PresidentMembers /></PresidentLayout>} />
+                              <Route path="/president/campaigns" element={<PresidentLayout><PresidentCampaigns /></PresidentLayout>} />
+                              <Route path="/president/upload-members" element={<PresidentLayout><UploadMembers /></PresidentLayout>} />
+                              <Route path="/president/add-member" element={<PresidentLayout><AddMemberManually /></PresidentLayout>} />
                             </Routes>
                           </div>
                         </div>

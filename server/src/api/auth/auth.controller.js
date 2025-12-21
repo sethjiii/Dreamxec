@@ -89,6 +89,20 @@ exports.register = catchAsync(async (req, res, next) => {
     accountType = role || 'USER';
   }
 
+// --------------------------------------------
+// AUTO-LINK GUEST DONATIONS IF EMAIL MATCHES
+// --------------------------------------------
+await prisma.donation.updateMany({
+  where: {
+    guestEmail: email,   // donations made as a guest
+    donorId: null        // not yet linked to any donor
+  },
+  data: {
+    donorId: newAccount.id
+  }
+});
+
+
   // Send verification email
   const verificationURL = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}`;
   const message = `Hi ${name},\n\nPlease click on the following link to verify your email address:\n${verificationURL}\n\nThis link will expire in 10 minutes.\n\nIf you didn't request this, please ignore this email.`;

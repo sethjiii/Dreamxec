@@ -1,17 +1,37 @@
-const { z } = require('zod');
+const { z } = require("zod");
 
-exports.createPaymentIntentSchema = z.object({
+// 1) Create Razorpay Order (guest + logged-in)
+exports.createOrderSchema = z.object({
   body: z.object({
-    amount: z.number().positive('Amount must be a positive number'),
-    projectId: z.string().min(1, 'Project ID is required'),
+    amount: z.number().positive("Amount must be a positive number"),
+    projectId: z.string().min(1, "Project ID is required"),
+    guestEmail: z.string().email("Invalid email").optional(),
+    guestPAN: z.string()
+      .regex(/[A-Z]{5}[0-9]{4}[A-Z]{1}/, 'Invalid PAN format')
+      .optional()
+  }).refine(
+    (data) =>
+      data.guestEmail && data.guestPAN || !data.guestEmail,
+    {
+      message: "PAN is required for guest donations",
+      path: ["guestPAN"]
+    }
+  ),
+});
+
+// 2) Logged-in direct donation (optional)
+exports.makeDonationDirectSchema = z.object({
+  body: z.object({
+    amount: z.number().positive("Amount must be a positive number"),
+    projectId: z.string().min(1, "Project ID is required"),
   }),
 });
 
-exports.makeDonationSchema = z.object({
+// 3) Razorpay client-side payment verification (optional)
+exports.verifyPaymentSchema = z.object({
   body: z.object({
-    amount: z.number().positive('Amount must be a positive number'),
-    userProjectId: z.string().min(1, 'User project ID is required'),
-    message: z.string().optional(),
-    anonymous: z.boolean().optional(),
+    razorpayOrderId: z.string().min(1),
+    razorpayPaymentId: z.string().min(1),
+    razorpaySignature: z.string().min(1),
   }),
 });

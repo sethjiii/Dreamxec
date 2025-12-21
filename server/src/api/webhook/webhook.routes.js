@@ -4,10 +4,8 @@ const webhookController = require('./webhook.controller');
 const router = express.Router();
 
 router.post(
-  '/payment-success',
-  // Use express.raw to get the raw body for signature verification
-  express.raw({ type: 'application/json' }),
-  webhookController.handleStripeEvent
+  '/razorpay',
+  webhookController.handleRazorpayWebhook
 );
 
 module.exports = router;

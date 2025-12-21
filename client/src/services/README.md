@@ -188,7 +188,7 @@ import { createDonation } from './services/donationService';
 
 await createDonation({
   amount: 250,
-  userProjectId: campaignId,
+  projectId: campaignId,
   message: 'Great project!',
   anonymous: false
 });

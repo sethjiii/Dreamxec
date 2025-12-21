@@ -16,7 +16,7 @@ module.exports = {
   				green: '#0B9C2C',
   				'green-alt': '#138808',
   				'dark-green': '#0A7A23',
-  				navy: '#000080',
+  				navy: '#003366',
   				'berkeley-blue': '#003366',
   				'resolution-blue': '#1A237E',
   				'sky-blue': '#00B4D8',

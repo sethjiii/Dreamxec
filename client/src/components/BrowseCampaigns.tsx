@@ -74,7 +74,7 @@ export default function BrowseCampaigns({ campaigns, onViewCampaign }: BrowseCam
       </div>
 
       {/* Header Section */}
-      <div className="relative bg-dreamxec-navy border-b-8 border-dreamxec-orange shadow-pastel-saffron z-10">
+      <div className="relative bg-dreamxec-berkeley-blue border-b-8 border-dreamxec-orange shadow-pastel-saffron z-10">
         <div className="card-tricolor-tag"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center gap-4 mb-2">

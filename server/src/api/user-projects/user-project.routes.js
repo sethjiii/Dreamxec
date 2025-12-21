@@ -1,5 +1,15 @@
 const express = require('express');
-const userProjectController = require('./user-project.controller');
+const router = express.Router();
+
+const {
+  createUserProject,
+  updateUserProject,
+  deleteUserProject,
+  getUserProject,
+  getPublicUserProjects,
+  getMyUserProjects,
+} = require('./user-project.controller');
+
 const { protect, restrictTo } = require('../../middleware/auth.middleware');
 const validate = require('../../middleware/validate.middleware');
 const {
@@ -7,41 +17,51 @@ const {
   updateUserProjectSchema,
 } = require('./user-project.validation');
 
-const router = express.Router();
+const { ensureClubVerified } = require('../../middleware/club.middleware');
 
-// PUBLIC routes (no authentication required)
-router.get('/public', userProjectController.getPublicUserProjects);
+/* ---------------------------
+   PUBLIC ROUTES
+---------------------------- */
 
-// Protected routes (authentication required)
+// Get all approved public projects
+router.get('/public', getPublicUserProjects);
+
+// Get a single project publicly
+router.get('/:id', getUserProject);
+
+/* ---------------------------
+   AUTHENTICATED USER ROUTES
+---------------------------- */
+
 router.use(protect);
 
-// USER routes - /my must come before /:id
-router.get('/my', restrictTo('USER'), userProjectController.getMyUserProjects);
+// Student's own campaigns
+router.get('/my', restrictTo('USER'), getMyUserProjects);
 
-// Public route for specific project (but after /my to avoid conflicts)
-router.get('/:id', userProjectController.getUserProject);
-
+// Create campaign (only verified club users)
 router.post(
   '/',
   restrictTo('USER'),
+  ensureClubVerified,
   validate(createUserProjectSchema),
-  userProjectController.createUserProject
+  createUserProject
 );
 
+// Update campaign
 router.put(
   '/:id',
   restrictTo('USER'),
+  ensureClubVerified,
   validate(updateUserProjectSchema),
-  userProjectController.updateUserProject
+  updateUserProject
 );
 
+// Delete campaign
 router.delete(
   '/:id',
   restrictTo('USER'),
-  userProjectController.deleteUserProject
+  ensureClubVerified,
+  deleteUserProject
 );
-
-// This must come after /my to avoid conflicts
-router.get('/:id', userProjectController.getUserProject);
 
 module.exports = router;

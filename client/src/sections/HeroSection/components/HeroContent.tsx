@@ -29,7 +29,7 @@ export const HeroContent = () => {
 
           <h1 className="relative text-dreamxec-navy text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-black caret-transparent leading-tight break-words text-center p-6 md:p-8 lg:p-10 xl:p-12">
             <span className="block mb-2 relative">
-              <span className="relative z-10 text-dreamxec-sky-blue drop-shadow-[2px_2px_0_rgba(11,156,44,0.3)] md:drop-shadow-[3px_3px_0_rgba(11,156,44,0.3)]  hover:scale-102 transition-transform inline-block">
+              <span className="relative z-10 text-dreamxec-berkeley-blue drop-shadow-[2px_2px_0_rgba(11,156,44,0.3)] md:drop-shadow-[3px_3px_0_rgba(11,156,44,0.3)]  hover:scale-102 transition-transform inline-block">
                 Research Karega India
               </span>
             </span>
@@ -39,7 +39,7 @@ export const HeroContent = () => {
               </span>
             </span>
             <span className="block mt-2 relative">
-              <span className="relative z-10 text-dreamxec-sky-blue drop-shadow-[2px_2px_0_rgba(11,156,44,0.3)] md:drop-shadow-[3px_3px_0_rgba(11,156,44,0.3)] hover:scale-102 transition-transform inline-block">
+              <span className="relative z-10 text-dreamxec-berkeley-blue drop-shadow-[2px_2px_0_rgba(11,156,44,0.3)] md:drop-shadow-[3px_3px_0_rgba(11,156,44,0.3)] hover:scale-102 transition-transform inline-block">
                 Badhega India
               </span>
             </span>

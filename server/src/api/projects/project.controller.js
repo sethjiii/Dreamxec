@@ -17,6 +17,13 @@ exports.createProject = catchAsync(async (req, res, next) => {
     },
   });
 
+  if (req.user.subscriptionStatus !== 'ACTIVE') {
+  return next(new AppError(
+    'Please activate DreamXec membership verification before creating a campaign.',
+    403
+  ));
+}
+
   res.status(201).json({ status: 'success', data: { project } });
 });
 

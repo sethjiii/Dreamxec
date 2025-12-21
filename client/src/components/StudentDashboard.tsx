@@ -1,417 +1,510 @@
-import type { Campaign } from '../types';
-import { StarDecoration } from './icons/StarDecoration';
+import React, { useState } from 'react';
 
-interface StudentDashboardProps {
-  studentName: string;
-  campaigns: Campaign[];
-  onCreateCampaign: () => void;
-  onViewCampaign: (id: string) => void;
-}
+// Icons
+const StarDecoration = ({ className, color }) => (
+  <svg className={className} viewBox="0 0 24 24" fill={color || "currentColor"}>
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+  </svg>
+);
 
+const MenuIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M3 12h18M3 6h18M3 18h18" />
+  </svg>
+);
+
+const DashboardIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="3" y="3" width="7" height="7" />
+    <rect x="14" y="3" width="7" height="7" />
+    <rect x="14" y="14" width="7" height="7" />
+    <rect x="3" y="14" width="7" height="7" />
+  </svg>
+);
+
+const FolderIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
+const PlusIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+);
+
+const TrendingUpIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+    <polyline points="17 6 23 6 23 12" />
+  </svg>
+);
+
+const ClockIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 6v6l4 2" />
+  </svg>
+);
+
+const CheckCircleIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M9 12l2 2 4-4" />
+  </svg>
+);
+
+const XCircleIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M15 9l-6 6M9 9l6 6" />
+  </svg>
+);
+
+const SearchIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="11" cy="11" r="8" />
+    <path d="m21 21-4.35-4.35" />
+  </svg>
+);
+
+const BellIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+  </svg>
+);
+
+const UsersIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+
+const AwardIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="8" r="7" />
+    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+  </svg>
+);
+
+// Main Component
 export default function StudentDashboard({
-  studentName,
-  campaigns,
+  studentName = "Rahul",
+  campaigns = [],
   onCreateCampaign,
   onViewCampaign,
-}: StudentDashboardProps) {
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'approved':
-        return (
-          <div className="w-5 h-5 bg-dreamxec-green border-2 border-dreamxec-navy rounded flex items-center justify-center">
-            <span className="text-white text-xs font-bold">✓</span>
-          </div>
-        );
-      case 'pending':
-        return (
-          <div className="w-5 h-5 bg-dreamxec-orange border-2 border-dreamxec-navy rounded flex items-center justify-center">
-            <span className="text-white text-xs font-bold">⏱</span>
-          </div>
-        );
-      case 'rejected':
-        return (
-          <div className="w-5 h-5 bg-red-600 border-2 border-dreamxec-navy rounded flex items-center justify-center">
-            <span className="text-white text-xs font-bold">✕</span>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
+  isClubPresident = false,
+  isClubMember = false,
+  clubVerified = false,
+}) {
+  const [selectedTab, setSelectedTab] = useState('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('ALL');
 
-  const getStatusBadge = (status: string) => {
-    const styles = {
-      approved: 'bg-dreamxec-green border-dreamxec-navy text-white',
-      pending: 'bg-dreamxec-orange border-dreamxec-navy text-white',
-      rejected: 'bg-red-600 border-dreamxec-navy text-white',
+  // Calculate stats
+  const totalRaised = campaigns
+    .filter((c) => c.status === 'approved')
+    .reduce((sum, c) => sum + c.currentAmount, 0);
+  const approvedCount = campaigns.filter((c) => c.status === 'approved').length;
+  const pendingCount = campaigns.filter((c) => c.status === 'pending').length;
+  const rejectedCount = campaigns.filter((c) => c.status === 'rejected').length;
+
+  // Filter campaigns
+  const filteredCampaigns = campaigns.filter(campaign => {
+    const matchesSearch = searchQuery === '' || 
+      campaign.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      campaign.clubName?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = filterStatus === 'ALL' || campaign.status === filterStatus;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  const getStatusBadge = (status) => {
+    const config = {
+      approved: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-300' },
+      pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-300' },
+      rejected: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-300' },
     };
+    const styles = config[status] || config.pending;
     return (
-      <span
-        className={`px-4 py-2 rounded-lg text-base sm:text-lg font-bold border-3 ${
-          styles[status as keyof typeof styles]
-        }`}
-      >
+      <span className={`px-3 py-1 rounded-full text-sm font-bold border-2 ${styles.bg} ${styles.text} ${styles.border}`}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     );
   };
 
-  const totalRaised = campaigns
-    .filter((c) => c.status === 'approved')
-    .reduce((sum, c) => sum + c.currentAmount, 0);
-
-  const approvedCount = campaigns.filter((c) => c.status === 'approved').length;
-  const pendingCount = campaigns.filter((c) => c.status === 'pending').length;
-  const rejectedCount = campaigns.filter((c) => c.status === 'rejected').length;
-  const activeCampaigns = campaigns.filter((c) => c.status !== 'rejected');
-  const rejectedCampaigns = campaigns.filter((c) => c.status === 'rejected');
-
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Use existing Header component */}
-      {/* <Header /> */}
+    <div className="min-h-screen bg-orange-50 flex">
+      {/* Sidebar Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
-      {/* Decorative floating stars - original theme */}
-      <div className="absolute top-20 left-10 z-0 opacity-20">
-        <StarDecoration className="w-16 h-16" color="#FF7F00" />
-      </div>
-      <div className="absolute top-40 right-20 z-0 opacity-20">
-        <StarDecoration className="w-12 h-12" color="#0B9C2C" />
-      </div>
-      <div className="absolute bottom-32 left-1/4 z-0 opacity-15">
-        <StarDecoration className="w-20 h-20" color="#000080" />
-      </div>
-
-      {/* Enhanced decorative images - LEFT SIDE - Brighter and animated */}
-      {/* <div className="absolute top-32 left-5 z-0 opacity-5 animate-pulse">
-        <img src={imageIcon} alt="" className="w-40 h-40 md:w-52 md:h-52 object-contain drop-shadow-lg" />
-      </div>
-      <div className="absolute top-1/3 left-8 z-0 opacity-10 animate-bounce" style={{ animationDuration: '3s' }}>
-        <img src={image1Icon} alt="" className="w-44 h-44 md:w-56 md:h-56 object-contain drop-shadow-xl" />
-      </div>
-      <div className="absolute bottom-40 left-12 z-0 opacity-25 animate-pulse" style={{ animationDuration: '2s' }}>
-        <img src={imageCopyIcon} alt="" className="w-48 h-48 md:w-60 md:h-60 object-contain drop-shadow-2xl" />
-      </div>
-      <div className="absolute top-2/3 left-4 z-0 opacity-20 hidden lg:block">
-        <img src={imageIcon} alt="" className="w-40 h-40 object-contain drop-shadow-lg animate-pulse" style={{ animationDuration: '2.5s' }} />
-      </div> */}
-
-      {/* Enhanced decorative images - RIGHT SIDE - Brighter and animated */}
-      {/* <div className="absolute top-24 right-8 z-0 opacity-25 animate-bounce" style={{ animationDuration: '2.5s' }}>
-        <img src={image1Icon} alt="" className="w-44 h-44 md:w-56 md:h-56 object-contain drop-shadow-lg" />
-      </div>
-      <div className="absolute top-1/2 right-5 z-0 opacity-20 animate-pulse" style={{ animationDuration: '3s' }}>
-        <img src={imageCopyIcon} alt="" className="w-40 h-40 md:w-52 md:h-52 object-contain drop-shadow-xl" />
-      </div>
-      <div className="absolute bottom-48 right-10 z-0 opacity-25 animate-bounce" style={{ animationDuration: '3.5s' }}>
-        <img src={imageIcon} alt="" className="w-48 h-48 md:w-60 md:h-60 object-contain drop-shadow-2xl" />
-      </div>
-      <div className="absolute top-1/4 right-6 z-0 opacity-20 hidden lg:block">
-        <img src={image1Icon} alt="" className="w-40 h-40 object-contain drop-shadow-lg animate-pulse" style={{ animationDuration: '2s' }} />
-      </div>
-      <div className="absolute bottom-1/4 right-4 z-0 opacity-20 hidden md:block">
-        <img src={imageCopyIcon} alt="" className="w-36 h-36 object-contain drop-shadow-xl animate-pulse" />
-      </div> */}
-      {/* Header Section with Tricolor Accent */}
-      <div className="relative bg-dreamxec-navy border-b-8 border-dreamxec-orange shadow-pastel-saffron z-10">
-        <div className="card-tricolor-tag"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex items-center gap-4 mb-2">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-dreamxec-orange font-display">
-              Welcome back, {studentName}!
-            </h1>
-            <StarDecoration className="w-10 h-10 hidden sm:block" color="#FF7F00" />
-          </div>
-          <p className="text-dreamxec-cream text-xl sm:text-2xl font-sans">
-            Manage your fundraising campaigns and track your progress
-          </p>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        {/* Stats Cards - Oil Pastel Style */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-          {/* Total Raised Card */}
-          <div className="card-pastel rounded-xl p-6 card-pastel-tilt-left hover:scale-105 transition-transform">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-dreamxec-navy text-base sm:text-lg font-bold font-display">
-                Total Raised
-              </p>
-              <div className="icon-pastel-container w-10 h-10 p-2">
-                <span className="text-dreamxec-saffron text-xl">↗</span>
-              </div>
-            </div>
-            <p className="text-5xl sm:text-6xl font-bold text-dreamxec-navy font-display">
-              ₹{totalRaised.toLocaleString()}
-            </p>
-            <div className="mt-2 h-1 bg-tricolor-horizontal rounded"></div>
+      {/* Sidebar */}
+      <aside
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-blue-900 border-r-4 border-orange-400 transform transition-transform duration-300 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
+        <div className="h-full flex flex-col">
+          {/* Logo */}
+          <div className="p-6 border-b-4 border-orange-400">
+            <h1 className="text-2xl font-bold text-orange-400">DreamXec</h1>
+            <p className="text-orange-200 text-sm mt-1">Student Portal</p>
           </div>
 
-          {/* Active Campaigns Card */}
-          <div className="card-pastel rounded-xl p-6 hover:scale-105 transition-transform">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-dreamxec-navy text-base sm:text-lg font-bold font-display">
-                Active Campaigns
-              </p>
-              <div className="icon-pastel-container w-10 h-10 p-2">
-                <span className="text-dreamxec-green text-xl">✓</span>
-              </div>
-            </div>
-            <p className="text-5xl sm:text-6xl font-bold text-dreamxec-navy font-display">
-              {approvedCount}
-            </p>
-            <div className="mt-2 h-1 bg-dreamxec-green rounded"></div>
-          </div>
-
-          {/* Pending Review Card */}
-          <div className="card-pastel rounded-xl p-6 card-pastel-tilt-right hover:scale-105 transition-transform">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-dreamxec-navy text-base sm:text-lg font-bold font-display">
-                Pending Review
-              </p>
-              <div className="icon-pastel-container w-10 h-10 p-2">
-                <span className="text-dreamxec-orange text-xl">⏱</span>
-              </div>
-            </div>
-            <p className="text-5xl sm:text-6xl font-bold text-dreamxec-navy font-display">
-              {pendingCount}
-            </p>
-            <div className="mt-2 h-1 bg-dreamxec-orange rounded"></div>
-          </div>
-        </div>
-
-        {/* Main Campaigns Section */}
-        <div className="card-pastel-offwhite rounded-xl p-6 sm:p-8 border-5 border-dreamxec-navy shadow-pastel-card">
-          <div className="card-tricolor-tag"></div>
-          
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4 mt-4">
+          {/* User Info */}
+          <div className="p-6 border-b-2 border-orange-400">
             <div className="flex items-center gap-3">
-              <h2 className="text-4xl sm:text-5xl font-bold text-dreamxec-navy font-display">
-                Your Campaigns
-              </h2>
-              <StarDecoration className="w-8 h-8" color="#0B9C2C" />
+              <div className="w-12 h-12 bg-orange-400 rounded-full flex items-center justify-center text-blue-900 font-bold text-xl">
+                {studentName?.charAt(0) || 'S'}
+              </div>
+              <div>
+                <p className="text-white font-bold">{studentName}</p>
+                <p className="text-orange-200 text-sm">Student</p>
+              </div>
             </div>
+            {isClubPresident && (
+              <div className="mt-3 px-3 py-1 bg-purple-600 text-white text-xs font-bold rounded-full inline-flex items-center gap-1">
+                <AwardIcon className="w-3 h-3" />
+                Club President
+              </div>
+            )}
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 p-4 space-y-2">
+            <button
+              onClick={() => {
+                setSelectedTab('overview');
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${
+                selectedTab === 'overview'
+                  ? 'bg-orange-400 text-blue-900'
+                  : 'text-white hover:bg-blue-800'
+              }`}
+            >
+              <DashboardIcon className="w-5 h-5" />
+              Dashboard
+            </button>
+
+            <button
+              onClick={() => {
+                setSelectedTab('campaigns');
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${
+                selectedTab === 'campaigns'
+                  ? 'bg-orange-400 text-blue-900'
+                  : 'text-white hover:bg-blue-800'
+              }`}
+            >
+              <FolderIcon className="w-5 h-5" />
+              My Campaigns
+              {campaigns.length > 0 && (
+                <span className="ml-auto bg-orange-400 text-blue-900 px-2 py-1 rounded-full text-xs">
+                  {campaigns.length}
+                </span>
+              )}
+            </button>
+
+            {isClubPresident && (
+              <button
+                onClick={() => window.location.href = "/president"}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold text-white hover:bg-blue-800 transition-all"
+              >
+                <UsersIcon className="w-5 h-5" />
+                President Panel
+              </button>
+            )}
+          </nav>
+
+          {/* Quick Actions */}
+          <div className="p-4 space-y-2 border-t-2 border-orange-400">
+            {!clubVerified && (
+              <>
+                <button
+                  onClick={() => window.location.href = "/verify-president"}
+                  className="w-full px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-bold hover:bg-green-700 transition-all"
+                >
+                  ✓ I'm President
+                </button>
+                <button
+                  onClick={() => window.location.href = "/refer-club"}
+                  className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-bold hover:bg-purple-700 transition-all"
+                >
+                  ✓ Refer Club
+                </button>
+              </>
+            )}
             <button
               onClick={onCreateCampaign}
-              className="btn-pastel-primary inline-flex items-center justify-center gap-2 px-6 py-4 rounded-lg font-display text-xl sm:text-2xl"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-orange-400 text-blue-900 rounded-lg font-bold hover:scale-105 transition-transform"
             >
-              <span className="text-3xl leading-none">+</span>
-              Create New Campaign
+              <PlusIcon className="w-5 h-5" />
+              Create Campaign
             </button>
           </div>
+        </div>
+      </aside>
 
-          {campaigns.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="bg-dreamxec-cream border-5 border-dreamxec-navy w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-pastel-saffron">
-                <span className="text-dreamxec-orange text-5xl font-bold">+</span>
-              </div>
-              <h3 className="text-3xl sm:text-4xl font-bold text-dreamxec-navy mb-3 font-display">
-                No campaigns yet
-              </h3>
-              <p className="text-dreamxec-navy text-xl sm:text-2xl mb-6 font-sans max-w-md mx-auto">
-                Create your first campaign to start raising funds for your club and make an impact!
-              </p>
-              <button
-                onClick={onCreateCampaign}
-                className="btn-pastel-secondary inline-flex items-center gap-2 px-8 py-4 rounded-lg font-display text-xl sm:text-2xl"
-              >
-                <span className="text-3xl leading-none">+</span>
-                Create Campaign
+      {/* Main Content */}
+      <main className="flex-1 overflow-auto">
+        {/* Header */}
+        <header className="bg-white border-b-4 border-blue-900 sticky top-0 z-30">
+          <div className="px-4 py-4 flex items-center justify-between gap-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden text-blue-900"
+            >
+              <MenuIcon className="w-6 h-6" />
+            </button>
+            <h2 className="text-xl font-bold text-blue-900 flex-1">
+              {selectedTab === 'overview' && 'Dashboard Overview'}
+              {selectedTab === 'campaigns' && 'My Campaigns'}
+            </h2>
+            
+            <div className="flex items-center gap-3">
+              <button className="relative p-2 hover:bg-orange-50 rounded-lg transition-colors">
+                <BellIcon className="w-6 h-6 text-blue-900" />
+                {pendingCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    {pendingCount}
+                  </span>
+                )}
               </button>
             </div>
-          ) : (
-            <>
-              {activeCampaigns.length > 0 && (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b-4 border-dreamxec-navy">
-                        <th className="text-left py-4 px-4 text-base sm:text-lg font-bold text-dreamxec-navy font-display">
-                          Campaign
-                        </th>
-                        <th className="text-left py-4 px-4 text-base sm:text-lg font-bold text-dreamxec-navy font-display hidden sm:table-cell">
-                          Goal
-                        </th>
-                        <th className="text-left py-4 px-4 text-base sm:text-lg font-bold text-dreamxec-navy font-display hidden md:table-cell">
-                          Raised
-                        </th>
-                        <th className="text-left py-4 px-4 text-base sm:text-lg font-bold text-dreamxec-navy font-display">
-                          Status
-                        </th>
-                        <th className="text-right py-4 px-4 text-base sm:text-lg font-bold text-dreamxec-navy font-display">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {activeCampaigns.map((campaign, index) => {
-                        const progress = (campaign.currentAmount / campaign.goalAmount) * 100;
-                        return (
-                          <tr
-                            key={campaign.id}
-                            className={`border-b-2 border-dreamxec-gray-200 hover:bg-dreamxec-cream transition-colors ${
-                              index % 2 === 0 ? 'bg-white' : 'bg-dreamxec-beige'
-                            }`}
-                          >
-                            <td className="py-4 px-4">
-                              <div className="flex items-center gap-3">
-                                {getStatusIcon(campaign.status)}
-                                <div>
-                                  <p className="font-bold text-lg sm:text-xl text-dreamxec-navy font-display">
-                                    {campaign.title}
-                                  </p>
-                                  <p className="text-base text-dreamxec-navy opacity-70 font-sans">
-                                    {campaign.clubName}
-                                  </p>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="py-4 px-4 text-lg sm:text-xl text-dreamxec-navy font-bold font-sans hidden sm:table-cell">
-                              ₹{campaign.goalAmount.toLocaleString()}
-                            </td>
-                            <td className="py-4 px-4 hidden md:table-cell">
-                              <div>
-                                <p className="font-bold text-lg sm:text-xl text-dreamxec-navy font-sans">
-                                  ₹{campaign.currentAmount.toLocaleString()}
-                                </p>
-                                <div className="progress-bar-pastel mt-2 h-3 rounded-full overflow-hidden">
-                                  <div
-                                    className="h-full bg-dreamxec-green transition-all"
-                                    style={{ width: `${Math.min(progress, 100)}%` }}
-                                  ></div>
-                                </div>
-                                <p className="text-sm text-dreamxec-navy opacity-70 mt-1 font-sans">
-                                  {progress.toFixed(0)}% funded
-                                </p>
-                              </div>
-                            </td>
-                            <td className="py-4 px-4">{getStatusBadge(campaign.status)}</td>
-                            <td className="py-4 px-4 text-right">
-                              <button
-                                onClick={() => onViewCampaign(campaign.id)}
-                                className="bg-dreamxec-orange text-white px-5 py-3 rounded-lg font-bold text-base sm:text-lg border-3 border-dreamxec-navy hover:translate-x-1 hover:translate-y-1 transition-transform font-display shadow-pastel-saffron"
-                              >
-                                View →
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+          </div>
+        </header>
 
-              {/* Rejected Campaigns Section */}
-              {rejectedCampaigns.length > 0 && (
-                <div className="mt-12">
-                  <div className="flex items-center gap-3 mb-6">
-                    <h3 className="text-3xl sm:text-4xl font-bold text-red-600 font-display">
-                      Rejected Campaigns
-                    </h3>
-                    <div className="w-8 h-8 bg-red-600 border-2 border-dreamxec-navy rounded flex items-center justify-center">
-                      <span className="text-white text-lg font-bold">✕</span>
+        {/* Content Area */}
+        <div className="p-4 lg:p-8">
+          {/* Overview Tab */}
+          {selectedTab === 'overview' && (
+            <div className="space-y-6">
+              {/* Welcome Message */}
+              <div className="bg-white rounded-xl border-4 border-blue-900 p-6 shadow-lg">
+                <h1 className="text-3xl font-bold text-blue-900 mb-2">
+                  Welcome back, {studentName}! 👋
+                </h1>
+                <p className="text-blue-900 opacity-70">
+                  Manage your fundraising campaigns and track your progress
+                </p>
+              </div>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white rounded-xl border-4 border-blue-900 p-6 shadow-lg hover:shadow-xl transition-shadow">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-12 h-12 bg-green-400 rounded-lg flex items-center justify-center">
+                      <TrendingUpIcon className="w-6 h-6 text-blue-900" />
                     </div>
-                    <span className="text-lg text-dreamxec-navy font-bold font-sans">
-                      ({rejectedCount})
-                    </span>
                   </div>
+                  <p className="text-3xl font-bold text-blue-900">₹{(totalRaised / 1000).toFixed(0)}k</p>
+                  <p className="text-blue-900 opacity-70 font-bold">Total Raised</p>
+                  <p className="text-sm text-green-600 font-bold mt-2">Across all campaigns</p>
+                </div>
 
-                  <div className="space-y-4">
-                    {rejectedCampaigns.map((campaign) => (
-                      <div
-                        key={campaign.id}
-                        className="card-pastel-offwhite rounded-xl p-6 border-5 border-red-600 shadow-lg"
+                <div className="bg-white rounded-xl border-4 border-blue-900 p-6 shadow-lg hover:shadow-xl transition-shadow">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-12 h-12 bg-green-400 rounded-lg flex items-center justify-center">
+                      <CheckCircleIcon className="w-6 h-6 text-blue-900" />
+                    </div>
+                  </div>
+                  <p className="text-3xl font-bold text-blue-900">{approvedCount}</p>
+                  <p className="text-blue-900 opacity-70 font-bold">Active Campaigns</p>
+                  <p className="text-sm text-green-600 font-bold mt-2">Currently running</p>
+                </div>
+
+                <div className="bg-white rounded-xl border-4 border-blue-900 p-6 shadow-lg hover:shadow-xl transition-shadow">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center">
+                      <ClockIcon className="w-6 h-6 text-blue-900" />
+                    </div>
+                  </div>
+                  <p className="text-3xl font-bold text-blue-900">{pendingCount}</p>
+                  <p className="text-blue-900 opacity-70 font-bold">Pending Review</p>
+                  <p className="text-sm text-yellow-600 font-bold mt-2">Awaiting approval</p>
+                </div>
+
+                <div className="bg-white rounded-xl border-4 border-blue-900 p-6 shadow-lg hover:shadow-xl transition-shadow">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-12 h-12 bg-orange-400 rounded-lg flex items-center justify-center">
+                      <FolderIcon className="w-6 h-6 text-blue-900" />
+                    </div>
+                  </div>
+                  <p className="text-3xl font-bold text-blue-900">{campaigns.length}</p>
+                  <p className="text-blue-900 opacity-70 font-bold">Total Campaigns</p>
+                  <p className="text-sm text-blue-600 font-bold mt-2">All time</p>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  onClick={onCreateCampaign}
+                  className="bg-white rounded-xl border-4 border-blue-900 p-6 shadow-lg hover:scale-105 transition-transform text-left group"
+                >
+                  <div className="w-16 h-16 bg-green-400 rounded-lg flex items-center justify-center mb-4 group-hover:rotate-12 transition-transform">
+                    <PlusIcon className="w-8 h-8 text-blue-900" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-blue-900 mb-2">Create New Campaign</h3>
+                  <p className="text-blue-900 opacity-70">
+                    Start a new fundraising campaign for your club
+                  </p>
+                </button>
+
+                <button
+                  onClick={() => setSelectedTab('campaigns')}
+                  className="bg-white rounded-xl border-4 border-blue-900 p-6 shadow-lg hover:scale-105 transition-transform text-left group"
+                >
+                  <div className="w-16 h-16 bg-orange-400 rounded-lg flex items-center justify-center mb-4 group-hover:rotate-12 transition-transform">
+                    <FolderIcon className="w-8 h-8 text-blue-900" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-blue-900 mb-2">View My Campaigns</h3>
+                  <p className="text-blue-900 opacity-70">
+                    Manage and track all your campaigns
+                  </p>
+                </button>
+              </div>
+
+              {/* Pro Tip */}
+              <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-xl border-4 border-orange-400 p-6 shadow-lg text-white">
+                <h3 className="text-2xl font-bold mb-3">💡 Pro Tip</h3>
+                <p className="text-orange-200 text-lg">
+                  Keep your campaign description clear and compelling. Include specific goals, timelines, and how the funds will be used. Add images to make your campaign more engaging and trustworthy!
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Campaigns Tab */}
+          {selectedTab === 'campaigns' && (
+            <div className="space-y-4">
+              {/* Search and Filter */}
+              <div className="bg-white rounded-xl border-4 border-blue-900 p-4 shadow-lg">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1 relative">
+                    <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-900 opacity-50" />
+                    <input
+                      type="text"
+                      placeholder="Search campaigns..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border-2 border-blue-900 rounded-lg text-blue-900 focus:outline-none focus:border-orange-400"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    {['ALL', 'approved', 'pending', 'rejected'].map(status => (
+                      <button
+                        key={status}
+                        onClick={() => setFilterStatus(status)}
+                        className={`px-4 py-2 rounded-lg font-bold border-2 border-blue-900 transition-all ${
+                          filterStatus === status
+                            ? 'bg-blue-900 text-white'
+                            : 'bg-white text-blue-900 hover:bg-orange-50'
+                        }`}
                       >
-                        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-3">
-                              {getStatusIcon(campaign.status)}
-                              <div>
-                                <h4 className="font-bold text-xl sm:text-2xl text-dreamxec-navy font-display">
-                                  {campaign.title}
-                                </h4>
-                                <p className="text-base text-dreamxec-navy opacity-70 font-sans">
-                                  {campaign.clubName}
-                                </p>
-                              </div>
-                            </div>
-                            
-                            {campaign.rejectionReason && (
-                              <div className="mt-4 p-4 bg-red-50 border-3 border-red-600 rounded-lg">
-                                <div className="flex items-start gap-2">
-                                  <div className="icon-pastel-container w-8 h-8 p-1 flex-shrink-0 bg-red-600">
-                                    <span className="text-white text-lg">!</span>
-                                  </div>
-                                  <div>
-                                    <p className="font-bold text-sm text-red-600 mb-1 font-display">
-                                      REJECTION REASON:
-                                    </p>
-                                    <p className="text-dreamxec-navy font-sans text-base leading-relaxed">
-                                      {campaign.rejectionReason}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="flex flex-col sm:flex-row gap-3 md:flex-col">
-                            {getStatusBadge(campaign.status)}
-                            <button
-                              onClick={() => onViewCampaign(campaign.id)}
-                              className="bg-dreamxec-navy text-white px-5 py-3 rounded-lg font-bold text-base sm:text-lg border-3 border-dreamxec-navy hover:scale-105 transition-transform font-display shadow-lg whitespace-nowrap"
-                            >
-                              View Details →
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                        {status === 'ALL' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
+                      </button>
                     ))}
                   </div>
-
-                  {/* Info about resubmission */}
-                  <div className="mt-6 card-pastel rounded-xl p-5 border-4 border-dreamxec-orange shadow-pastel-saffron">
-                    <div className="flex items-start gap-3">
-                      <div className="icon-pastel-container w-10 h-10 p-2 flex-shrink-0">
-                        <span className="text-dreamxec-saffron text-xl">💡</span>
-                      </div>
-                      <div>
-                        <h4 className="text-xl font-bold text-dreamxec-navy mb-2 font-display">
-                          About Rejected Campaigns
-                        </h4>
-                        <p className="text-dreamxec-navy font-sans text-base leading-relaxed">
-                          Review the rejection reason above and address the concerns. You can create a new campaign 
-                          with the necessary improvements. Contact support if you need clarification on the rejection.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
+              </div>
+
+              {/* Campaigns List */}
+              {campaigns.length === 0 ? (
+                <div className="bg-white rounded-xl border-4 border-blue-900 p-12 text-center shadow-lg">
+                  <div className="w-16 h-16 bg-orange-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <PlusIcon className="w-8 h-8 text-blue-900" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-blue-900 mb-2">No campaigns yet</h3>
+                  <p className="text-blue-900 opacity-70 mb-4">
+                    Create your first campaign to start raising funds
+                  </p>
+                  <button
+                    onClick={onCreateCampaign}
+                    className="px-6 py-3 bg-orange-400 text-blue-900 rounded-lg font-bold border-2 border-blue-900 hover:scale-105 transition-transform"
+                  >
+                    Create Campaign
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="text-blue-900 font-bold mb-2">
+                    Showing {filteredCampaigns.length} of {campaigns.length} campaigns
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {filteredCampaigns.map((campaign) => {
+                      const progress = (campaign.currentAmount / campaign.goalAmount) * 100;
+                      return (
+                        <div
+                          key={campaign.id}
+                          className="bg-white rounded-xl border-4 border-blue-900 p-6 shadow-lg"
+                        >
+                          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <h3 className="text-xl font-bold text-blue-900">{campaign.title}</h3>
+                                {getStatusBadge(campaign.status)}
+                              </div>
+                              <p className="text-blue-900 opacity-70">{campaign.clubName}</p>
+                            </div>
+                          </div>
+
+                          {campaign.status === 'approved' && (
+                            <div className="mb-4">
+                              <div className="flex justify-between text-sm font-bold text-blue-900 mb-2">
+                                <span>₹{campaign.currentAmount.toLocaleString()} raised</span>
+                                <span>₹{campaign.goalAmount.toLocaleString()} goal</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-3 border-2 border-blue-900">
+                                <div
+                                  className="bg-green-400 h-full rounded-full transition-all"
+                                  style={{ width: `${Math.min(progress, 100)}%` }}
+                                ></div>
+                              </div>
+                              <p className="text-sm text-blue-900 opacity-70 mt-1">
+                                {progress.toFixed(0)}% funded
+                              </p>
+                            </div>
+                          )}
+
+                          {campaign.status === 'rejected' && campaign.rejectionReason && (
+                            <div className="mb-4 p-4 bg-red-50 border-2 border-red-300 rounded-lg">
+                              <p className="text-sm font-bold text-red-800 mb-1">Rejection Reason:</p>
+                              <p className="text-red-700 text-sm">{campaign.rejectionReason}</p>
+                            </div>
+                          )}
+
+                          <button
+                            onClick={() => onViewCampaign(campaign.id)}
+                            className="px-6 py-2 bg-orange-400 text-blue-900 rounded-lg font-bold border-2 border-blue-900 hover:scale-105 transition-transform"
+                          >
+                            View Details →
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
               )}
-            </>
+            </div>
           )}
         </div>
-
-        {/* Additional Info Card */}
-        <div className="mt-8 card-pastel rounded-xl p-6 border-5 border-dreamxec-navy shadow-pastel-green">
-          <div className="flex items-start gap-4">
-            <div className="icon-pastel-container w-12 h-12 p-2 flex-shrink-0">
-              <span className="text-dreamxec-saffron text-2xl">💡</span>
-            </div>
-            <div>
-              <h3 className="text-2xl sm:text-3xl font-bold text-dreamxec-navy mb-2 font-display">
-                Pro Tip
-              </h3>
-              <p className="text-dreamxec-navy font-sans leading-relaxed text-lg sm:text-xl">
-                Keep your campaign description clear and compelling. Include specific goals, 
-                timelines, and how the funds will be used. Add images to make your campaign 
-                more engaging and trustworthy!
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

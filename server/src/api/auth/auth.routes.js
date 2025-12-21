@@ -1,90 +1,130 @@
-const express = require('express');
-const passport = require('passport');
-const authController = require('./auth.controller');
-const validate = require('../../middleware/validate.middleware');
+const express = require("express");
+const passport = require("passport");
+const authController = require("./auth.controller");
+const validate = require("../../middleware/validate.middleware");
 const {
   registerSchema,
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
-} = require('./auth.validation');
+} = require("./auth.validation");
 
+const { protect } = require("../../middleware/auth.middleware");
+
+// --- NEW IMPORTS FOR LINKEDIN OIDC ---
+const { generators } = require("openid-client");
+const getLinkedInClient = require("../../config/linkedin-oidc");
+const jwt = require("jsonwebtoken");
+const AppError = require("../../utils/AppError");
+
+// Import processOAuthUser directly
+const { processOAuthUser } = require("../../config/passport");
+
+// --------------------------------------------
 const router = express.Router();
 
-router.post('/register', validate(registerSchema), authController.register);
-router.post('/login', validate(loginSchema), authController.login);
-router.get('/verify-email', authController.verifyEmail);
-// Get current user
-const { protect } = require('../../middleware/auth.middleware');
-router.get('/me', protect, authController.getMe);
+// AUTH ROUTES
+router.post("/register", validate(registerSchema), authController.register);
+router.post("/login", validate(loginSchema), authController.login);
+router.get("/verify-email", authController.verifyEmail);
+router.get("/me", protect, authController.getMe);
+
 router.post(
-  '/forgot-password',
+  "/forgot-password",
   validate(forgotPasswordSchema),
   authController.forgotPassword
 );
+
 router.post(
-  '/reset-password',
+  "/reset-password",
   validate(resetPasswordSchema),
   authController.resetPassword
 );
 
-// Google OAuth
+// --------------------------------------------
+// GOOGLE OAUTH (Passport)
+// --------------------------------------------
+router.get("/google", (req, res, next) => {
+  const role = req.query.role || "USER";
+
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    state: role,
+  })(req, res, next);
+});
+
 router.get(
-  '/google',
-  (req, res, next) => {
-    // Get role from query parameter (USER or DONOR)
-    const role = req.query.role || 'USER';
-    
-    // Construct and log the authorization URL for debugging
-    try {
-      const params = new URLSearchParams({
-        client_id: process.env.GOOGLE_CLIENT_ID || '',
-        redirect_uri: process.env.GOOGLE_CALLBACK_URL || '',
-        response_type: 'code',
-        scope: 'profile email',
-        access_type: 'offline',
-        prompt: 'consent',
-      });
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
-      console.log('Starting Google OAuth with role:', role);
-      console.log('Authorization URL:', authUrl);
-    } catch (err) {
-      console.error('Error constructing Google auth URL for debug:', err);
-    }
-    
-    // Pass role through state parameter
-    passport.authenticate('google', { 
-      scope: ['profile', 'email'],
-      state: role
-    })(req, res, next);
-  }
-);
-router.get(
-  '/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: '/login' }),
+  "/google/callback",
+  passport.authenticate("google", {
+    session: false,
+    failureRedirect: "/login",
+  }),
   authController.googleCallback
 );
 
-// LinkedIn OAuth
-router.get(
-  '/linkedin',
-  (req, res, next) => {
-    // Get role from query parameter (USER or DONOR)
-    const role = req.query.role || 'USER';
-    
-    console.log('Starting LinkedIn OAuth with role:', role);
-    
-    // Pass role through state parameter
-    passport.authenticate('linkedin', { 
-      scope: ['openid', 'profile', 'email'], // Updated to OIDC scopes
-      state: role
-    })(req, res, next);
+// --------------------------------------------
+// LINKEDIN LOGIN (OIDC)
+// --------------------------------------------
+router.get("/linkedin", async (req, res) => {
+  try {
+    const role = req.query.role || "USER";
+    const client = await getLinkedInClient();
+
+    const codeVerifier = generators.codeVerifier();
+    const codeChallenge = generators.codeChallenge(codeVerifier);
+
+    req.session.codeVerifier = codeVerifier;
+    req.session.oauthRole = role;
+
+    const authUrl = client.authorizationUrl({
+      scope: "openid profile email",
+      code_challenge: codeChallenge,
+      code_challenge_method: "S256",
+      state: role,
+    });
+
+    res.redirect(authUrl);
+  } catch (error) {
+    console.error("LinkedIn login error:", error);
+    res.status(500).json({ message: "LinkedIn login failed" });
   }
-);
-router.get(
-  '/linkedin/callback',
-  passport.authenticate('linkedin', { session: false, failureRedirect: '/login' }),
-  authController.linkedinCallback
-);
+});
+
+// --------------------------------------------
+// LINKEDIN CALLBACK (OIDC)
+// --------------------------------------------
+router.get("/linkedin/callback", async (req, res, next) => {
+  try {
+    const client = await getLinkedInClient();
+    const params = client.callbackParams(req);
+
+    const tokenSet = await client.callback(
+      process.env.LINKEDIN_CALLBACK_URL,
+      params,
+      {
+        code_verifier: req.session.codeVerifier,
+        state: req.session.oauthRole,
+      }
+    );
+
+    const userInfo = await client.userinfo(tokenSet.access_token);
+
+    // Convert OIDC profile → same format as Google profile
+    const profile = {
+      id: userInfo.sub,
+      displayName: userInfo.name,
+      emails: [{ value: userInfo.email }],
+    };
+
+    const user = await processOAuthUser("linkedinId", profile);
+
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+
+    res.redirect(`${process.env.CLIENT_URL}/auth/callback?token=${token}`);
+  } catch (err) {
+    console.error("LinkedIn OIDC callback error:", err);
+    next(new AppError("LinkedIn authentication failed", 401));
+  }
+});
 
 module.exports = router;

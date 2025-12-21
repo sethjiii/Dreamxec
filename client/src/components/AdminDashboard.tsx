@@ -5,35 +5,35 @@ import { StarDecoration } from './icons/StarDecoration';
 // Simple SVG Icons
 const ClockIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="10"/>
-    <path d="M12 6v6l4 2"/>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 6v6l4 2" />
   </svg>
 );
 
 const CheckCircleIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="10"/>
-    <path d="M9 12l2 2 4-4"/>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M9 12l2 2 4-4" />
   </svg>
 );
 
 const XCircleIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="10"/>
-    <path d="M15 9l-6 6M9 9l6 6"/>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M15 9l-6 6M9 9l6 6" />
   </svg>
 );
 
 const EyeIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-    <circle cx="12" cy="12" r="3"/>
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
   </svg>
 );
 
 const SendIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
   </svg>
 );
 
@@ -57,12 +57,12 @@ const CampaignDetailModal = ({ campaign, onClose }: { campaign: Campaign; onClos
   };
 
   return (
-    <div 
-      className="fixed inset-0 z-[9999] flex justify-center items-center p-4" 
+    <div
+      className="fixed inset-0 z-[9999] flex justify-center items-center p-4"
       style={{ backgroundColor: 'rgba(0, 0, 128, 0.8)' }}
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card max-w-3xl w-full max-h-[90vh] overflow-y-auto relative"
         onClick={(e) => e.stopPropagation()}
       >
@@ -77,20 +77,20 @@ const CampaignDetailModal = ({ campaign, onClose }: { campaign: Campaign; onClos
                 By {campaign.clubName}
               </p>
             </div>
-            <button 
+            <button
               onClick={onClose}
               className="btn-pastel-secondary p-3 rounded-lg hover:scale-110 transition-transform flex-shrink-0 ml-4"
             >
               <XCircleIcon className="w-6 h-6" />
             </button>
           </div>
-          
-          <img 
-            src={campaign.imageUrl} 
-            alt={campaign.title} 
-            className="w-full h-72 object-cover rounded-lg border-4 border-dreamxec-navy shadow-pastel-saffron mb-6" 
+
+          <img
+            src={campaign.imageUrl}
+            alt={campaign.title}
+            className="w-full h-72 object-cover rounded-lg border-4 border-dreamxec-navy shadow-pastel-saffron mb-6"
           />
-          
+
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 p-4 bg-dreamxec-cream rounded-lg border-3 border-dreamxec-orange">
             <span className="text-2xl sm:text-3xl font-bold text-dreamxec-navy font-display">
               Goal: ₹{campaign.goalAmount.toLocaleString()}
@@ -99,7 +99,7 @@ const CampaignDetailModal = ({ campaign, onClose }: { campaign: Campaign; onClos
               Submitted: {campaign.createdAt instanceof Date ? campaign.createdAt.toLocaleDateString() : new Date(campaign.createdAt).toLocaleDateString()}
             </span>
           </div>
-          
+
           <div className="space-y-3">
             <h3 className="text-2xl font-bold text-dreamxec-navy font-display flex items-center gap-2">
               Description
@@ -145,37 +145,37 @@ const RejectionModal = ({
   };
 
   return (
-    <div 
-      className="fixed inset-0 z-[10000] flex justify-center items-center p-4" 
+    <div
+      className="fixed inset-0 z-[10000] flex justify-center items-center p-4"
       style={{ backgroundColor: 'rgba(0, 0, 128, 0.8)' }}
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card max-w-md w-full p-6 sm:p-8 relative"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="card-tricolor-tag"></div>
-        
+
         <div className="flex justify-between items-center mb-6 mt-4">
           <h2 className="text-2xl sm:text-3xl font-bold text-dreamxec-navy font-display">
             Reject Campaign
           </h2>
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={onClose}
             className="text-dreamxec-navy hover:scale-110 transition-transform flex-shrink-0"
           >
             <XCircleIcon className="w-6 h-6" />
           </button>
         </div>
-        
+
         <div className="mb-6 p-4 bg-dreamxec-cream rounded-lg border-3 border-dreamxec-orange">
           <p className="text-dreamxec-navy text-lg font-sans">
             Please provide a reason for rejecting:{' '}
             <span className="font-bold font-display">{campaignTitle}</span>
           </p>
         </div>
-        
+
         <form onSubmit={handleSubmit}>
           <textarea
             value={reason}
@@ -185,7 +185,7 @@ const RejectionModal = ({
             required
             autoFocus
           />
-          
+
           <div className="mt-6 flex justify-end gap-3">
             <button
               type="button"
@@ -275,7 +275,7 @@ export default function AdminDashboard({
 
       <div className="min-h-screen relative overflow-hidden">
         {/* Use existing Header component */}
-       
+
         {/* Decorative floating stars - original theme */}
         <div className="absolute top-20 left-10 z-0 opacity-20">
           <StarDecoration className="w-16 h-16" color="#FF7F00" />
@@ -322,6 +322,22 @@ export default function AdminDashboard({
             <p className="text-dreamxec-cream text-xl sm:text-2xl font-sans">
               Review and manage campaign and project submissions across the platform
             </p>
+
+          </div>
+          <div className="ml-4 flex items-center gap-2">
+            <button
+              onClick={() => window.location.href = "/admin/referrals"}
+              className="px-4 py-2 bg-white border-2 border-dreamxec-navy rounded text-dreamxec-navy hover:bg-gray-50"
+            >
+              View Referrals
+            </button>
+
+            <button
+              onClick={() => window.location.href = "/admin/verifications"}
+              className="px-4 py-2 bg-white border-2 border-dreamxec-orange rounded text-dreamxec-orange hover:bg-orange-50"
+            >
+              View Verifications
+            </button>
           </div>
         </div>
 
@@ -396,7 +412,7 @@ export default function AdminDashboard({
           {/* Pending Campaigns Section */}
           <div className="card-pastel-offwhite rounded-xl p-6 sm:p-8 border-5 border-dreamxec-navy shadow-pastel-card mb-8">
             <div className="card-tricolor-tag"></div>
-            
+
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4 mt-4">
               <div className="flex items-center gap-3">
                 <h2 className="text-3xl sm:text-4xl font-bold text-dreamxec-navy font-display">
@@ -518,7 +534,7 @@ export default function AdminDashboard({
           {/* All Projects Section */}
           <div className="card-pastel-offwhite rounded-xl p-6 sm:p-8 border-5 border-dreamxec-navy shadow-pastel-card">
             <div className="card-tricolor-tag"></div>
-            
+
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4 mt-4">
               <div className="flex items-center gap-3">
                 <h2 className="text-3xl sm:text-4xl font-bold text-dreamxec-navy font-display">
@@ -559,17 +575,17 @@ export default function AdminDashboard({
                   </thead>
                   <tbody>
                     {allCampaigns!.map((campaign: Campaign) => (
-                      <tr 
-                        key={campaign.id} 
+                      <tr
+                        key={campaign.id}
                         className="border-b-3 border-dreamxec-gray-200 hover:bg-dreamxec-cream transition-colors cursor-pointer"
                         onClick={() => setSelectedCampaign(campaign)}
                       >
                         <td className="py-4 px-4">
                           <div className="flex items-center gap-4">
-                            <img 
-                              src={campaign.imageUrl} 
-                              alt={campaign.title} 
-                              className="w-20 h-12 object-cover rounded-lg border-3 border-dreamxec-navy flex-shrink-0" 
+                            <img
+                              src={campaign.imageUrl}
+                              alt={campaign.title}
+                              className="w-20 h-12 object-cover rounded-lg border-3 border-dreamxec-navy flex-shrink-0"
                             />
                             <div className="min-w-0">
                               <p className="font-bold text-dreamxec-navy mb-1 text-base sm:text-lg font-display">
@@ -588,14 +604,13 @@ export default function AdminDashboard({
                           {campaign.createdAt instanceof Date ? campaign.createdAt.toLocaleDateString() : new Date(campaign.createdAt).toLocaleDateString()}
                         </td>
                         <td className="py-4 px-4 text-right">
-                          <span 
-                            className={`inline-flex items-center px-4 py-2 rounded-lg text-base font-bold border-3 border-dreamxec-navy font-display ${
-                              campaign.status === 'approved' 
-                                ? 'bg-dreamxec-green text-white' 
-                                : campaign.status === 'pending' 
-                                ? 'bg-dreamxec-orange text-white' 
-                                : 'bg-red-600 text-white'
-                            }`}
+                          <span
+                            className={`inline-flex items-center px-4 py-2 rounded-lg text-base font-bold border-3 border-dreamxec-navy font-display ${campaign.status === 'approved'
+                                ? 'bg-dreamxec-green text-white'
+                                : campaign.status === 'pending'
+                                  ? 'bg-dreamxec-orange text-white'
+                                  : 'bg-red-600 text-white'
+                              }`}
                           >
                             {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
                           </span>
@@ -613,7 +628,7 @@ export default function AdminDashboard({
         {pendingProjects.length > 0 && (
           <div className="mt-12 card-pastel-offwhite rounded-xl p-6 sm:p-8 border-5 border-dreamxec-navy shadow-pastel-card">
             <div className="card-tricolor-tag"></div>
-            
+
             <div className="flex items-center gap-4 mb-8 mt-4">
               <h2 className="text-4xl sm:text-5xl font-bold text-dreamxec-navy font-display">
                 Pending Donor Projects

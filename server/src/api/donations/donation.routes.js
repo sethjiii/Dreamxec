@@ -1,38 +1,28 @@
 const express = require('express');
 const donationController = require('./donation.controller');
 const { protect, restrictTo } = require('../../middleware/auth.middleware');
-const validate = require('../../middleware/validate.middleware');
-const { createPaymentIntentSchema, makeDonationSchema } = require('./donation.validation');
+
+
 
 const router = express.Router();
 
-router.use(protect);
+// Anyone (logged in OR guest) can create a donation order
+router.post('/create-order', donationController.createOrder);
 
-// DONOR routes
-router.post(
-  '/create-payment-intent',
-  restrictTo('DONOR'),
-  validate(createPaymentIntentSchema),
-  donationController.createPaymentIntent
-);
+// Razorpay webhook
+router.post('/webhook', donationController.razorpayWebhook);
 
-router.post(
-  '/',
-  restrictTo('DONOR'),
-  validate(makeDonationSchema),
-  donationController.makeDonation
-);
+// Logged-in donor only: show their donations
+router.get('/my', protect, donationController.getMyDonations);
+
+// Project owner or admin: view donations for a project
+router.get('/project/:projectId', protect, donationController.getProjectDonations);
 
 router.get(
-  '/my',
+  '/summary',
   restrictTo('DONOR'),
-  donationController.getMyDonations
+  donationController.getDonationSummary
 );
 
-// USER or ADMIN: Get donations for a specific project
-router.get(
-  '/project/:projectId',
-  donationController.getProjectDonations
-);
 
 module.exports = router;

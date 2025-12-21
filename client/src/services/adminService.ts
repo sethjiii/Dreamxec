@@ -61,3 +61,23 @@ export const getAllDonors = async (): Promise<ApiResponse<{ donors: User[] }>> =
     method: 'GET',
   });
 };
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+export const uploadClubMembers = async (file: File, clubId: string, token?: string) => {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('clubId', clubId);
+
+  const res = await fetch(`${API_BASE}/admin/clubs/members/upload`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body: form,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(err.message || 'Upload failed');
+  }
+  return res.json();
+};

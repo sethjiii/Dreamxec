@@ -1,223 +1,170 @@
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
-const prisma = require('./prisma');
+// --------------------------------------------
+// PASSPORT OAUTH CONFIGURATION (FINAL FIXED)
+// Supports:
+// - USER (student)
+// - DONOR
+// - CLUB_MEMBER
+// - CLUB_PRESIDENT
+//
+// Rules:
+// - Existing DB records decide role
+// - First-time OAuth uses frontend-selected role
+// - Google & LinkedIn both allowed
+// --------------------------------------------
 
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const prisma = require("./prisma");
+
+// --------------------------------------------
+// COMMON FUNCTION TO PROCESS OAUTH USER
+// --------------------------------------------
+async function processOAuthUser(providerIdKey, profile, requestedRole = "USER") {
+  const email = profile.emails?.[0]?.value;
+  const providerId = profile.id;
+
+  if (!email) {
+    throw new Error("OAuth profile email not found");
+  }
+
+  // -------------------------------
+  // Phase 1 — Detect existing records
+  // -------------------------------
+  const donor = await prisma.donor.findUnique({ where: { email } });
+
+  const presidentClub = await prisma.club.findFirst({
+    where: { presidentEmail: email },
+  });
+
+  const clubMember = await prisma.clubMember.findFirst({
+    where: { email },
+  });
+
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  // -------------------------------
+  // Phase 2 — Decide role
+  // Priority:
+  // DB role > Club > Frontend intent
+  // -------------------------------
+  let role = requestedRole || "USER";
+
+  if (donor) role = "DONOR";
+  if (clubMember) role = "CLUB_MEMBER";
+  if (presidentClub) role = "CLUB_PRESIDENT";
+
+  // -----------------------------------
+  // Phase 3 — Existing Donor
+  // -----------------------------------
+  if (donor) {
+    const data = {};
+    if (!donor[providerIdKey]) {
+      data[providerIdKey] = providerId;
+    }
+
+    const updatedDonor = await prisma.donor.update({
+      where: { id: donor.id },
+      data,
+    });
+
+    // attach role for JWT usage
+    updatedDonor.role = "DONOR";
+    return updatedDonor;
+  }
+
+  // -----------------------------------
+  // Phase 4 — Existing User
+  // -----------------------------------
+  if (user) {
+    const data = {};
+    if (!user[providerIdKey]) {
+      data[providerIdKey] = providerId;
+    }
+
+    // club member logic
+    if (clubMember) {
+      data.role = "CLUB_MEMBER";
+      data.isClubMember = true;
+      data.clubId = clubMember.clubId;
+    }
+
+    // president logic
+    if (presidentClub) {
+      data.role = "CLUB_PRESIDENT";
+      data.isClubPresident = true;
+      data.clubId = presidentClub.id;
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data,
+    });
+
+    return updatedUser;
+  }
+
+  // -----------------------------------
+  // Phase 5 — First-time OAuth User
+  // -----------------------------------
+  return await prisma.user.create({
+    data: {
+      email,
+      name: profile.displayName,
+      [providerIdKey]: providerId,
+      role, // 👈 FRONTEND ROLE IS RESPECTED HERE
+      isClubMember: !!clubMember,
+      isClubPresident: !!presidentClub,
+      clubId: clubMember?.clubId || presidentClub?.id || null,
+    },
+  });
+}
+
+// --------------------------------------------
+// GOOGLE OAUTH STRATEGY
+// --------------------------------------------
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
-      passReqToCallback: true, // Pass request to callback to access state
+      passReqToCallback: true, // 👈 REQUIRED
     },
     async (req, accessToken, refreshToken, profile, done) => {
       try {
-        const email = profile.emails[0].value;
-        const googleId = profile.id;
-        const role = req.query.state || 'USER'; // Get role from state parameter
-        
-        console.log('Google OAuth callback - Role:', role, 'Email:', email);
-        
-        // First try to find user by googleId in User table
-        let user = await prisma.user.findFirst({
-          where: { googleId },
-        });
-        
-        // If not found by googleId, try by email in User table
-        if (!user) {
-          user = await prisma.user.findUnique({
-            where: { email },
-          });
-        }
-        
-        // If role is DONOR, also check Donor table
-        let donor = null;
-        if (role === 'DONOR') {
-          donor = await prisma.donor.findFirst({
-            where: { googleId },
-          });
-          
-          if (!donor) {
-            donor = await prisma.donor.findUnique({
-              where: { email },
-            });
-          }
-        }
+        const requestedRole = req.query.state || "USER";
 
-        // If logging in as DONOR and donor account exists
-        if (role === 'DONOR' && donor) {
-          if (!donor.googleId) {
-            const updatedDonor = await prisma.donor.update({
-              where: { id: donor.id },
-              data: { 
-                googleId,
-                emailVerified: true,
-              },
-            });
-            updatedDonor.role = 'DONOR'; // Add role for token generation
-            return done(null, updatedDonor);
-          }
-          donor.role = 'DONOR';
-          return done(null, donor);
-        }
-        
-        // If logging in as USER and user account exists
-        if (role === 'USER' && user) {
-          if (!user.googleId) {
-            const updatedUser = await prisma.user.update({
-              where: { id: user.id },
-              data: { 
-                googleId,
-                emailVerified: true,
-              },
-            });
-            return done(null, updatedUser);
-          }
-          return done(null, user);
-        }
-        
-        // Create new account based on role
-        if (role === 'DONOR') {
-          const newDonor = await prisma.donor.create({
-            data: {
-              email,
-              name: profile.displayName,
-              googleId,
-              emailVerified: true,
-            },
-          });
-          newDonor.role = 'DONOR';
-          return done(null, newDonor);
-        } else {
-          const newUser = await prisma.user.create({
-            data: {
-              email,
-              name: profile.displayName,
-              googleId,
-              emailVerified: true,
-              role: 'USER', // Explicitly set role
-            },
-          });
-          return done(null, newUser);
-        }
+        const user = await processOAuthUser(
+          "googleId",
+          profile,
+          requestedRole
+        );
+
+        return done(null, user);
       } catch (error) {
-        console.error('Google OAuth error:', error);
-        return done(error, false);
+        console.error("Google OAuth error:", error);
+        return done(error, null);
       }
     }
   )
 );
 
-// LinkedIn OAuth Strategy
-passport.use(
-  new LinkedInStrategy(
-    {
-      clientID: process.env.LINKEDIN_CLIENT_ID,
-      clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
-      callbackURL: process.env.LINKEDIN_CALLBACK_URL,
-      scope: ['openid', 'profile', 'email'], // Updated to OIDC scopes
-      passReqToCallback: true, // Pass request to callback to access state
-    },
-    async (req, accessToken, refreshToken, profile, done) => {
-      try {
-        const email = profile.emails[0].value;
-        const linkedinId = profile.id;
-        const role = req.query.state || 'USER'; // Get role from state parameter
-        
-        console.log('LinkedIn OAuth callback - Role:', role, 'Email:', email);
-        
-        // First try to find user by linkedinId in User table
-        let user = await prisma.user.findFirst({
-          where: { linkedinId },
-        });
-        
-        // If not found by linkedinId, try by email in User table
-        if (!user) {
-          user = await prisma.user.findUnique({
-            where: { email },
-          });
-        }
-        
-        // If role is DONOR, also check Donor table
-        let donor = null;
-        if (role === 'DONOR') {
-          donor = await prisma.donor.findFirst({
-            where: { linkedinId },
-          });
-          
-          if (!donor) {
-            donor = await prisma.donor.findUnique({
-              where: { email },
-            });
-          }
-        }
+// --------------------------------------------
+// EXPORTS
+// --------------------------------------------
+module.exports = {
+  passport,
+  processOAuthUser,
+};
 
-        // If logging in as DONOR and donor account exists
-        if (role === 'DONOR' && donor) {
-          if (!donor.linkedinId) {
-            const updatedDonor = await prisma.donor.update({
-              where: { id: donor.id },
-              data: { 
-                linkedinId,
-                emailVerified: true,
-              },
-            });
-            updatedDonor.role = 'DONOR'; // Add role for token generation
-            return done(null, updatedDonor);
-          }
-          donor.role = 'DONOR';
-          return done(null, donor);
-        }
-        
-        // If logging in as USER and user account exists
-        if (role === 'USER' && user) {
-          if (!user.linkedinId) {
-            const updatedUser = await prisma.user.update({
-              where: { id: user.id },
-              data: { 
-                linkedinId,
-                emailVerified: true,
-              },
-            });
-            return done(null, updatedUser);
-          }
-          return done(null, user);
-        }
-        
-        // Create new account based on role
-        if (role === 'DONOR') {
-          const newDonor = await prisma.donor.create({
-            data: {
-              email,
-              name: profile.displayName,
-              linkedinId,
-              emailVerified: true,
-            },
-          });
-          newDonor.role = 'DONOR';
-          return done(null, newDonor);
-        } else {
-          const newUser = await prisma.user.create({
-            data: {
-              email,
-              name: profile.displayName,
-              linkedinId,
-              emailVerified: true,
-              role: 'USER', // Explicitly set role
-            },
-          });
-          return done(null, newUser);
-        }
-      } catch (error) {
-        console.error('LinkedIn OAuth error:', error);
-        return done(error, false);
-      }
-    }
-  )
+// --------------------------------------------
+// DIAGNOSTIC LOGS
+// --------------------------------------------
+console.log(
+  "Passport Google callback:",
+  process.env.GOOGLE_CALLBACK_URL
 );
-
-// Debug: print configured OAuth callbacks for verification
-console.log('Passport Google strategy configured with callback URL:', process.env.GOOGLE_CALLBACK_URL);
-console.log('Passport LinkedIn strategy configured with callback URL:', process.env.LINKEDIN_CALLBACK_URL);
-console.log('Passport Google client ID:', process.env.GOOGLE_CLIENT_ID ? '[REDACTED]' : 'not set');
+console.log(
+  "Passport Google client ID:",
+  process.env.GOOGLE_CLIENT_ID ? "[REDACTED]" : "NOT SET"
+);

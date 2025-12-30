@@ -10,7 +10,10 @@ exports.referClub = async (req, res) => {
       presidentName,
       ficEmail,
       ficPhone,
-      ficName
+      ficName,
+      instagram,
+      linkedIn,
+      portfolio
     } = req.body;
 
     const referral = await prisma.clubReferralRequest.create({
@@ -23,6 +26,9 @@ exports.referClub = async (req, res) => {
         ficEmail,
         ficPhone,
         ficName,
+        instagram,
+        linkedIn,
+        portfolio,
         referrerEmail: req.user.email,
         status: "PENDING",
         referrerId: req.user.id,

@@ -343,6 +343,11 @@ model ClubReferralRequest {
   ficEmail String?
   ficPhone String?
 
+  // Social links
+  instagram String?
+  linkedIn  String?
+  portfolio String?
+
   // Supporting documents (images/PDF)
   evidenceUrls String[] @default([])
 

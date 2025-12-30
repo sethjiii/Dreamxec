@@ -1,5 +1,6 @@
 const AppError = require('../../utils/AppError');
 const {sendEmail}=require("../../services/email.service");
+const prisma = require('../../config/prisma'); // use your Prisma client wrapper
 const catchAsync = require('../../utils/catchAsync');
 const isValidEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

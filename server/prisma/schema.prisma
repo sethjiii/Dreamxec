@@ -383,7 +383,7 @@ model Subscriber {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String   @unique
   isActive  Boolean  @default(true)
-  source    String? // e.g., "footer", "navbar_modal", "guest_checkout"
+  source    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

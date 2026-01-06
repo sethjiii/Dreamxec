@@ -1,5 +1,5 @@
 import { useState } from 'react';
-// import { subscribeToNewsletter } from '../services/newsletterService';
+import { subscribeToNewsletter } from '../services/newsletterService';
 
 interface NewsletterModalProps {
     isOpen: boolean;

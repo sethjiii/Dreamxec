@@ -24,8 +24,6 @@ export default function BrowseProjects({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  use
-
   const handleApplyClick = (project: Project) => {
     // Prevent opening modal if user has already applied
     if (hasApplied(project.id)) {

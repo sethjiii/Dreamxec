@@ -8,7 +8,6 @@ const {
   getUserProject,
   getPublicUserProjects,
   getMyUserProjects,
-  generateId,
 } = require('./user-project.controller');
 
 const { protect, restrictTo } = require('../../middleware/auth.middleware');
@@ -38,13 +37,6 @@ router.use(protect);
 
 // Student's own campaigns
 router.get('/my', restrictTo('USER'), getMyUserProjects);
-
-// Create campaign (only verified club users)
-
-
-// Generate ID (Placed before /:id routes to avoid conflict)
-router.get('/new-id', protect, generateId);
-
 
 // Create campaign (only verified club users)
 router.post(

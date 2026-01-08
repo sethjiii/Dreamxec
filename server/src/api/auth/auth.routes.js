@@ -70,16 +70,10 @@ router.get("/linkedin", async (req, res) => {
     const role = req.query.role || "USER";
     const client = await getLinkedInClient();
 
-    const codeVerifier = generators.codeVerifier();
-    const codeChallenge = generators.codeChallenge(codeVerifier);
-
-    req.session.codeVerifier = codeVerifier;
     req.session.oauthRole = role;
 
     const authUrl = client.authorizationUrl({
-      scope: "openid profile email",
-      code_challenge: codeChallenge,
-      code_challenge_method: "S256",
+      scope: ['openid', 'profile', 'email'],
       state: role,
     });
 
@@ -98,18 +92,22 @@ router.get("/linkedin/callback", async (req, res, next) => {
     const client = await getLinkedInClient();
     const params = client.callbackParams(req);
 
+    const expectedState = req.session.oauthRole || req.query.state;
+
+    if (!expectedState) {
+      throw new Error("Missing OAuth state");
+    }
+
     const tokenSet = await client.callback(
       process.env.LINKEDIN_CALLBACK_URL,
       params,
       {
-        code_verifier: req.session.codeVerifier,
-        state: req.session.oauthRole,
+        state: expectedState,
       }
     );
 
     const userInfo = await client.userinfo(tokenSet.access_token);
 
-    // Convert OIDC profile → same format as Google profile
     const profile = {
       id: userInfo.sub,
       displayName: userInfo.name,
@@ -120,11 +118,16 @@ router.get("/linkedin/callback", async (req, res, next) => {
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
 
+    // cleanup
+    req.session.oauthRole = null;
+
     res.redirect(`${process.env.CLIENT_URL}/auth/callback?token=${token}`);
   } catch (err) {
     console.error("LinkedIn OIDC callback error:", err);
     next(new AppError("LinkedIn authentication failed", 401));
   }
 });
+
+
 
 module.exports = router;

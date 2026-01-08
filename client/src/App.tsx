@@ -164,7 +164,11 @@ function AppContent() {
           });
         }
       } catch (error) {
-        console.log('No user logged in');
+        if(error?.response?.status === 401){
+          setUser(null)
+        }else{
+          console.error('Unexpected /auth/me error:', error);
+        }
       } finally {
         setLoading(false);
       }

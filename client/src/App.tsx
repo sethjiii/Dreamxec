@@ -35,6 +35,20 @@ import { getPublicDonorProjects, createDonorProject, getMyDonorProjects } from '
 import { getAllProjects, verifyUserProject, verifyDonorProject } from './services/adminService';
 import { applyToProject, getMyApplications } from './services/applicationService';
 import { mapBackendRole, mapFrontendRole, mapUserProjectToCampaign, mapDonorProjectToProject } from './services/mappers';
+import StartAProject from './sections/Pages/innovators/StartAProject';
+import HowItWorksStudents from './sections/Pages/innovators/HowItWorks';
+import ProjectEligibility from './sections/Pages/innovators/ProjectEligibility';
+import ResourceCenter from './sections/Pages/innovators/Resources';
+import FundInnovation from './sections/Pages/supporters/FundInnovation';
+import HowItWorksDonors from './sections/Pages/supporters/HowItWorksD';
+import WhyDonate from './sections/Pages/supporters/WhyDonate';
+import CorporateCSRPartnerships from './sections/Pages/supporters/Corporate';
+import AlumniGivingPrograms from './sections/Pages/supporters/AlumniGiving';
+import BecomeMentor from './sections/Pages/supporters/BecomeMentor';
+import PerfectStorm from './sections/Pages/company/PerfectStorm';
+import Careers from './sections/Pages/company/Careers';
+import ContactUs from './sections/Pages/company/ContactUs';
+import FAQ from './sections/Pages/company/FAQ';
 import AboutUs from './components/AboutUs';
 import VerifyPresident from './components/VerifyPresident';
 
@@ -151,7 +165,11 @@ function AppContent() {
           });
         }
       } catch (error) {
-        console.log('No user logged in');
+        if(error?.response?.status === 401){
+          setUser(null)
+        }else{
+          console.error('Unexpected /auth/me error:', error);
+        }
       } finally {
         setLoading(false);
       }
@@ -1193,6 +1211,28 @@ function AppContent() {
                               <Route path="/president/campaigns" element={<PresidentLayout><PresidentCampaigns /></PresidentLayout>} />
                               <Route path="/president/upload-members" element={<PresidentLayout><UploadMembers /></PresidentLayout>} />
                               <Route path="/president/add-member" element={<PresidentLayout><AddMemberManually /></PresidentLayout>} />
+                            </Routes>
+
+                            {/* Footer Routes */}
+                            <Routes>
+                              <Route path="/start-project" element={<StartAProject/>} />
+                              <Route path="/how-it-works/students" element={<HowItWorksStudents/>} />
+                              <Route path="/eligibility" element={<ProjectEligibility/>} />
+                              <Route path="/resources" element={<ResourceCenter/>} />
+
+
+
+                              <Route path="/fund-innovation" element={<FundInnovation/>} />
+                              <Route path="/how-it-works/donors" element={<HowItWorksDonors/>} />
+                              <Route path="/why-donate" element={<WhyDonate/>} />
+                              <Route path="/corporate-partnerships" element={<CorporateCSRPartnerships/>} />
+                              <Route path="/alumni-giving" element={<AlumniGivingPrograms/>} />
+                              <Route path="/become-mentor" element={<BecomeMentor/>} />
+                              <Route path="/perfect-storm" element={<PerfectStorm/>} />
+                              <Route path="/careers" element={<Careers/>} />
+                              <Route path="/contact" element={<ContactUs/>} />
+                              <Route path="/faq" element={<FAQ/>} />
+
                             </Routes>
                           </div>
                         </div>

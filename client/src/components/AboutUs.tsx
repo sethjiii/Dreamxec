@@ -1,18 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { Header } from '../sections/Header';
-import { Main } from './Main'; // Assuming we might want to reuse layout or just build a custom one. 
 // Actually, I'll build a custom one to be safe and simple, similar to other pages.
 
 const AboutUs = () => {
     const navigate = useNavigate();
-
-    // Mock user for header if needed, or we handles it inside App.tsx usually. 
-    // But wait, App.tsx passes user to Header usually.
-    // I need to receive props or use context if I want Header inside here, 
-    // OR I can just let App.tsx render Header and this component just renders content.
-    // Looking at App.tsx:
-    // <Route path="/campaigns" element={<><Header ... /><BrowseCampaigns ... /></>} />
-    // So I should design this component to be just the content, and App.tsx will wrap it with Header.
 
     return (
         <div className="min-h-screen bg-dreamxec-cream pt-20"> {/* pt-20 to account for fixed header if any, or just spacing */}

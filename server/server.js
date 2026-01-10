@@ -137,7 +137,9 @@ app.use("/api/admin/referrals", adminClubReferralRoutes);
 app.use("/api/admin/club-verifications", adminClubVerificationRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+
 app.use('/api/upload', uploadRoutes);
+app.use(cors())
 
 // --------------------------------------------
 // HANDLE 404

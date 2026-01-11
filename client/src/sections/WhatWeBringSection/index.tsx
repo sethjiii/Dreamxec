@@ -22,7 +22,7 @@ export const WhatWeBringSection = () => {
     <div className="w-full py-20 px-4">
       <div className="max-w-7xl mx-auto text-center">
         {/* Main Headline */}
-        <h1 
+        <h1
           className="text-center text-dreamxec-berkeley-blue text-4xl md:text-7xl font-extrabold mb-8"
           style={{ animationDelay: "100ms" }}
         >
@@ -31,27 +31,26 @@ export const WhatWeBringSection = () => {
 
         {/* 3-Column Layout with Whiteboard Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      {columns.map((col, index) => (
-        <div
-          key={index}
-          style={{ animationDelay: `${200 + index * 150}ms` }}
-          className="card-whiteboard animate-fade-in" // This is now just the container
-        >
-          {/* This new div holds the content */}
-          <div className="whiteboard-content mt-8">
-            <div>
-               <h3 className="text-xl  md:text-2xl lg:text-3xl font-bold text-slate-800 mb-2">
-                {col.title}
-              </h3>
-              <p className="text-xs md:text-sm lg:text-base text-slate-600 leading-relaxed">
-                {col.text}
-              </p>
+          {columns.map((col, index) => (
+            <div
+              key={index}
+              style={{ animationDelay: `${200 + index * 150}ms` }}
+              className="card-whiteboard animate-fade-in" // This is now just the container
+            >
+              {/* This new div holds the content */}
+              <div className="whiteboard-content mt-8">
+                <div>
+                  <h3 className="text-xl  md:text-2xl lg:text-3xl font-bold text-slate-800 mb-2">
+                    {col.title}
+                  </h3>
+                  <p className="text-xs md:text-sm lg:text-base text-slate-600 leading-relaxed">
+                    {col.text}
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
-      ))}
-    </div>
-    // ...
       </div>
     </div>
   );

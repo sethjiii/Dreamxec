@@ -15,6 +15,7 @@ module.exports = async function uploadToCloudinary(filePath,folder) {
     });
 
     fs.unlinkSync(filePath); 
+    console.log("Cloudinary Upload Success:", res);
     return res.secure_url;
   } catch (err) {
     console.error("Cloudinary Upload Error:", err);

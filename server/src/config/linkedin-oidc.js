@@ -6,9 +6,10 @@ async function getLinkedInClient() {
   if (clientInstance) return clientInstance;
 
   const linkedInIssuer = new Issuer({
-    issuer: "https://www.linkedin.com",
+    issuer: "https://www.linkedin.com/oauth",
     authorization_endpoint: "https://www.linkedin.com/oauth/v2/authorization",
     token_endpoint: "https://www.linkedin.com/oauth/v2/accessToken",
+    jwks_uri: 'https://www.linkedin.com/oauth/openid/jwks',
     userinfo_endpoint: "https://api.linkedin.com/v2/userinfo",
   });
 

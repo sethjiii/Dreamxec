@@ -47,10 +47,9 @@ async function apiRequest<T>(
 
     // --- FIX 1: Gracefully handle NOT LOGGED IN ---
     if (response.status === 401) {
-      return {
-        status: 'error',
-        message: 'Not logged in',
-      } as ApiResponse<T>;
+      const error = new Error('Not authenticated');
+      (error as any).status = 401;
+      throw error;
     }
 
     // --- Other errors ---

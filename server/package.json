@@ -11,6 +11,7 @@
   "dependencies": {
     "@prisma/client": "^6.19.0",
     "@sendgrid/mail": "^8.1.6",
+    "axios": "^1.13.2",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
@@ -26,6 +27,7 @@
     "multer-storage-cloudinary": "^2.2.1",
     "nodemailer": "^7.0.9",
     "openid-client": "^5.7.1",
+    "otp-generator": "^4.0.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-linkedin-oauth2": "^2.0.0",

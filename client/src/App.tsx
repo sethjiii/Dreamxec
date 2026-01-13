@@ -162,12 +162,13 @@ function AppContent() {
             name: response.data.user.name,
             email: response.data.user.email,
             role: mapBackendRole(response.data.user.role),
+            studentVerified: response.data.user.studentVerified,
           });
         }
       } catch (error) {
-        if(error?.response?.status === 401){
+        if (error?.response?.status === 401) {
           setUser(null)
-        }else{
+        } else {
           console.error('Unexpected /auth/me error:', error);
         }
       } finally {
@@ -866,6 +867,8 @@ function AppContent() {
                                       <StudentDashboard
                                         studentName={user.name || 'User'}
                                         campaigns={userCampaigns}
+                                        user={user}
+                                        studentVerified={user.studentVerified}
                                         onCreateCampaign={() => navigate('/create')}
                                         onViewCampaign={(id) => navigate(`/campaign/${id}`)}
                                       />
@@ -1215,23 +1218,23 @@ function AppContent() {
 
                             {/* Footer Routes */}
                             <Routes>
-                              <Route path="/start-project" element={<StartAProject/>} />
-                              <Route path="/how-it-works/students" element={<HowItWorksStudents/>} />
-                              <Route path="/eligibility" element={<ProjectEligibility/>} />
-                              <Route path="/resources" element={<ResourceCenter/>} />
+                              <Route path="/start-project" element={<StartAProject />} />
+                              <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
+                              <Route path="/eligibility" element={<ProjectEligibility />} />
+                              <Route path="/resources" element={<ResourceCenter />} />
 
 
 
-                              <Route path="/fund-innovation" element={<FundInnovation/>} />
-                              <Route path="/how-it-works/donors" element={<HowItWorksDonors/>} />
-                              <Route path="/why-donate" element={<WhyDonate/>} />
-                              <Route path="/corporate-partnerships" element={<CorporateCSRPartnerships/>} />
-                              <Route path="/alumni-giving" element={<AlumniGivingPrograms/>} />
-                              <Route path="/become-mentor" element={<BecomeMentor/>} />
-                              <Route path="/perfect-storm" element={<PerfectStorm/>} />
-                              <Route path="/careers" element={<Careers/>} />
-                              <Route path="/contact" element={<ContactUs/>} />
-                              <Route path="/faq" element={<FAQ/>} />
+                              <Route path="/fund-innovation" element={<FundInnovation />} />
+                              <Route path="/how-it-works/donors" element={<HowItWorksDonors />} />
+                              <Route path="/why-donate" element={<WhyDonate />} />
+                              <Route path="/corporate-partnerships" element={<CorporateCSRPartnerships />} />
+                              <Route path="/alumni-giving" element={<AlumniGivingPrograms />} />
+                              <Route path="/become-mentor" element={<BecomeMentor />} />
+                              <Route path="/perfect-storm" element={<PerfectStorm />} />
+                              <Route path="/careers" element={<Careers />} />
+                              <Route path="/contact" element={<ContactUs />} />
+                              <Route path="/faq" element={<FAQ />} />
 
                             </Routes>
                           </div>
@@ -1260,6 +1263,7 @@ function AppContent() {
 
 // Main App Component with Router
 const App = () => {
+
   return (
     <Router>
       <AppContent />

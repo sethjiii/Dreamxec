@@ -4,8 +4,7 @@ import { Header } from '../sections/Header';
 import imageIcon from '../assets/image.png';
 import image1Icon from '../assets/image1.png';
 import imageCopyIcon from '../assets/imagecopy.png';
-import ProfileHeader from './ProfileHeader';
-import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+
 
 // Simple SVG Icons
 const UserIcon = ({ className }: { className?: string }) => (
@@ -389,15 +388,7 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                   )}
                 </div>
                 {/* --use header--                 */}
-                {isSignup && <div className="max-w-3xl mx-auto px-4">
-                  <ProfileHeader
-                    completion={calculateCompletion({ name, email, phone, institution, yearofstudy, gender, dob, address, education, occupation, pan, skills, projecttitle, fundingRequirement })}
-                    emailVerified={true}
-                    phoneVerified={setPhone ? isValidPhoneNumber(phone) : false}
-                    createdAt="Jan 2026"
-                  />
-                </div>
-                }
+                
                 <div className="relative my-6">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t-2 border-dreamxec-navy"></div>
@@ -459,126 +450,6 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                     />
                   </div>
                 </div>
-                {/*phone number*/}
-                {isSignup && <div className={isSignup ? "md:col-span-1" : "md:col-span-2"}>
-                  <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
-                    Mobile Number <span className="text-red-600">*</span>
-                  </label>
-                  <div className="relative">
-                    <PhoneIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dreamxec-navy opacity-60 w-4 h-4" />
-                    <PhoneInput
-                      international
-                      defaultCountry="IN"
-                      value={phone}
-                      onChange={(value) => setPhone(value)}
-                      className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-green"
-                    />
-                  </div>
-                </div>
-                }
-                {/*gender */}
-                {isSignup && (role === 'donor') && (
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
-                      Gender <span className="text-red-600">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="radio"
-                        name="gender"
-                        value="male"
-                        onChange={(e) => setGender(e.target.value)}
-                        className="mr-2"
-                      />
-                      Male
-                      <input
-                        type="radio"
-                        name="gender"
-                        value="female"
-                        onChange={(e) => setGender(e.target.value)}
-                        className="ml-4 mr-2"
-                      />
-                      Female
-                      <input
-                        type="radio"
-                        name="gender"
-                        value="other"
-                        onChange={(e) => setGender(e.target.value)}
-                        className="ml-4 mr-2"
-                      />
-                      Other
-                    </div>
-                  </div>
-                )}
-
-                {/*Date of birth*/}
-                {isSignup && (role === 'donor') && (
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
-                      Date of Birth <span className="text-red-600">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="date"
-                        name="dob"
-                        onChange={(e) => { }}
-                        className="w-full pl-3 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
-                      />
-                    </div>
-                  </div>
-                )}
-                {/* Pan Card Detail */}
-                {isSignup && (role === 'donor') && (
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
-                      PAN Card Number <span className="text-red-600">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        name="panCard"
-                        onChange={(e) => { }}
-                        placeholder="Enter your PAN Card Number"
-                        className="w-full pl-3 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/*Edcation Qualification (Signup for Donor) */}
-                {isSignup && (role === 'donor') && (
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
-                      Educational Qualification <span className="text-red-600">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        name="educationQualification"
-                        onChange={(e) => { }}
-                        placeholder="Enter your highest educational qualification"
-                        className="w-full pl-3 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/*occupation (Signup for Donor) */}
-                {isSignup && (role === 'donor') && (
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
-                      Occupation <span className="text-red-600">*</span>
-                    </label>
-                    <div className="relative">
-                      <select name="occupation" onChange={(e) => setOccupation(e.target.value)} className="w-full bg-transparent border-b-2 border-slate-200 focus:border-[#0B9C2C] py-2 outline-none">
-                        <option value="salaried">Salaried</option>
-                        <option value="business">Business</option>
-                        <option value="professional">Professional</option>
-                      </select>
-                    </div>
-                  </div>
-                )}
-
                 {/* Institution / Organization (Signup for Student and Donor) */}
                 {isSignup && (role === 'student' || role === 'donor') && (
                   <div className="md:col-span-2">
@@ -599,25 +470,7 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                   </div>
                 )}
 
-                {/* year of study (Signup for Student) */}
-                {isSignup && (role === 'student') && (
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
-                      Year of Study <span className="text-red-600">*</span>
-                    </label>
-                    <div className="relative">
-                      <BuildingIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dreamxec-navy opacity-60 w-4 h-4" />
-                      <select name="yearOfStudy" onChange={(e) => setYearofstudy(e.target.value)} className="w-full bg-transparent border-b-2 border-dreamxec-navy focus:border-dreamxec-orange py-2 outline-none transition-all cursor-pointer pl-12 shadow-pastel-green">
-                        <option value="">Select Year</option>
-                        <option value="1st">1st Year</option>
-                        <option value="2nd">2nd Year</option>
-                        <option value="3rd">3rd Year</option>
-                        <option value="Final">Final Year</option>
-                      </select>
-                    </div>
-                  </div>
-                )}
-
+              
                 {/* Password - Hidden for Forgot Password */}
                 {!isForgotPassword && (
                   <div className={isSignup ? "md:col-span-1" : "md:col-span-2"}>
@@ -673,103 +526,7 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                   </div>
                 )}
               </div>
-              {/*Social media links*/}
-              {isSignup && <div>
-                <h2 className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">Social & Bio</h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <input type="text" name="instagram" placeholder="Instagram URL" className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-green" />
-                  <input type="text" name="facebook" placeholder="Facebook URL" className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-saffron" />
-                  <input type="text" name="twitter" placeholder="X (Twitter) URL" className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-green" />
-                  <input type="text" name="reddit" placeholder="Reddit URL" className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-saffron" />
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">Bio</label>
-                    <textarea
-                      name="bio"
-                      placeholder="Short personal description"
-                      rows={2}
-                      className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-saffron"
-                    ></textarea>
-                  </div>
-                </div>
-              </div>
-              }
-
-              {/*Address */}
-              {isSignup && <div className="md:col-span-2">
-                <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">Full Residential Address</label>
-                <textarea
-                  name="address"
-                  rows={3}
-                  className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-green"
-                ></textarea>
-
-              </div>}
-              {/*skill & project*/}
-              {isSignup && role === 'student' && <div className="md:col-span-2">
-                <section>
-                  <h2 className="text-[dreamxec-navy] text-lg font-black mb-6 flex items-center gap-3 uppercase tracking-wider">
-                    Innovation & Projects
-                  </h2>
-                  <div className="space-y-6">
-                    <div>
-                      <label className="text-[10px] font-bold text-dreamxec-navy uppercase">Project Title</label>
-                      <input type="text" name="projectTitle" placeholder="Project Name" onChange={e => setProjecttitle(e.target.value)} className="w-full border-b-2 border-dreamxec-navy focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-saffron py-2 outline-none rounded" />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="relative">
-                        <label className="text-[10px] font-bold text-dreamxec-navy uppercase">Funding Needed (Optional)</label>
-                        <div className="flex items-center border-b-2 border-dreamxec-navy focus-within:border-[#0B9C2C]">
-                          <span className="text-dreamxec-navy font-bold mr-2">₹</span>
-                          <input type="number" name="fundingRequirement" onChange={e => setFundingRequirement(e.target.value)} className="w-full py-2 outline-none bg-transparent" />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-dreamxec-navy uppercase">Skills & Interests</label>
-                        <div className="flex flex-col gap-3 mt-1">
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              value={skillInput}
-                              onChange={(e) => setSkillInput(e.target.value)}
-                              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
-                              placeholder="Type skill and press Enter"
-                              className="flex-1 border-b-2 border-slate-200 focus:border-[#FF7F00] py-2 outline-none transition-all"
-                            />
-                            <button
-                              type="button"
-                              onClick={addSkill}
-                              className="bg-[#0B9C2C] text-white px-4 py-1 rounded-lg text-xs font-bold hover:bg-[#000080] transition-colors"
-                            >
-                              ADD
-                            </button>
-                          </div>
-
-                          {/* Render Tags */}
-                          <div className="flex flex-wrap gap-2">
-                            {formData.skills.map(s => (
-                              <span key={s} className="bg-[#000080] text-white text-[10px] px-3 py-1.5 rounded-full font-bold flex items-center gap-2 shadow-sm">
-                                {s}
-                                <button
-                                  type="button"
-                                  onClick={() => removeSkill(s)}
-                                  className="hover:text-[#FF7F00] text-white/60 text-sm font-black"
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                            {formData.skills.length === 0 && (
-                              <p className="text-xs text-slate-400 italic">No skills added yet</p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              </div>
-              }
+              
               {/* Submit Button */}
               <div className="mt-6">
                 <button
@@ -862,12 +619,6 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
             </div>
           </div>
         </div>
-        <style>{`
-                .custom-phone { display: flex; align-items: center; padding: 4px 0; }
-                .PhoneInputInput { border: none; outline: none; background: transparent; width: 100%; font-weight: 500; font-size: 0.9rem; color: #000080; }
-                .PhoneInputCountry { border-right: 1px solid #cbd5e1; padding-right: 10px; margin-right: 10px; }
-                input::placeholder { color: #cbd5e1; font-weight: 400; }
-            `}</style>
         {/* End Auth Page Content */}
       </div>
     </>

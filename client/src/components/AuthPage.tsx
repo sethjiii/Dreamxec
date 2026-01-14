@@ -65,7 +65,7 @@ import { PhoneIcon } from 'lucide-react';
 
 interface AuthPageProps {
   onLogin: (email: string, password: string, role: 'student' | 'donor') => void;
-  onSignup: (name: string, email: string, password: string, role: 'student' | 'donor', institution?: string, phone?: string, yearofstudy?: string, gender?: string, dob?: string, address?: string, education?: string, occupation?: string, pan?: string) => void;
+  onSignup: (name: string, email: string, password: string, role: 'student' | 'donor', institution?: string, phone?: string, yearofstudy?: string, gender?: string, dob?: string, address?: string, education?: string, occupation?: string, pan?: string, skills?: string[]) => void;
   onGoogleAuth?: (role: 'student' | 'donor') => void;
   onLinkedInAuth?: (role: 'student' | 'donor') => void;
   onForgotPassword?: (email: string) => void;
@@ -96,6 +96,10 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
   const [education, setEucation] = useState('');
   const [occupation, setOccupation] = useState('');
   const [pan, setPan] = useState('');
+  const [skillInput, setSkillInput] = useState('');
+  const [skills, setSkills] = useState(["C++", "ReactJS"]);
+  const [projecttitle, setProjecttitle] = useState('');
+  const [fundingRequirement, setFundingRequirement] = useState('');
   // Check window width to show/hide background images
   useEffect(() => {
     const checkWindowWidth = () => {
@@ -182,6 +186,22 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
     } finally {
       setIsSubmitting(false);
     }
+  };
+  const formData = { name, email, phone, institution, yearofstudy, gender, dob, address, education, occupation, pan, skills };
+  const addSkill = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmedSkill = skillInput.trim();
+    if (trimmedSkill && !formData.skills.includes(trimmedSkill)) {
+      setSkills(prev => ({
+        ...prev,
+        skills: [...prev, trimmedSkill]
+      }));
+      setSkillInput(''); // Input clear karne ke liye
+    }
+  };
+  const removeSkill = (skillToRemove: string) => {
+    setSkills(prev => prev.filter(s => s !== skillToRemove));
+
   };
 
   const isFormValid = isForgotPassword
@@ -371,7 +391,7 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                 {/* --use header--                 */}
                 {isSignup && <div className="max-w-3xl mx-auto px-4">
                   <ProfileHeader
-                    completion={calculateCompletion({ name, email, phone, institution, yearofstudy, gender, dob, address, education, occupation, pan })}
+                    completion={calculateCompletion({ name, email, phone, institution, yearofstudy, gender, dob, address, education, occupation, pan, skills, projecttitle, fundingRequirement })}
                     emailVerified={true}
                     phoneVerified={setPhone ? isValidPhoneNumber(phone) : false}
                     createdAt="Jan 2026"
@@ -686,7 +706,70 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
 
               </div>}
               {/*skill & project*/}
+              {isSignup && role === 'student' && <div className="md:col-span-2">
+                <section>
+                  <h2 className="text-[dreamxec-navy] text-lg font-black mb-6 flex items-center gap-3 uppercase tracking-wider">
+                    Innovation & Projects
+                  </h2>
+                  <div className="space-y-6">
+                    <div>
+                      <label className="text-[10px] font-bold text-dreamxec-navy uppercase">Project Title</label>
+                      <input type="text" name="projectTitle" placeholder="Project Name" onChange={e => setProjecttitle(e.target.value)} className="w-full border-b-2 border-dreamxec-navy focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-saffron py-2 outline-none rounded" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="relative">
+                        <label className="text-[10px] font-bold text-dreamxec-navy uppercase">Funding Needed (Optional)</label>
+                        <div className="flex items-center border-b-2 border-dreamxec-navy focus-within:border-[#0B9C2C]">
+                          <span className="text-dreamxec-navy font-bold mr-2">₹</span>
+                          <input type="number" name="fundingRequirement" onChange={e => setFundingRequirement(e.target.value)} className="w-full py-2 outline-none bg-transparent" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-dreamxec-navy uppercase">Skills & Interests</label>
+                        <div className="flex flex-col gap-3 mt-1">
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={skillInput}
+                              onChange={(e) => setSkillInput(e.target.value)}
+                              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                              placeholder="Type skill and press Enter"
+                              className="flex-1 border-b-2 border-slate-200 focus:border-[#FF7F00] py-2 outline-none transition-all"
+                            />
+                            <button
+                              type="button"
+                              onClick={addSkill}
+                              className="bg-[#0B9C2C] text-white px-4 py-1 rounded-lg text-xs font-bold hover:bg-[#000080] transition-colors"
+                            >
+                              ADD
+                            </button>
+                          </div>
 
+                          {/* Render Tags */}
+                          <div className="flex flex-wrap gap-2">
+                            {formData.skills.map(s => (
+                              <span key={s} className="bg-[#000080] text-white text-[10px] px-3 py-1.5 rounded-full font-bold flex items-center gap-2 shadow-sm">
+                                {s}
+                                <button
+                                  type="button"
+                                  onClick={() => removeSkill(s)}
+                                  className="hover:text-[#FF7F00] text-white/60 text-sm font-black"
+                                >
+                                  ×
+                                </button>
+                              </span>
+                            ))}
+                            {formData.skills.length === 0 && (
+                              <p className="text-xs text-slate-400 italic">No skills added yet</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+              }
               {/* Submit Button */}
               <div className="mt-6">
                 <button
@@ -779,6 +862,12 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
             </div>
           </div>
         </div>
+        <style>{`
+                .custom-phone { display: flex; align-items: center; padding: 4px 0; }
+                .PhoneInputInput { border: none; outline: none; background: transparent; width: 100%; font-weight: 500; font-size: 0.9rem; color: #000080; }
+                .PhoneInputCountry { border-right: 1px solid #cbd5e1; padding-right: 10px; margin-right: 10px; }
+                input::placeholder { color: #cbd5e1; font-weight: 400; }
+            `}</style>
         {/* End Auth Page Content */}
       </div>
     </>

@@ -673,7 +673,7 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                   </div>
                 </div>
               </div>
-}
+              }
 
               {/*Address */}
               {isSignup && <div className="md:col-span-2">
@@ -685,6 +685,8 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                 ></textarea>
 
               </div>}
+              {/*skill & project*/}
+
               {/* Submit Button */}
               <div className="mt-6">
                 <button

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { StarDecoration } from './icons/StarDecoration';
 import imageIcon from '../assets/image.png';
+import SEO from './SEO';
 
 // Simple SVG Icons
 const ArrowLeftIcon = ({ className }: { className?: string }) => (
@@ -148,7 +149,13 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
 
   if (showSuccess) {
     return (
+
       <div className="min-h-screen bg-dreamxec-cream flex items-center justify-center px-4 relative overflow-hidden">
+        <SEO
+          title="Start Your Fundraising Campaign"
+          description="Need money for your college project or research? Create a campaign on DreamXec and get funded by alumni and donors."
+          keywords="fund my college project, crowdfunding for students, raise money for education, student financial support"
+        />
         {/* Decorative elements */}
         <div className="absolute top-20 left-10 z-0 opacity-20">
           <StarDecoration className="w-16 h-16" color="#FF7F00" />
@@ -437,8 +444,8 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
                   type="submit"
                   disabled={!isFormValid || isSubmitting}
                   className={`w-full px-6 py-3 rounded-lg font-bold text-white transition-all font-display text-lg border-4 border-dreamxec-navy ${isFormValid
-                      ? 'bg-dreamxec-green hover:scale-105 shadow-pastel-green'
-                      : 'bg-gray-400 cursor-not-allowed opacity-50'
+                    ? 'bg-dreamxec-green hover:scale-105 shadow-pastel-green'
+                    : 'bg-gray-400 cursor-not-allowed opacity-50'
                     } ${isSubmitting ? 'opacity-75 cursor-wait' : ''}`}
                 >
                   {isSubmitting ? 'Creating Campaign & Uploading...' : 'Submit for Review'}

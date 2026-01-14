@@ -22,9 +22,23 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
     const [mobileOtpStatus, setMobileOtpStatus] = useState<OTPStatus>('idle');
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [emailOtpToken, setEmailOtpToken] = useState(''); // Store JWT token for email OTP
-    const [mobileOtpToken, setMobileOtpToken] = useState(''); // Store JWT token for mobile OTP
+    // Removed token states as they are no longer used
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+    // Timer states
+    const [emailTimer, setEmailTimer] = useState(0);
+    const [mobileTimer, setMobileTimer] = useState(0);
+
+    useEffect(() => {
+        let interval: ReturnType<typeof setInterval>;
+        if (emailTimer > 0 || mobileTimer > 0) {
+            interval = setInterval(() => {
+                setEmailTimer((prev) => (prev > 0 ? prev - 1 : 0));
+                setMobileTimer((prev) => (prev > 0 ? prev - 1 : 0));
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [emailTimer, mobileTimer]);
 
     const resetForm = () => {
         setFullName('');
@@ -37,9 +51,10 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
         setEmailOtpStatus('idle');
         setMobileOtp('');
         setMobileOtpStatus('idle');
-        setEmailOtpToken('');
-        setMobileOtpToken('');
+        // Removed token resets
         setIsSubmitting(false);
+        setEmailTimer(0);
+        setMobileTimer(0);
     };
 
     if (!isOpen) return null;
@@ -62,12 +77,14 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
         setEmailOtpStatus('sending');
         try {
             const res = await generateEmailOtp(studentEmail);
-            if (res.token) {
-                setEmailOtpToken(res.token); // Store the token
+            if (res.message) {
+                // No token to store
                 setEmailOtpStatus('sent');
-                alert(`OTP sent to ${studentEmail}. ${res.otp} this is for testing only`);
+                setEmailTimer(60); // Start cooldown
+                if (res.otp) alert(`OTP sent to ${studentEmail}. ${res.otp} (Dev Mode)`);
+                else alert(`OTP sent to ${studentEmail}.`);
             } else {
-                throw new Error("No token received");
+                throw new Error("Failed to send OTP");
             }
         } catch (error) {
             console.error(error);
@@ -77,12 +94,12 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
     };
 
     const verifyEmailOtpHandler = async () => {
-        if (!emailOtp || !emailOtpToken) {
+        if (!emailOtp) {
             alert("Please enter OTP and ensure it was sent.");
             return;
         }
         try {
-            await verifyOtp(emailOtpToken, emailOtp);
+            await verifyOtp(emailOtp, { email: studentEmail });
             setEmailOtpStatus('verified');
             alert("Email Verified Successfully!");
         } catch (error) {
@@ -100,12 +117,14 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
         setMobileOtpStatus('sending');
         try {
             const res = await generateMobileOtp(mobile);
-            if (res.token) {
-                setMobileOtpToken(res.token); // Store token
+            if (res.message) {
+                // No token to store
                 setMobileOtpStatus('sent');
-                alert(`OTP sent to ${mobile} via WhatsApp. ${res.otp} this is for testing only`);
+                setMobileTimer(60); // Start cooldown
+                if (res.otp) alert(`OTP sent to ${mobile}. ${res.otp} (Dev Mode)`);
+                else alert(`OTP sent to ${mobile}.`);
             } else {
-                throw new Error("No token received");
+                throw new Error("Failed to send OTP");
             }
         } catch (error) {
             console.error(error);
@@ -115,12 +134,12 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
     };
 
     const verifyMobileOtpHandler = async () => {
-        if (!mobileOtp || !mobileOtpToken) {
+        if (!mobileOtp) {
             alert("Please enter OTP and ensure it was sent.");
             return;
         }
         try {
-            await verifyOtp(mobileOtpToken, mobileOtp);
+            await verifyOtp(mobileOtp, { phonenumber: mobile });
             setMobileOtpStatus('verified');
             alert("Mobile Number Verified Successfully!");
         } catch (error) {
@@ -294,10 +313,10 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
                                         <button
                                             type="button"
                                             onClick={sendEmailOtp}
-                                            disabled={emailOtpStatus === 'sending' || emailOtpStatus === 'sent'}
-                                            className="px-4 py-2 bg-blue-100 text-blue-800 font-bold rounded-lg hover:bg-blue-200 disabled:opacity-50 min-w-[100px]"
+                                            disabled={emailOtpStatus === 'sending' || (emailOtpStatus === 'sent' && emailTimer > 0)}
+                                            className="px-4 py-2 bg-blue-100 text-blue-800 font-bold rounded-lg hover:bg-blue-200 disabled:opacity-50 min-w-[100px] transition-all duration-200"
                                         >
-                                            {emailOtpStatus === 'sending' ? 'Sending...' : 'Send OTP'}
+                                            {emailOtpStatus === 'sending' ? 'Sending...' : emailTimer > 0 ? `Resend (${emailTimer}s)` : 'Send OTP'}
                                         </button>
                                     )}
                                     {emailOtpStatus === 'verified' && (
@@ -360,10 +379,10 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
                                         <button
                                             type="button"
                                             onClick={sendMobileOtp}
-                                            disabled={mobileOtpStatus === 'sending' || mobileOtpStatus === 'sent'}
-                                            className="px-4 py-2 bg-blue-100 text-blue-800 font-bold rounded-lg hover:bg-blue-200 disabled:opacity-50 min-w-[100px]"
+                                            disabled={mobileOtpStatus === 'sending' || (mobileOtpStatus === 'sent' && mobileTimer > 0)}
+                                            className="px-4 py-2 bg-blue-100 text-blue-800 font-bold rounded-lg hover:bg-blue-200 disabled:opacity-50 min-w-[100px] transition-all duration-200"
                                         >
-                                            {mobileOtpStatus === 'sending' ? 'Sending...' : 'Send OTP'}
+                                            {mobileOtpStatus === 'sending' ? 'Sending...' : mobileTimer > 0 ? `Resend (${mobileTimer}s)` : 'Send OTP'}
                                         </button>
                                     )}
                                     {mobileOtpStatus === 'verified' && (

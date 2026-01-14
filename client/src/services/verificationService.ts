@@ -1,8 +1,8 @@
 import apiRequest, { type ApiResponse } from './api';
 
 export interface GenerateOtpResponse {
-    token: string;
-    otp: string;
+    message: string;
+    otp?: string; // Optional, present only in dev/test mode or if backend sends it
 }
 
 export interface VerifyOtpResponse {
@@ -23,10 +23,11 @@ export const generateMobileOtp = async (phonenumber: string): Promise<ApiRespons
     });
 };
 
-export const verifyOtp = async (token: string, otp: string): Promise<ApiResponse<VerifyOtpResponse>> => {
+export const verifyOtp = async (otp: string, identifier: { email?: string; phonenumber?: string }): Promise<ApiResponse<VerifyOtpResponse>> => {
+    const body = { otp, ...identifier };
     return apiRequest<VerifyOtpResponse>('/otp/verify-otp', {
         method: 'POST',
-        body: JSON.stringify({ token, otp }),
+        body: JSON.stringify(body),
     });
 };
 

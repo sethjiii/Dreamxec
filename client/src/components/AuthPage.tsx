@@ -4,6 +4,8 @@ import { Header } from '../sections/Header';
 import imageIcon from '../assets/image.png';
 import image1Icon from '../assets/image1.png';
 import imageCopyIcon from '../assets/imagecopy.png';
+import ProfileHeader from './ProfileHeader';
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
 
 // Simple SVG Icons
 const UserIcon = ({ className }: { className?: string }) => (
@@ -12,6 +14,13 @@ const UserIcon = ({ className }: { className?: string }) => (
     <circle cx="12" cy="7" r="4" />
   </svg>
 );
+
+//live progess
+const calculateCompletion = (data: any) => {
+  const fields = Object.values(data);
+  const filledFields = fields.filter(value => value !== '' && (Array.isArray(value) ? value.length > 0 : value !== undefined && value !== null));
+  return Math.round((filledFields.length / fields.length) * 100);
+};
 
 const MailIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -52,10 +61,11 @@ const LinkedInIcon = ({ className }: { className?: string }) => (
 );
 
 import { UserRole } from '../types';
+import { PhoneIcon } from 'lucide-react';
 
 interface AuthPageProps {
   onLogin: (email: string, password: string, role: 'student' | 'donor') => void;
-  onSignup: (name: string, email: string, password: string, role: 'student' | 'donor', institution?: string) => void;
+  onSignup: (name: string, email: string, password: string, role: 'student' | 'donor', institution?: string, phone?: string, yearofstudy?: string, gender?: string, dob?: string, address?: string, education?: string, occupation?: string, pan?: string) => void;
   onGoogleAuth?: (role: 'student' | 'donor') => void;
   onLinkedInAuth?: (role: 'student' | 'donor') => void;
   onForgotPassword?: (email: string) => void;
@@ -78,7 +88,14 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
   const [institution, setInstitution] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [phone, setPhone] = useState('');
+  const [yearofstudy, setYearofstudy] = useState('');
+  const [gender, setGender] = useState('');
+  const [dob, setDob] = useState('');
+  const [address, setAddress] = useState('');
+  const [education, setEucation] = useState('');
+  const [occupation, setOccupation] = useState('');
+  const [pan, setPan] = useState('');
   // Check window width to show/hide background images
   useEffect(() => {
     const checkWindowWidth = () => {
@@ -292,8 +309,8 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                     type="button"
                     onClick={() => setRole('student')}
                     className={`px-3 py-2 rounded-lg font-bold font-display border-3 transition-all text-sm ${role === 'student'
-                        ? 'bg-dreamxec-orange text-white border-dreamxec-navy shadow-pastel-saffron scale-105'
-                        : 'bg-white text-dreamxec-navy border-dreamxec-navy hover:bg-dreamxec-cream'
+                      ? 'bg-dreamxec-orange text-white border-dreamxec-navy shadow-pastel-saffron scale-105'
+                      : 'bg-white text-dreamxec-navy border-dreamxec-navy hover:bg-dreamxec-cream'
                       }`}
                   >
                     Student
@@ -302,8 +319,8 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                     type="button"
                     onClick={() => setRole('donor')}
                     className={`px-3 py-2 rounded-lg font-bold font-display border-3 transition-all text-sm ${role === 'donor'
-                        ? 'bg-dreamxec-green text-white border-dreamxec-navy shadow-pastel-green scale-105'
-                        : 'bg-white text-dreamxec-navy border-dreamxec-navy hover:bg-dreamxec-cream'
+                      ? 'bg-dreamxec-green text-white border-dreamxec-navy shadow-pastel-green scale-105'
+                      : 'bg-white text-dreamxec-navy border-dreamxec-navy hover:bg-dreamxec-cream'
                       }`}
                   >
                     Donor
@@ -351,7 +368,16 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                     </button>
                   )}
                 </div>
-
+                {/* --use header--                 */}
+                {isSignup && <div className="max-w-3xl mx-auto px-4">
+                  <ProfileHeader
+                    completion={calculateCompletion({ name, email, phone, institution, yearofstudy, gender, dob, address, education, occupation, pan })}
+                    emailVerified={true}
+                    phoneVerified={setPhone ? isValidPhoneNumber(phone) : false}
+                    createdAt="Jan 2026"
+                  />
+                </div>
+                }
                 <div className="relative my-6">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t-2 border-dreamxec-navy"></div>
@@ -413,6 +439,125 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                     />
                   </div>
                 </div>
+                {/*phone number*/}
+                {isSignup && <div className={isSignup ? "md:col-span-1" : "md:col-span-2"}>
+                  <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
+                    Mobile Number <span className="text-red-600">*</span>
+                  </label>
+                  <div className="relative">
+                    <PhoneIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dreamxec-navy opacity-60 w-4 h-4" />
+                    <PhoneInput
+                      international
+                      defaultCountry="IN"
+                      value={phone}
+                      onChange={(value) => setPhone(value)}
+                      className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-green"
+                    />
+                  </div>
+                </div>
+                }
+                {/*gender */}
+                {isSignup && (role === 'donor') && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
+                      Gender <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="radio"
+                        name="gender"
+                        value="male"
+                        onChange={(e) => setGender(e.target.value)}
+                        className="mr-2"
+                      />
+                      Male
+                      <input
+                        type="radio"
+                        name="gender"
+                        value="female"
+                        onChange={(e) => setGender(e.target.value)}
+                        className="ml-4 mr-2"
+                      />
+                      Female
+                      <input
+                        type="radio"
+                        name="gender"
+                        value="other"
+                        onChange={(e) => setGender(e.target.value)}
+                        className="ml-4 mr-2"
+                      />
+                      Other
+                    </div>
+                  </div>
+                )}
+
+                {/*Date of birth*/}
+                {isSignup && (role === 'donor') && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
+                      Date of Birth <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="date"
+                        name="dob"
+                        onChange={(e) => { }}
+                        className="w-full pl-3 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
+                      />
+                    </div>
+                  </div>
+                )}
+                {/* Pan Card Detail */}
+                {isSignup && (role === 'donor') && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
+                      PAN Card Number <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="panCard"
+                        onChange={(e) => { }}
+                        placeholder="Enter your PAN Card Number"
+                        className="w-full pl-3 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/*Edcation Qualification (Signup for Donor) */}
+                {isSignup && (role === 'donor') && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
+                      Educational Qualification <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="educationQualification"
+                        onChange={(e) => { }}
+                        placeholder="Enter your highest educational qualification"
+                        className="w-full pl-3 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/*occupation (Signup for Donor) */}
+                {isSignup && (role === 'donor') && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
+                      Occupation <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <select name="occupation" onChange={(e) => setOccupation(e.target.value)} className="w-full bg-transparent border-b-2 border-slate-200 focus:border-[#0B9C2C] py-2 outline-none">
+                        <option value="salaried">Salaried</option>
+                        <option value="business">Business</option>
+                        <option value="professional">Professional</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
 
                 {/* Institution / Organization (Signup for Student and Donor) */}
                 {isSignup && (role === 'student' || role === 'donor') && (
@@ -430,6 +575,25 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                         required
                         className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
                       />
+                    </div>
+                  </div>
+                )}
+
+                {/* year of study (Signup for Student) */}
+                {isSignup && (role === 'student') && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">
+                      Year of Study <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <BuildingIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dreamxec-navy opacity-60 w-4 h-4" />
+                      <select name="yearOfStudy" onChange={(e) => setYearofstudy(e.target.value)} className="w-full bg-transparent border-b-2 border-dreamxec-navy focus:border-dreamxec-orange py-2 outline-none transition-all cursor-pointer pl-12 shadow-pastel-green">
+                        <option value="">Select Year</option>
+                        <option value="1st">1st Year</option>
+                        <option value="2nd">2nd Year</option>
+                        <option value="3rd">3rd Year</option>
+                        <option value="Final">Final Year</option>
+                      </select>
                     </div>
                   </div>
                 )}
@@ -489,15 +653,46 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                   </div>
                 )}
               </div>
+              {/*Social media links*/}
+              {isSignup && <div>
+                <h2 className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">Social & Bio</h2>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <input type="text" name="instagram" placeholder="Instagram URL" className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-green" />
+                  <input type="text" name="facebook" placeholder="Facebook URL" className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-saffron" />
+                  <input type="text" name="twitter" placeholder="X (Twitter) URL" className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-green" />
+                  <input type="text" name="reddit" placeholder="Reddit URL" className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-saffron" />
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">Bio</label>
+                    <textarea
+                      name="bio"
+                      placeholder="Short personal description"
+                      rows={2}
+                      className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-saffron"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+}
+
+              {/*Address */}
+              {isSignup && <div className="md:col-span-2">
+                <label className="block text-sm font-bold text-dreamxec-navy mb-2 font-display">Full Residential Address</label>
+                <textarea
+                  name="address"
+                  rows={3}
+                  className="w-full pl-10 pr-3 py-2 border-3 border-dreamxec-navy rounded-lg text-sm font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-green"
+                ></textarea>
+
+              </div>}
               {/* Submit Button */}
               <div className="mt-6">
                 <button
                   type="submit"
                   disabled={!isFormValid || isSubmitting}
                   className={`w-full px-4 py-3 rounded-lg font-bold text-white transition-all font-display text-lg border-3 border-dreamxec-navy ${isFormValid
-                      ? 'bg-dreamxec-green hover:scale-105 shadow-pastel-green'
-                      : 'bg-gray-400 cursor-not-allowed opacity-50'
+                    ? 'bg-dreamxec-green hover:scale-105 shadow-pastel-green'
+                    : 'bg-gray-400 cursor-not-allowed opacity-50'
                     } ${isSubmitting ? 'opacity-75 cursor-wait' : ''}`}
                 >
                   {isSubmitting
@@ -587,3 +782,4 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
     </>
   );
 }
+

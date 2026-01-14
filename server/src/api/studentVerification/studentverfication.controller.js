@@ -4,6 +4,10 @@ const uploadToCloudinary = require('../../utils/uploadToCloudinary');
 
 
 const createOrder = async (req,res)=>{
+    const {studentEmail,officialEmail}=req.body
+    if(studentEmail.split("@")[1] != officialEmail.split("@")[1]){
+        return res.status(400).json({message:"Student and Official emails must belong to the same domain (college ID)."})
+    }
 const order=await razorpay.orders.create({amount: 29 * 100,
     currency: "INR",
     receipt: `${req.user.id}`,

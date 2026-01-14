@@ -31,10 +31,10 @@ export const verifyOtp = async (otp: string, identifier: { email?: string; phone
     });
 };
 
-export const createVerificationPaymentOrder = async (): Promise<ApiResponse<any>> => {
+export const createVerificationPaymentOrder = async (studentEmail: string, officialEmail: string): Promise<ApiResponse<any>> => {
     return apiRequest<any>('/student-verification/create-order', {
         method: 'POST',
-        body: JSON.stringify({ amount: 29, type: 'verification' }),
+        body: JSON.stringify({ amount: 29, type: 'verification', studentEmail, officialEmail }),
     });
 };
 

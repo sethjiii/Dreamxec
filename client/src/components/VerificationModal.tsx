@@ -171,7 +171,7 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
         setIsSubmitting(true);
         try {
             // 1. Create Order
-            const orderData = await createVerificationPaymentOrder() as any;
+            const orderData = await createVerificationPaymentOrder(studentEmail, officialEmail) as any;
             console.log(orderData)
 
             if (!orderData || !orderData.order) {
@@ -345,7 +345,6 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
                                 )}
                             </div>
 
-                            {/* Official College Email (FIC) */}
                             <div>
                                 <label className="block text-sm font-bold text-dreamxec-navy mb-1">
                                     Official College Email ID (FIC) <span className="text-red-500">*</span>

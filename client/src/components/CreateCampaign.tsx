@@ -33,7 +33,7 @@ interface CreateCampaignProps {
     goalAmount: number;
     bannerFile: File | null;
     mediaFiles: File[];
-    deckFile: File | null;
+    presentationDeckUrl: string;
   }) => Promise<void>;
 }
 
@@ -42,11 +42,12 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
   const [description, setDescription] = useState('');
   const [clubName, setClubName] = useState('');
   const [goalAmount, setGoalAmount] = useState('');
+  const [presentationDeckUrl, setPresentationDeckUrl] = useState('');
 
   // file states
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
-  const [deckFile, setDeckFile] = useState<File | null>(null);
+
 
   // preview states
   const [bannerPreview, setBannerPreview] = useState<string>('');
@@ -59,7 +60,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
   // Refs for file inputs
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const mediaInputRef = useRef<HTMLInputElement>(null);
-  const deckInputRef = useRef<HTMLInputElement>(null);
+
 
   // Cleanup object URLs to avoid memory leaks
   useEffect(() => {
@@ -86,13 +87,6 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
 
       const newPreviews = newFiles.map(file => URL.createObjectURL(file));
       setMediaPreviews(prev => [...prev, ...newPreviews]);
-      setSubmitError('');
-    }
-  };
-
-  const handleDeckSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setDeckFile(e.target.files[0]);
       setSubmitError('');
     }
   };
@@ -125,7 +119,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
         goalAmount: parseFloat(goalAmount),
         bannerFile,
         mediaFiles,
-        deckFile
+        presentationDeckUrl,
       });
 
       setShowSuccess(true);
@@ -145,6 +139,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
     clubName.trim() &&
     parseFloat(goalAmount) > 0 &&
     bannerFile;
+    presentationDeckUrl;
 
   if (showSuccess) {
     return (
@@ -183,7 +178,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
   }
 
   return (
-    <div className="min-h-screen bg-dreamxec-cream relative overflow-hidden">
+    <div className="min-h-screen  relative overflow-hidden">
       {/* Decorative stars */}
       <div className="absolute top-20 left-10 z-0 opacity-20">
         <StarDecoration className="w-16 h-16" color="#FF7F00" />
@@ -196,7 +191,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
       </div>
 
       {/* Saffron/Green decorations */}
-      <div className="absolute top-[14%] left-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden min-[1400px]:block">
+      {/* <div className="absolute top-[14%] left-[3%] z-0 opacity-90 animate-float-slow pointer-events-none hidden min-[1400px]:block">
         <img
           src={imageIcon}
           alt="Left Decor Wellness"
@@ -206,7 +201,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
             filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.1))',
           }}
         />
-      </div>
+      </div> */}
 
       {/* Header with Back Button */}
       <div className="relative bg-dreamxec-navy border-b-8 border-dreamxec-orange shadow-pastel-saffron z-10">
@@ -360,7 +355,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
                   onChange={handleMediaSelect}
                 />
                 <UploadIcon className="w-10 h-10 mx-auto text-dreamxec-navy mb-2" />
-                <p className="text-dreamxec-navy font-bold">Click to upload images or videos</p>
+                <p className="text-dreamxec-navy font-bold">Click to upload images or videos (upto 10) of your campaign (Size Limit: 10MB)</p>
               </div>
 
               {/* Media Preview Grid */}
@@ -385,36 +380,43 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
             </div>
 
             {/* Pitch Deck (PDF/PPT) */}
+            {/* Pitch Deck (Drive / Public Link) */}
             <div>
               <label className="block text-lg font-bold text-dreamxec-navy mb-2 font-display">
-                Pitch Deck (PDF/PPT)
+                Pitch Deck (Google Drive / Public Link)
               </label>
-              <div
-                className="border-4 border-dashed border-dreamxec-navy rounded-lg p-6 text-center cursor-pointer hover:bg-white transition-colors"
-                onClick={() => deckInputRef.current?.click()}
-              >
-                <input
-                  type="file"
-                  ref={deckInputRef}
-                  hidden
-                  accept="application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
-                  onChange={handleDeckSelect}
-                />
-                <div className="flex flex-col items-center">
-                  {deckFile ? (
-                    <div className="flex items-center gap-2 text-green-700 font-bold">
-                      <CheckCircleIcon className="w-6 h-6" />
-                      <span>Selected: {deckFile.name}</span>
+
+              <div className="border-4 border-dashed border-dreamxec-navy rounded-lg p-6 bg-dreamxec-cream">
+                <div className="flex flex-col gap-3">
+                  <input
+                    type="url"
+                    placeholder="Paste Google Drive / PDF / PPT link here"
+                    value={presentationDeckUrl}
+                    onChange={(e) => setPresentationDeckUrl(e.target.value)}
+                    className="
+          w-full px-4 py-3 rounded-lg
+          border-4 border-dreamxec-navy
+          text-dreamxec-navy font-sans
+          focus:outline-none focus:border-dreamxec-orange
+        "
+                  />
+
+                  <p className="text-xs text-dreamxec-navy/70 leading-relaxed">
+                    • Upload your deck to <strong>Google Drive</strong><br />
+                    • Set access to <strong>“Anyone with the link → View”</strong><br />
+                    • Paste the link here
+                  </p>
+
+                  {presentationDeckUrl && (
+                    <div className="flex items-center gap-2 text-green-700 font-bold text-sm">
+                      <CheckCircleIcon className="w-5 h-5" />
+                      <span>Presentation link added</span>
                     </div>
-                  ) : (
-                    <>
-                      <UploadIcon className="w-10 h-10 mx-auto text-dreamxec-navy mb-2" />
-                      <p className="text-dreamxec-navy font-bold">Upload Pitch Deck (PDF/PPT)</p>
-                    </>
                   )}
                 </div>
               </div>
             </div>
+
 
             {/* Submit Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -437,8 +439,8 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
                   type="submit"
                   disabled={!isFormValid || isSubmitting}
                   className={`w-full px-6 py-3 rounded-lg font-bold text-white transition-all font-display text-lg border-4 border-dreamxec-navy ${isFormValid
-                      ? 'bg-dreamxec-green hover:scale-105 shadow-pastel-green'
-                      : 'bg-gray-400 cursor-not-allowed opacity-50'
+                    ? 'bg-dreamxec-green hover:scale-105 shadow-pastel-green'
+                    : 'bg-gray-400 cursor-not-allowed opacity-50'
                     } ${isSubmitting ? 'opacity-75 cursor-wait' : ''}`}
                 >
                   {isSubmitting ? 'Creating Campaign & Uploading...' : 'Submit for Review'}

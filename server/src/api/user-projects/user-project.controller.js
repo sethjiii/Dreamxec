@@ -9,12 +9,22 @@ const sendEmail = require('../../services/email.service');
 // USER: Create a user project (Only verified club members)
 const uploadToCloudinary = require('../../utils/uploadToCloudinary');
 
-// -------------------------
+// =========================
 // CREATE USER PROJECT
-// -------------------------
-// USER: Create a user project (Only verified club members)
+// =========================
 exports.createUserProject = catchAsync(async (req, res, next) => {
-  const { id, title, description, companyName, skillsRequired, timeline, goalAmount } = req.body;
+  const {
+    id,
+    title,
+    description,
+    companyName,
+    skillsRequired,
+    timeline,
+    goalAmount,
+    presentationDeckUrl,
+  } = req.body;
+
+  console.log('📄 Deck URL:', presentationDeckUrl);
 
   const initialProject = await prisma.userProject.create({
     data: {
@@ -22,12 +32,16 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
       title,
       description,
       companyName: companyName || null,
-      skillsRequired: skillsRequired ? (typeof skillsRequired === 'string' ? JSON.parse(skillsRequired) : skillsRequired) : [],
+      skillsRequired: skillsRequired
+        ? typeof skillsRequired === 'string'
+          ? JSON.parse(skillsRequired)
+          : skillsRequired
+        : [],
       timeline: timeline || null,
       goalAmount: parseFloat(goalAmount),
       imageUrl: null,
       campaignMedia: [],
-      presentationDeckUrl: null,
+      presentationDeckUrl: null, // ✅ SAVE LINK
       userId: req.user.id,
     },
   });
@@ -35,10 +49,11 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
   const projectId = initialProject.id;
   const updates = {};
 
-  console.log('📦 Canpaign Created:', projectId);
-  console.log('📂 Files received:', req.files ? Object.keys(req.files) : 'None');
+  console.log('📦 Campaign Created:', projectId);
 
-  // Handle File Uploads
+  // -------------------------
+  // FILE UPLOADS
+  // -------------------------
   if (req.files) {
     try {
       // 1. Banner Image
@@ -51,22 +66,8 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
         updates.imageUrl = url;
       }
 
-      // 2. Pitch Deck
-      if (req.files.deckFile && req.files.deckFile[0]) {
-        console.log('📄 Processing Deck...');
-        const file = req.files.deckFile[0];
-        const folder = `dreamxec/campaigns/${projectId}/documents/campaign-deck`;
 
-        // ✅ IMPORTANT: upload as RAW (PDF / PPT / PPTX)
-        const url = await uploadToCloudinary(
-          file.path,
-          folder,
-          'raw'
-        );
 
-        console.log('✅ Deck Uploaded:', url);
-        updates.presentationDeckUrl = url;
-      }
 
 
       // 3. Campaign Media
@@ -104,10 +105,9 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
   res.status(201).json({ status: 'success', data: { userProject: finalProject } });
 });
 
-
-// -------------------------
+// =========================
 // UPDATE USER PROJECT
-// -------------------------
+// =========================
 exports.updateUserProject = catchAsync(async (req, res, next) => {
   exports.getUserProject = catchAsync(async (req, res, next) => {
     const userProject = await prisma.userProject.findUnique({
@@ -178,9 +178,9 @@ exports.updateUserProject = catchAsync(async (req, res, next) => {
   });
 });
 
-// -------------------------
+// =========================
 // DELETE USER PROJECT
-// -------------------------
+// =========================
 exports.deleteUserProject = catchAsync(async (req, res, next) => {
   const userProject = await prisma.userProject.findUnique({
     where: { id: req.params.id },
@@ -203,9 +203,9 @@ exports.deleteUserProject = catchAsync(async (req, res, next) => {
   res.status(204).json({ status: 'success', data: null });
 });
 
-// -------------------------
-// GET USER PROJECT BY ID
-// -------------------------
+// =========================
+// GET PROJECT BY ID
+// =========================
 exports.getUserProject = catchAsync(async (req, res, next) => {
   const userProject = await prisma.userProject.findUnique({
     where: { id: req.params.id },
@@ -229,9 +229,9 @@ exports.getUserProject = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: 'success', data: { userProject } });
 });
 
-// -------------------------
+// =========================
 // GET PUBLIC PROJECTS
-// -------------------------
+// =========================
 exports.getPublicUserProjects = catchAsync(async (req, res, next) => {
   const userProjects = await prisma.userProject.findMany({
     where: { status: 'APPROVED' },
@@ -249,9 +249,9 @@ exports.getPublicUserProjects = catchAsync(async (req, res, next) => {
   });
 });
 
-// -------------------------
+// =========================
 // GET MY PROJECTS
-// -------------------------
+// =========================
 exports.getMyUserProjects = catchAsync(async (req, res, next) => {
   const userProjects = await prisma.userProject.findMany({
     where: { userId: req.user.id },

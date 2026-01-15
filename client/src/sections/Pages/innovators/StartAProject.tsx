@@ -1,5 +1,6 @@
 import { Header } from '../../Header/index'
 import { Footer } from '../../Footer/index'
+import { RopeDivider } from '../../../components/RopeDivider'
 
 const StartAProject = () => {
 
@@ -91,8 +92,7 @@ const StartAProject = () => {
 
 
         {/* Divider */}
-        <div className="max-w-4xl mx-auto h-px bg-gradient-to-r from-transparent via-dreamxec-berkeley-blue/30 to-transparent my-20" />
-
+        <RopeDivider />
         {/* What is DreamXec */}
         <section className="max-w-6xl mx-auto px-4 py-8 space-y-10">
           <h2 className="text-dreamxec-berkeley-blue text-center text-4xl md:text-6xl font-extrabold tracking-tight">

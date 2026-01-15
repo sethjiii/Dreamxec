@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Campaign } from '../types';
 import CampaignCard from './CampaignCard';
 import { StarDecoration } from './icons/StarDecoration';
+import { FooterContent } from '../sections/Footer/components/FooterContent';
 
 // Simple SVG Icons
 const SearchIcon = ({ className }: { className?: string }) => (
@@ -158,6 +159,7 @@ export default function BrowseCampaigns({ campaigns, onViewCampaign }: BrowseCam
           </>
         )}
       </div>
+      <FooterContent />
     </div>
   );
 }

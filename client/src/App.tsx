@@ -165,9 +165,9 @@ function AppContent() {
           });
         }
       } catch (error) {
-        if(error?.response?.status === 401){
+        if (error?.response?.status === 401) {
           setUser(null)
-        }else{
+        } else {
           console.error('Unexpected /auth/me error:', error);
         }
       } finally {
@@ -876,7 +876,18 @@ function AppContent() {
                                       <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-12 text-center max-w-md">
                                         <div className="card-tricolor-tag"></div>
                                         <p className="text-dreamxec-navy text-xl font-sans mt-4">
-                                          Please log in as a student to access the dashboard.
+                                          <p className="text-dreamxec-navy text-xl font-sans mt-4">
+                                            Every journey begins with the right role.
+                                            <br />
+                                            Log in as a student to access your DreamXec dashboard.
+                                          </p>
+                                          <button
+                                            onClick={() => navigate("/auth")}
+                                            className="mt-8 px-8 py-3 bg-dreamxec-orange text-white font-bold rounded-xl
+                     hover:bg-dreamxec-saffron transition-colors shadow-lg"
+                                          >
+                                            Log in 
+                                          </button>
                                         </p>
                                       </div>
                                     </div>
@@ -1215,23 +1226,20 @@ function AppContent() {
 
                             {/* Footer Routes */}
                             <Routes>
-                              <Route path="/start-project" element={<StartAProject/>} />
-                              <Route path="/how-it-works/students" element={<HowItWorksStudents/>} />
-                              <Route path="/eligibility" element={<ProjectEligibility/>} />
-                              <Route path="/resources" element={<ResourceCenter/>} />
-
-
-
-                              <Route path="/fund-innovation" element={<FundInnovation/>} />
-                              <Route path="/how-it-works/donors" element={<HowItWorksDonors/>} />
-                              <Route path="/why-donate" element={<WhyDonate/>} />
-                              <Route path="/corporate-partnerships" element={<CorporateCSRPartnerships/>} />
-                              <Route path="/alumni-giving" element={<AlumniGivingPrograms/>} />
-                              <Route path="/become-mentor" element={<BecomeMentor/>} />
-                              <Route path="/perfect-storm" element={<PerfectStorm/>} />
-                              <Route path="/careers" element={<Careers/>} />
-                              <Route path="/contact" element={<ContactUs/>} />
-                              <Route path="/faq" element={<FAQ/>} />
+                              <Route path="/start-project" element={<StartAProject />} />
+                              <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
+                              <Route path="/eligibility" element={<ProjectEligibility />} />
+                              <Route path="/resources" element={<ResourceCenter />} />
+                              <Route path="/fund-innovation" element={<FundInnovation />} />
+                              <Route path="/how-it-works/donors" element={<HowItWorksDonors />} />
+                              <Route path="/why-donate" element={<WhyDonate />} />
+                              <Route path="/corporate-partnerships" element={<CorporateCSRPartnerships />} />
+                              <Route path="/alumni-giving" element={<AlumniGivingPrograms />} />
+                              <Route path="/become-mentor" element={<BecomeMentor />} />
+                              <Route path="/perfect-storm" element={<PerfectStorm />} />
+                              <Route path="/careers" element={<Careers />} />
+                              <Route path="/contact" element={<ContactUs />} />
+                              <Route path="/faq" element={<FAQ />} />
 
                             </Routes>
                           </div>

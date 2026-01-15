@@ -18,14 +18,14 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
 
   const initialProject = await prisma.userProject.create({
     data: {
-      id: id || undefined, 
+      id: id || undefined,
       title,
       description,
       companyName: companyName || null,
-      skillsRequired: skillsRequired ? (typeof skillsRequired === 'string' ? JSON.parse(skillsRequired) : skillsRequired) : [], 
+      skillsRequired: skillsRequired ? (typeof skillsRequired === 'string' ? JSON.parse(skillsRequired) : skillsRequired) : [],
       timeline: timeline || null,
-      goalAmount: parseFloat(goalAmount), 
-      imageUrl: null, 
+      goalAmount: parseFloat(goalAmount),
+      imageUrl: null,
       campaignMedia: [],
       presentationDeckUrl: null,
       userId: req.user.id,
@@ -34,7 +34,7 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
 
   const projectId = initialProject.id;
   const updates = {};
-  
+
   console.log('📦 Canpaign Created:', projectId);
   console.log('📂 Files received:', req.files ? Object.keys(req.files) : 'None');
 
@@ -56,10 +56,18 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
         console.log('📄 Processing Deck...');
         const file = req.files.deckFile[0];
         const folder = `dreamxec/campaigns/${projectId}/documents/campaign-deck`;
-        const url = await uploadToCloudinary(file.path, folder);
+
+        // ✅ IMPORTANT: upload as RAW (PDF / PPT / PPTX)
+        const url = await uploadToCloudinary(
+          file.path,
+          folder,
+          'raw'
+        );
+
         console.log('✅ Deck Uploaded:', url);
         updates.presentationDeckUrl = url;
       }
+
 
       // 3. Campaign Media
       if (req.files.mediaFiles && req.files.mediaFiles.length > 0) {
@@ -69,7 +77,7 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
           let folder = `dreamxec/campaigns/${projectId}/others`;
           if (file.mimetype.startsWith('image/')) folder = `dreamxec/campaigns/${projectId}/images`;
           else if (file.mimetype.startsWith('video/')) folder = `dreamxec/campaigns/${projectId}/videos`;
-          
+
           const url = await uploadToCloudinary(file.path, folder);
           mediaUrls.push(url);
         }
@@ -101,9 +109,51 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
 // UPDATE USER PROJECT
 // -------------------------
 exports.updateUserProject = catchAsync(async (req, res, next) => {
-  const userProject = await prisma.userProject.findUnique({
-    where: { id: req.params.id },
+  exports.getUserProject = catchAsync(async (req, res, next) => {
+    const userProject = await prisma.userProject.findUnique({
+      where: { id: req.params.id },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        companyName: true,
+        skillsRequired: true,
+        timeline: true,
+        goalAmount: true,
+        amountRaised: true,
+        imageUrl: true,
+        campaignMedia: true,
+        presentationDeckUrl: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        rejectionReason: true,
+        userId: true,
+
+        user: {
+          select: { id: true, name: true },
+        },
+        donations: {
+          select: {
+            amount: true,
+            createdAt: true,
+            donor: { select: { name: true } },
+            anonymous: true,
+          },
+        },
+      },
+    });
+
+    if (!userProject) {
+      return next(new AppError('User project not found', 404));
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: { userProject },
+    });
   });
+
 
   if (!userProject) return next(new AppError('User project not found', 404));
 

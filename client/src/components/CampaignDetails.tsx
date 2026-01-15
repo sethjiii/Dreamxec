@@ -4,6 +4,10 @@ import axios from 'axios';
 import type { Campaign, User } from '../types';
 import { Header } from '../sections/Header';
 import { StarDecoration } from './icons/StarDecoration';
+import { FooterContent } from '../sections/Footer/components/FooterContent';
+import { getUserProject } from '../services/userProjectService';
+import { mapUserProjectToCampaign } from '../services/mappers';
+
 
 interface CampaignDetailsProps {
   currentUser: User | null;
@@ -22,38 +26,49 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
   const [donationAmount, setDonationAmount] = useState('');
   const [email, setEmail] = useState("")
   const [showDonateModal, setShowDonateModal] = useState(false);
+  type CampaignTab = 'about' | 'media' | 'presentation' | 'Milestones';
+  const [activeTab, setActiveTab] = useState<CampaignTab>('about');
+
 
   // Wishlist State
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-  useEffect(() => {
-    const findCampaign = () => {
-      if (!id) return;
+  const getFileType = (url: string) => {
+    const lower = url.toLowerCase();
 
+    if (lower.endsWith('.pdf')) return 'pdf';
+    if (lower.endsWith('.ppt') || lower.endsWith('.pptx')) return 'ppt';
+    return 'unknown';
+  };
+
+
+  useEffect(() => {
+    const fetchCampaign = async () => {
       try {
         setLoading(true);
-        setError(null);
 
-        // Find the campaign from the passed campaigns array
-        const foundCampaign = campaigns.find(c => c.id === id);
+        const res = await getUserProject(id!);
+        const mapped = mapUserProjectToCampaign(res.data.userProject);
 
-        if (!foundCampaign) {
-          throw new Error('Campaign not found');
+        // 🔒 HARD GATE
+        if (mapped.status !== 'approved') {
+          setError('This campaign is not available');
+          return;
         }
 
-        setCampaign(foundCampaign);
+        setCampaign(mapped);
       } catch (err) {
-        console.error('Failed to find campaign:', err);
-        setError('Failed to load campaign details');
+        console.error(err);
+        setError('Failed to load campaign');
       } finally {
         setLoading(false);
       }
     };
 
-    findCampaign();
-  }, [id, campaigns]);
+    fetchCampaign();
+  }, [id]);
 
   // Check Wishlist Status
   useEffect(() => {
@@ -195,6 +210,13 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
   // Helper check
   const isDonor = currentUser?.role === 'donor' || currentUser?.role === 'DONOR';
 
+  // Helper function to check if URL is a video
+  const isVideo = (url: string): boolean => {
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv'];
+    const lowerUrl = url.toLowerCase();
+    return videoExtensions.some(ext => lowerUrl.includes(ext));
+  };
+
   return (
     <div className="min-h-screen bg-dreamxec-cream relative overflow-hidden">
       <Header currentUser={currentUser} onLogin={onLogin} onLogout={onLogout} />
@@ -280,80 +302,212 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
                 </div>
               </div>
             </div>
+            {/* Tabs */}
+            <div className="mb-6 border-b-4 border-dreamxec-navy">
+              <div className="flex gap-4 sm:gap-6 overflow-x-auto scrollbar-hide">
+                {(['about', 'media', 'presentation', 'milestones'] as CampaignTab[]).map(tab => {
+                  const isActive = activeTab === tab;
 
-            {/* Description */}
-            <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-6">
-              <div className="card-tricolor-tag"></div>
-              <h2 className="text-2xl font-bold text-dreamxec-navy mb-4 font-display mt-4">
-                About This Campaign
-              </h2>
-              <p className="text-dreamxec-navy font-sans text-lg leading-relaxed whitespace-pre-wrap">
-                {campaign.description}
-              </p>
+                  return (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`
+            relative pb-3 px-1
+            text-base sm:text-lg md:text-xl
+            font-bold font-display capitalize
+            whitespace-nowrap
+            transition-all duration-200
+            ${isActive
+                          ? 'text-dreamxec-navy'
+                          : 'text-dreamxec-navy/60 hover:text-dreamxec-navy'}
+          `}
+                    >
+                      {tab}
+
+                      {/* Active underline */}
+                      {isActive && (
+                        <span className="absolute left-0 -bottom-[4px] w-full h-[4px] bg-dreamxec-orange rounded-full" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Media Gallery */}
-            {campaign.campaignMedia && campaign.campaignMedia.length > 0 && (
+            {/* About Tab */}
+
+            {activeTab === 'about' && (
               <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-6">
                 <div className="card-tricolor-tag"></div>
                 <h2 className="text-2xl font-bold text-dreamxec-navy mb-4 font-display mt-4">
-                  Gallery
+                  About This Campaign
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {campaign.campaignMedia.map((mediaUrl, index) => (
-                    <div key={index} className="rounded-lg border-3 border-dreamxec-navy overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                      {mediaUrl.match(/\.(mp4|webm|ogg)$/i) ? (
-                        <video controls className="w-full h-48 object-cover">
-                          <source src={mediaUrl} />
-                          Your browser does not support the video tag.
-                        </video>
-                      ) : (
-                        <img
-                          src={mediaUrl}
-                          alt={`Campaign Media ${index + 1}`}
-                          className="w-full h-48 object-cover hover:scale-105 transition-transform"
-                        />
-                      )}
-                    </div>
-                  ))}
-                </div>
+                <p className="text-dreamxec-navy font-sans text-lg leading-relaxed whitespace-pre-wrap">
+                  {campaign.description}
+                </p>
               </div>
             )}
 
+
+            {/* Media Gallery */}
+            {activeTab === 'media' && (
+              <div className="card-pastel-offwhite border-5 border-dreamxec-navy rounded-xl shadow-pastel-card p-6">
+                <h3 className="text-2xl font-bold mb-4 text-dreamxec-navy">
+                  Campaign Media
+                </h3>
+
+                {campaign?.campaignMedia && campaign.campaignMedia.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {campaign.campaignMedia.map((url, index) => (
+                      <div
+                        key={index}
+                        className="rounded-lg overflow-hidden border-3 border-dreamxec-navy bg-white"
+                      >
+                        {isVideo(url) ? (
+                          <video
+                            src={url}
+                            controls
+                            className="w-full h-48 object-cover"
+                          />
+                        ) : (
+                          <img
+                            src={url}
+                            alt={`Campaign media ${index + 1}`}
+                            className="w-full h-48 object-cover"
+                            loading="lazy"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-dreamxec-navy/70 text-sm">
+                    No media uploaded for this campaign yet.
+                  </p>
+                )}
+              </div>
+            )}
+
+
             {/* Pitch Deck (Admin/Owner Only) */}
-            {campaign.presentationDeckUrl && (currentUser?.role === 'admin' || currentUser?.id === campaign.userId) && (
+            {activeTab === 'presentation' && (
               <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-6">
                 <div className="card-tricolor-tag"></div>
-                <h2 className="text-2xl font-bold text-dreamxec-navy mb-4 font-display mt-4 flex items-center gap-2">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Pitch Deck
+
+                <h2 className="text-2xl font-bold text-dreamxec-navy mb-4 font-display mt-4">
+                  Presentation Deck
                 </h2>
-                <div className="flex items-center justify-between p-4 bg-dreamxec-cream rounded-lg border-3 border-dreamxec-navy">
-                  <div className="flex items-center gap-3">
-                    <svg className="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
-                    </svg>
+
+                {!campaign.presentationDeckUrl ? (
+                  <p className="text-dreamxec-navy/70 text-sm">
+                    No presentation deck uploaded for this campaign.
+                  </p>
+                ) : (
+                  <>
+                    {/* INLINE VIEWER */}
+                    <div className="w-full h-[600px] border-4 border-dreamxec-navy rounded-lg overflow-hidden mb-4 bg-white">
+                      {getFileType(campaign.presentationDeckUrl) === 'pdf' && (
+                        <iframe
+                          src={campaign.presentationDeckUrl}
+                          className="w-full h-full"
+                          title="PDF Viewer"
+                        />
+                      )}
+
+                      {['pdf', 'ppt'].includes(getFileType(campaign.presentationDeckUrl)) && (
+                        <iframe
+                          src={`https://docs.google.com/gview?url=${encodeURIComponent(
+                            campaign.presentationDeckUrl
+                          )}&embedded=true`}
+                          className="w-full h-full"
+                          title="Presentation Viewer"
+                        />
+                      )}
+
+
+                      {getFileType(campaign.presentationDeckUrl) === 'unknown' && (
+                        <div className="flex items-center justify-center h-full text-dreamxec-navy">
+                          Preview not available for this file type.
+                        </div>
+                      )}
+                    </div>
+
+                    {/* ACTION BUTTONS */}
+                    <div className="flex gap-3">
+                      <a
+                        href={campaign.presentationDeckUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-5 py-3 bg-dreamxec-navy text-white rounded-lg font-bold font-display hover:bg-dreamxec-orange transition-colors"
+                      >
+                        Open in New Tab
+                      </a>
+
+                      <a
+                        href={campaign.presentationDeckUrl}
+                        download
+                        className="px-5 py-3 border-3 border-dreamxec-navy text-dreamxec-navy rounded-lg font-bold font-display hover:bg-dreamxec-cream transition-colors"
+                      >
+                        Download
+                      </a>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Milestone */}
+            {/* Milestones */}
+            {activeTab === 'Milestones' && (
+              <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-6">
+                <div className="card-tricolor-tag"></div>
+
+                <h2 className="text-2xl font-bold text-dreamxec-navy mb-6 font-display mt-4">
+                  Project Milestones
+                </h2>
+
+                {/* TEMP: Timeline-based milestones (safe default) */}
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4 p-4 bg-dreamxec-cream rounded-lg border-3 border-dreamxec-navy">
+                    <span className="w-8 h-8 flex items-center justify-center rounded-full bg-dreamxec-orange text-white font-bold">
+                      1
+                    </span>
                     <div>
-                      <p className="font-bold text-dreamxec-navy font-display">Campaign Pitch Deck</p>
-                      <p className="text-xs text-dreamxec-navy opacity-70 font-sans">PDF/PPT Presentation</p>
+                      <p className="font-bold text-dreamxec-navy">Project Kickoff</p>
+                      <p className="text-sm text-dreamxec-navy/70">
+                        Campaign approval and initial setup
+                      </p>
                     </div>
                   </div>
-                  <a
-                    href={campaign.presentationDeckUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-dreamxec-navy text-white rounded-lg font-bold font-display hover:bg-dreamxec-orange transition-colors flex items-center gap-2"
-                  >
-                    View / Download
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
+
+                  <div className="flex items-start gap-4 p-4 bg-dreamxec-cream rounded-lg border-3 border-dreamxec-navy">
+                    <span className="w-8 h-8 flex items-center justify-center rounded-full bg-dreamxec-saffron text-white font-bold">
+                      2
+                    </span>
+                    <div>
+                      <p className="font-bold text-dreamxec-navy">Development Phase</p>
+                      <p className="text-sm text-dreamxec-navy/70">
+                        Core work execution and progress updates
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4 p-4 bg-dreamxec-cream rounded-lg border-3 border-dreamxec-navy">
+                    <span className="w-8 h-8 flex items-center justify-center rounded-full bg-dreamxec-green text-white font-bold">
+                      3
+                    </span>
+                    <div>
+                      <p className="font-bold text-dreamxec-navy">Completion & Review</p>
+                      <p className="text-sm text-dreamxec-navy/70">
+                        Final delivery and outcome evaluation
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-xs text-dreamxec-navy opacity-60 mt-2 font-sans italic">
-                  * Visible only to Administrators and Campaign Owner
+
+                <p className="mt-6 text-xs text-dreamxec-navy/60 italic">
+                  * Detailed milestone tracking will be updated as the project progresses.
                 </p>
               </div>
             )}
@@ -610,6 +764,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
           </div>
         </div>
       )}
+      <FooterContent />
     </div>
   );
 }

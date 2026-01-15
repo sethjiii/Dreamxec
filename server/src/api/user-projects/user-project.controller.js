@@ -14,6 +14,10 @@ const uploadToCloudinary = require('../../utils/uploadToCloudinary');
 // -------------------------
 // USER: Create a user project (Only verified club members)
 exports.createUserProject = catchAsync(async (req, res, next) => {
+  if (!req.user.studentVerified) {
+    return next(new AppError('You must be a verified student to create a campaign.', 403));
+  }
+
   const { id, title, description, companyName, skillsRequired, timeline, goalAmount } = req.body;
 
   const initialProject = await prisma.userProject.create({

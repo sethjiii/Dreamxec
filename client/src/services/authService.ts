@@ -6,6 +6,7 @@ export interface User {
   email: string;
   role: 'USER' | 'DONOR' | 'ADMIN';
   organizationName?: string;
+  studentVerified?: boolean;
 }
 
 export interface RegisterData {

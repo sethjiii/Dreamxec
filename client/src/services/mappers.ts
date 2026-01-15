@@ -46,6 +46,8 @@ export const mapUserProjectToCampaign = (userProject: UserProject): Campaign => 
     status: mapBackendStatus(userProject.status),
     createdBy: userProject.userId,
     imageUrl: userProject.imageUrl,
+    campaignMedia: userProject.campaignMedia || [],
+    presentationDeckUrl: userProject.presentationDeckUrl || null,
     category: 'Technology', // Default category
     createdAt: new Date(userProject.createdAt),
     deadline: new Date(userProject.updatedAt), // You may need to add deadline field to backend

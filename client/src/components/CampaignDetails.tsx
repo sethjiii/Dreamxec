@@ -43,6 +43,24 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
     return 'unknown';
   };
 
+  const getEmbedUrl = (url: string) => {
+    if (!url) return null;
+
+    // Google Drive file
+    if (url.includes('drive.google.com')) {
+      const fileIdMatch = url.match(/\/d\/(.*?)(\/|$)/);
+      if (fileIdMatch?.[1]) {
+        return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+      }
+    }
+
+    // PDF
+    if (url.endsWith('.pdf')) {
+      return url;
+    }
+
+    return null;
+  };
 
   useEffect(() => {
     const fetchCampaign = async () => {
@@ -390,7 +408,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
             )}
 
 
-            {/* Pitch Deck (Admin/Owner Only) */}
+            {/* Pitch Deck */}
             {activeTab === 'presentation' && (
               <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-6">
                 <div className="card-tricolor-tag"></div>
@@ -399,65 +417,43 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
                   Presentation Deck
                 </h2>
 
-                {!campaign.presentationDeckUrl ? (
-                  <p className="text-dreamxec-navy/70 text-sm">
+                {campaign.presentationDeckUrl ? (
+                  (() => {
+                    const embedUrl = getEmbedUrl(campaign.presentationDeckUrl);
+
+                    return embedUrl ? (
+                      <div className="w-full h-[70vh] border-4 border-dreamxec-navy rounded-lg overflow-hidden bg-white">
+                        <iframe
+                          src={embedUrl}
+                          className="w-full h-full"
+                          allow="autoplay"
+                        />
+                      </div>
+                    ) : (
+                      <div className="p-4 bg-dreamxec-cream rounded-lg border-3 border-dreamxec-navy">
+                        <p className="text-dreamxec-navy mb-3">
+                          Preview not available for this file type.
+                        </p>
+                        <a
+                          href={campaign.presentationDeckUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-dreamxec-navy text-white rounded-lg font-bold hover:bg-dreamxec-orange transition"
+                        >
+                          Open Presentation
+                        </a>
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <p className="text-dreamxec-navy/70">
                     No presentation deck uploaded for this campaign.
                   </p>
-                ) : (
-                  <>
-                    {/* INLINE VIEWER */}
-                    <div className="w-full h-[600px] border-4 border-dreamxec-navy rounded-lg overflow-hidden mb-4 bg-white">
-                      {getFileType(campaign.presentationDeckUrl) === 'pdf' && (
-                        <iframe
-                          src={campaign.presentationDeckUrl}
-                          className="w-full h-full"
-                          title="PDF Viewer"
-                        />
-                      )}
-
-                      {['pdf', 'ppt'].includes(getFileType(campaign.presentationDeckUrl)) && (
-                        <iframe
-                          src={`https://docs.google.com/gview?url=${encodeURIComponent(
-                            campaign.presentationDeckUrl
-                          )}&embedded=true`}
-                          className="w-full h-full"
-                          title="Presentation Viewer"
-                        />
-                      )}
-
-
-                      {getFileType(campaign.presentationDeckUrl) === 'unknown' && (
-                        <div className="flex items-center justify-center h-full text-dreamxec-navy">
-                          Preview not available for this file type.
-                        </div>
-                      )}
-                    </div>
-
-                    {/* ACTION BUTTONS */}
-                    <div className="flex gap-3">
-                      <a
-                        href={campaign.presentationDeckUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-5 py-3 bg-dreamxec-navy text-white rounded-lg font-bold font-display hover:bg-dreamxec-orange transition-colors"
-                      >
-                        Open in New Tab
-                      </a>
-
-                      <a
-                        href={campaign.presentationDeckUrl}
-                        download
-                        className="px-5 py-3 border-3 border-dreamxec-navy text-dreamxec-navy rounded-lg font-bold font-display hover:bg-dreamxec-cream transition-colors"
-                      >
-                        Download
-                      </a>
-                    </div>
-                  </>
                 )}
               </div>
             )}
 
-            {/* Milestone */}
+
             {/* Milestones */}
             {activeTab === 'Milestones' && (
               <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-6">

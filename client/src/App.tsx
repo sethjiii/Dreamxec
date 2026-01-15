@@ -310,7 +310,7 @@ function AppContent() {
     goalAmount: number;
     bannerFile: File | null;
     mediaFiles: File[];
-    deckFile: File | null;
+    presentationDeckUrl: string;
   }) => {
     try {
       console.log('🚀 Creating Campaign with Single Request...');
@@ -329,8 +329,8 @@ function AppContent() {
         formData.append('bannerFile', data.bannerFile);
       }
 
-      if (data.deckFile) {
-        formData.append('deckFile', data.deckFile);
+      if (data.presentationDeckUrl) {
+        formData.append('presentationDeckUrl', data.presentationDeckUrl);
       }
 
       if (data.mediaFiles && data.mediaFiles.length > 0) {
@@ -886,7 +886,7 @@ function AppContent() {
                                             className="mt-8 px-8 py-3 bg-dreamxec-orange text-white font-bold rounded-xl
                      hover:bg-dreamxec-saffron transition-colors shadow-lg"
                                           >
-                                            Log in 
+                                            Log in
                                           </button>
                                         </p>
                                       </div>

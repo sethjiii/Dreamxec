@@ -378,6 +378,15 @@ model ClubVerification {
   docUrl        String?
   status        String  @default("PENDING")
 
+  // NEW — required by feature
+  clubName        String
+  clubDescription String
+  clubInstagram   String
+  clubLinkedIn    String?
+  clubYouTube     String?
+  alumni          Json
+
+
   userId String? @db.ObjectId
   user   User?   @relation("UserClubVerifications", fields: [userId], references: [id])
 

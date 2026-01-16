@@ -139,6 +139,9 @@ function AppContent() {
               navigate('/donor/dashboard');
             } else if (userData.role === 'admin') {
               navigate('/admin');
+            } else if (userData.role === 'STUDENT_PRESIDENT') {
+              // Add this new condition
+              navigate('/president');
             }
           } else {
             // Fallback: if backend indicates verification is required, show check-email

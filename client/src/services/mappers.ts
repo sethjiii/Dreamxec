@@ -4,22 +4,24 @@ import type { UserProject } from './userProjectService';
 import type { DonorProject } from './donorProjectService';
 
 // Map backend role to frontend role
-export const mapBackendRole = (backendRole: 'USER' | 'DONOR' | 'ADMIN'): UserRole => {
+export const mapBackendRole = (backendRole: 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'): UserRole => {
   const roleMap: Record<string, UserRole> = {
     'USER': 'student',
     'DONOR': 'donor',
     'ADMIN': 'admin',
+    'STUDENT_PRESIDENT': 'STUDENT_PRESIDENT', // Must match UserRole type exactly
   };
   return roleMap[backendRole] || 'student';
 };
 
 // Map frontend role to backend role
-export const mapFrontendRole = (frontendRole: UserRole): 'USER' | 'DONOR' | 'ADMIN' => {
-  const roleMap: Record<UserRole, 'USER' | 'DONOR' | 'ADMIN'> = {
+export const mapFrontendRole = (frontendRole: UserRole): 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT' => {
+  const roleMap: Record<UserRole, 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'> = {
     'student': 'USER',
     'donor': 'DONOR',
     'DONOR': 'DONOR',
-    'admin': 'ADMIN'
+    'admin': 'ADMIN',
+    'STUDENT_PRESIDENT': 'STUDENT_PRESIDENT'
   };
   return roleMap[frontendRole];
 };

@@ -124,6 +124,10 @@ export const mapDonorProjectToProject = (
     interestedUsers: [],
     status: mapBackendStatus(donorProject.status),
     rejectionReason: donorProject.rejectionReason,
+     timeline: {
+      startDate: new Date(donorProject.createdAt),
+      endDate: new Date(donorProject.createdAt),
+    },
   };
 };
 

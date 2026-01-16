@@ -5,6 +5,8 @@ import { WhatWeBringSection } from "../sections/WhatWeBringSection";
 import SEO from "./SEO";
 import { PartnersSection } from "../sections/PartnerSection";
 import { Footer } from "../sections/Footer";
+import RegistrationForm from "./donor";
+import StudentRegistration from "./student";
 
 
 export const Main = () => {
@@ -24,7 +26,7 @@ export const Main = () => {
       <LookingForSection />
       <WhatWeBringSection />
       {/* <ProgramFeaturesSection /> */}
-    
+       
       <PartnersSection />
       <Footer />
     </main>

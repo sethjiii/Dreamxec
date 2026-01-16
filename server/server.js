@@ -30,7 +30,8 @@ const adminClubVerificationRoutes = require('./src/api/admin-club/adminClubVerif
 const newsletterRoutes = require('./src/api/newsletter/newsletter.routes');
 const wishlistRoutes = require('./src/api/wishlist/wishlist.routes');
 const uploadRoutes = require('./src/api/upload/upload.routes');
-
+const profileRoutesstu = require('./src/api/Profile/profileStudent.routes.js');
+const profileRoutesdon = require('./src/api/Profile/profileDonor.routes.js');
 // Load Passport (Google only, LinkedIn handled via OIDC file)
 require('./src/config/passport');
 
@@ -138,15 +139,15 @@ app.use("/api/admin/club-verifications", adminClubVerificationRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use(cors())
+app.use('/api/profile-student',profileRoutesstu );
+app.use('/api/profile-donor', profileRoutesdon);
+app.use(cors());
 
-// --------------------------------------------
-// HANDLE 404
-// --------------------------------------------
-app.all('*', (req, res, next) => {
-  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+// In your backend server.js
+app.post('/api/profile-student', (req, res) => {
+    console.log("Data received from frontend:", req.body);
+    res.status(200).json({ success: true, message: "Saved!" });
 });
-
 // --------------------------------------------
 // GLOBAL ERROR HANDLER
 // --------------------------------------------

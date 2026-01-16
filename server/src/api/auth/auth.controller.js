@@ -20,7 +20,7 @@ const signVerificationToken = (id) => {
 
 const signPasswordResetToken = (email) => {
   return jwt.sign({ email }, process.env.JWT_PASSWORD_RESET_SECRET, {
-    expiresIn: process.env.JWT_PASSWORD_RESET_EXPIRES_IN,
+    expiresIn: process.env.JWT_PASSWORD_RESET_S_IN,
   });
 };
 

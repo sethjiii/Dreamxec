@@ -414,6 +414,75 @@ model Wishlist {
   @@unique([donorId, userProjectId])
   @@index([donorId])
 }
+//--donorProfile-------
+model DonorProfile {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  email               String  @unique
+  // Basic Identity
+  fullName            String
+  phoneNumber         String?
+  gender              String?
+  dob                 DateTime?
+  
+  // Legal & Professional
+  panNumber           String?  @unique
+  education           String?
+  occupation          String?
+  address             String?
+  
+  // Social Media Handles
+  instagram           String?
+  facebook            String?
+  twitter             String?
+  reddit              String?
+  
+  // Donor Specific Data
+  bio                 String?
+  preferredCategories String[] // Array of strings (e.g., ["Education", "Healthcare"])
+  
+  // Impact & Privacy
+  isAnonymous         Boolean  @default(false)
+  totalDonations      Float    @default(0)
+
+  // Audit Timestamps
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("donors") // MongoDB collection name
+}
+
+//---StudentProfile----
+model StudentProfile {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  email              String @unique
+  name               String
+  phone              String?
+  collegeName        String?
+  yearOfStudy        String?
+  bio                String?
+  address            String?
+  skills             String[]
+  projectTitle       String?
+  
+  
+  // Dev Links
+  portfolioUrl       String?
+  githubUrl          String?
+  linkedInUrl        String?
+  
+  // Socials
+  instagram          String?
+  facebook           String?
+  twitter            String?
+  reddit             String?
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("students")
+}
+
+
 
 // -----------------------------
 // Additional notes: keep your existing models and relations unchanged.

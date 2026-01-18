@@ -53,6 +53,8 @@ import AboutUs from './components/AboutUs';
 import TermsAndConditions from './sections/Pages/legal/TermsAndConditions';
 // import PrivacyPolicy from './sections/Pages/company/PrivacyPolicy';
 import VerifyPresident from './components/VerifyPresident';
+import { LoaderProvider, useLoader } from './context/LoaderContext';
+import LoadingAnimation from './components/LoadingAnimation';
 
 
 // Main App Content Component
@@ -65,7 +67,20 @@ function AppContent() {
   const [userApplications, setUserApplications] = useState<string[]>([]); // Project IDs user has applied to
   const [_showCheckEmail, setShowCheckEmail] = useState(false);
   const [signupEmail, setSignupEmail] = useState('');
+  const { showLoader, hideLoader } = useLoader();
   const navigate = useNavigate();
+
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  useEffect(() => {
+    const initialize = async () => {
+      // Load data...
+      setTimeout(() => {
+        setIsInitialLoading(false);
+      }, 2500);
+    };
+    initialize();
+  }, []);
 
   // Handle OAuth callbacks (Google and LinkedIn)
   useEffect(() => {
@@ -320,6 +335,7 @@ function AppContent() {
       description?: string;
     }[];
   }) => {
+    showLoader();
     try {
       console.log('🚀 Creating Campaign with Milestones...');
 
@@ -381,6 +397,8 @@ function AppContent() {
       }
 
     } catch (error) {
+      console.error('Failed to create campaign:', error);
+      hideLoader();
       console.error('❌ Failed to create campaign:', error);
       throw error;
     }
@@ -388,6 +406,7 @@ function AppContent() {
 
 
   const handleApproveCampaign = async (id: string) => {
+    showLoader();
     try {
       console.log('✅ Approving campaign:', id);
       await verifyUserProject(id, { status: 'APPROVED' });
@@ -399,11 +418,13 @@ function AppContent() {
       console.log('✅ Campaign approved successfully');
     } catch (error) {
       console.error('Failed to approve campaign:', error);
+      hideLoader()
       alert('Failed to approve campaign. Please try again.');
     }
   };
 
   const handleRejectCampaign = async (id: string, reason: string) => {
+    showLoader();
     try {
       console.log('❌ Rejecting campaign:', id, 'Reason:', reason);
       await verifyUserProject(id, { status: 'REJECTED', reason });
@@ -415,11 +436,13 @@ function AppContent() {
       console.log('❌ Campaign rejected successfully');
     } catch (error) {
       console.error('Failed to reject campaign:', error);
+      hideLoader();
       alert('Failed to reject campaign. Please try again.');
     }
   };
 
   const handleApproveProject = async (id: string) => {
+    showLoader();
     try {
       console.log('✅ Approving donor project:', id);
       await verifyDonorProject(id, { status: 'APPROVED' });
@@ -431,11 +454,13 @@ function AppContent() {
       console.log('✅ Donor project approved successfully');
     } catch (error) {
       console.error('Failed to approve donor project:', error);
+      hideLoader();
       alert('Failed to approve donor project. Please try again.');
     }
   };
 
   const handleRejectProject = async (id: string, reason: string) => {
+    showLoader();
     try {
       console.log('❌ Rejecting donor project:', id, 'Reason:', reason);
       await verifyDonorProject(id, { status: 'REJECTED', reason });
@@ -447,11 +472,13 @@ function AppContent() {
       console.log('❌ Donor project rejected successfully');
     } catch (error) {
       console.error('Failed to reject donor project:', error);
+      hideLoader();
       alert('Failed to reject donor project. Please try again.');
     }
   };
 
   const handleLogin = async (email: string, password: string, _role: 'student' | 'donor') => {
+    showLoader();
     setIsSubmitting(true);
     try {
       const response = await login({ email, password });
@@ -477,6 +504,7 @@ function AppContent() {
       }
     } catch (error) {
       console.error('Login failed:', error);
+      hideLoader();
       throw error;
     } finally {
       setIsSubmitting(false);
@@ -490,6 +518,7 @@ function AppContent() {
     role: 'student' | 'donor',
     institution?: string
   ) => {
+    showLoader();
     setIsSubmitting(true);
     try {
       console.log('🔐 Register payload:', { name, email, password, role: mapFrontendRole(role), organizationName: institution });
@@ -530,6 +559,7 @@ function AppContent() {
       }
     } catch (error) {
       console.error('Signup failed:', error);
+      hideLoader();
       throw error;
     } finally {
       setIsSubmitting(false);
@@ -537,6 +567,7 @@ function AppContent() {
   };
 
   const handleGoogleAuth = async (role: 'student' | 'donor') => {
+    showLoader();
     console.log('🔐 Google Auth initiated with role:', role);
     setIsSubmitting(true);
 
@@ -552,12 +583,14 @@ function AppContent() {
       // The callback will be handled in useEffect checking for ?token= param
     } catch (error) {
       console.error('Google auth error:', error);
+      hideLoader()
       setIsSubmitting(false);
       throw new Error('Google authentication failed');
     }
   };
 
   const handleLinkedInAuth = async (role: 'student' | 'donor') => {
+    showLoader();
     console.log('🔐 LinkedIn Auth:', { role });
 
     try {
@@ -571,6 +604,7 @@ function AppContent() {
       // with a token, and the OAuth callback handling in useEffect will process it
     } catch (error) {
       console.error('LinkedIn auth error:', error);
+      hideLoader();
       throw new Error('LinkedIn authentication failed');
     }
   };
@@ -621,6 +655,7 @@ function AppContent() {
   };
 
   const handleDonate = async (campaignId: string, amount: number) => {
+    showLoader()
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/donations/create-order`,
@@ -671,6 +706,7 @@ function AppContent() {
       new window.Razorpay(options).open();
     } catch (err) {
       console.error(err);
+      hideLoader();
       alert("❌ Donation failed");
     }
   };
@@ -685,6 +721,7 @@ function AppContent() {
     startDate: Date;
     endDate: Date;
   }) => {
+    showLoader();
     try {
       console.log('📤 Creating project with data:', data);
 
@@ -715,6 +752,7 @@ function AppContent() {
       }
     } catch (error) {
       console.error('Failed to create project:', error);
+      hideLoader();
       throw error;
     }
   };
@@ -830,7 +868,7 @@ function AppContent() {
                           <div className="pointer-events-auto">
                             <Routes>
                               {/* Homepage */}
-                              <Route
+                              {/* <Route
                                 path="/"
                                 element={
                                   <>
@@ -840,6 +878,26 @@ function AppContent() {
                                       onLogout={handleLogout}
                                     />
                                     <Main />
+                                  </>
+                                }
+                              /> */}
+                              <Route
+                                path="/"
+                                element={
+                                  <>
+                                    {isInitialLoading ? (
+                                      <LoadingAnimation fullScreen={true} showDarkModeToggle={false} />
+                                    ) : (
+                                      <>
+                                        <Header
+                                          currentUser={user}
+                                          onLogin={handleLoginClick}
+                                          onLogout={handleLogout}
+
+                                        />
+                                        <Main />
+                                      </>
+                                    )}
                                   </>
                                 }
                               />
@@ -1270,6 +1328,22 @@ function AppContent() {
                                 <Route path="/terms-And-Conditions" element={<TermsAndConditions />} />
                                 {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                                */}
+                              <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
+                              <Route path="/eligibility" element={<ProjectEligibility />} />
+                              <Route path="/resources" element={<ResourceCenter />} />
+
+
+
+                              <Route path="/fund-innovation" element={<FundInnovation />} />
+                              <Route path="/how-it-works/donors" element={<HowItWorksDonors />} />
+                              <Route path="/why-donate" element={<WhyDonate />} />
+                              <Route path="/corporate-partnerships" element={<CorporateCSRPartnerships />} />
+                              <Route path="/alumni-giving" element={<AlumniGivingPrograms />} />
+                              <Route path="/become-mentor" element={<BecomeMentor />} />
+                              <Route path="/perfect-storm" element={<PerfectStorm />} />
+                              <Route path="/careers" element={<Careers />} />
+                              <Route path="/contact" element={<ContactUs />} />
+                              <Route path="/faq" element={<FAQ />} />
 
                             </Routes>
                           </div>
@@ -1300,7 +1374,9 @@ function AppContent() {
 const App = () => {
   return (
     <Router>
-      <AppContent />
+      <LoaderProvider>
+        <AppContent />
+      </LoaderProvider>
     </Router>
   );
 };

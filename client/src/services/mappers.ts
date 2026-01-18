@@ -5,15 +5,9 @@ import type { Campaign, Project, UserRole } from '../types';
 import type { UserProject } from './userProjectService';
 import type { DonorProject } from './donorProjectService';
 
-// Map backend role to frontend role
-export const mapBackendRole = (backendRole: 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'): UserRole => {
-  const roleMap: Record<string, UserRole> = {
-    'USER': 'student',
-    'DONOR': 'donor',
-    'ADMIN': 'admin',
-    'STUDENT_PRESIDENT': 'STUDENT_PRESIDENT', // Must match UserRole type exactly
 /* =========================================================
    Shared Types (Campaign-only)
+========================================================= */
 
 export type Milestone = {
   id?: string;
@@ -25,35 +19,38 @@ export type Milestone = {
 
 /* =========================================================
    Role Mapping
+========================================================= */
 
+// Backend → Frontend
 export const mapBackendRole = (
-  backendRole: 'USER' | 'DONOR' | 'ADMIN'
+  backendRole: 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'
 ): UserRole => {
-  const roleMap: Record<string, UserRole> = {
+  const roleMap: Record<
+    'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT',
+    UserRole
+  > = {
     USER: 'student',
     DONOR: 'donor',
     ADMIN: 'admin',
+    STUDENT_PRESIDENT: 'STUDENT_PRESIDENT',
   };
 
-  return roleMap[backendRole] || 'student';
+  return roleMap[backendRole] ?? 'student';
 };
 
-// Map frontend role to backend role
-export const mapFrontendRole = (frontendRole: UserRole): 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT' => {
-  const roleMap: Record<UserRole, 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'> = {
-    'student': 'USER',
-    'donor': 'DONOR',
-    'DONOR': 'DONOR',
-    'admin': 'ADMIN',
-    'STUDENT_PRESIDENT': 'STUDENT_PRESIDENT'
+// Frontend → Backend
 export const mapFrontendRole = (
   frontendRole: UserRole
-): 'USER' | 'DONOR' | 'ADMIN' => {
-  const roleMap: Record<UserRole, 'USER' | 'DONOR' | 'ADMIN'> = {
+): 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT' => {
+  const roleMap: Record<
+    UserRole,
+    'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'
+  > = {
     student: 'USER',
     donor: 'DONOR',
     DONOR: 'DONOR',
     admin: 'ADMIN',
+    STUDENT_PRESIDENT: 'STUDENT_PRESIDENT',
   };
 
   return roleMap[frontendRole];
@@ -91,11 +88,6 @@ export const mapUserProjectToCampaign = (
 ): Campaign => {
   const milestones: Milestone[] = userProject.milestones || [];
 
-  const totalMilestoneBudget = milestones.reduce(
-    (sum, m) => sum + (m.budget || 0),
-    0
-  );
-
   return {
     id: userProject.id,
     title: userProject.title,
@@ -112,14 +104,13 @@ export const mapUserProjectToCampaign = (
     createdAt: new Date(userProject.createdAt),
     rejectionReason: userProject.rejectionReason,
 
-    // ✅ Campaign-only
+    // Campaign-only
     milestones,
-   
   };
 };
 
 /* =========================================================
-   DonorProject (Backend) → Project (Frontend)F
+   DonorProject (Backend) → Project (Frontend)
    ❌ NO milestones here
 ========================================================= */
 
@@ -137,7 +128,7 @@ export const mapDonorProjectToProject = (
     interestedUsers: [],
     status: mapBackendStatus(donorProject.status),
     rejectionReason: donorProject.rejectionReason,
-     timeline: {
+    timeline: {
       startDate: new Date(donorProject.createdAt),
       endDate: new Date(donorProject.createdAt),
     },
@@ -146,7 +137,6 @@ export const mapDonorProjectToProject = (
 
 /* =========================================================
    Campaign (Frontend) → CreateUserProjectData (Backend)
-   ✅ Milestones go to backend ONLY here
 ========================================================= */
 
 export const mapCampaignToUserProjectData = (
@@ -164,7 +154,6 @@ export const mapCampaignToUserProjectData = (
 
 /* =========================================================
    Project (Frontend) → CreateDonorProjectData (Backend)
-   ❌ NO milestones
 ========================================================= */
 
 export const mapProjectToDonorProjectData = (

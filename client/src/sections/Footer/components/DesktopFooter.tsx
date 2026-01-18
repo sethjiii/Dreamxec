@@ -220,7 +220,7 @@ export const DesktopFooter = () => {
           {/* Left: Copyright */}
           <div className="text-center lg:text-left order-2 lg:order-1">
             <p className="text-dreamxec-cream/70 text-sm">
-              © 2025 DreamXec Technologies Pvt. Ltd. All Rights Reserved.
+              © 2025 DreamXec Investment Consultancy Pvt. LTD. All Rights Reserved.
             </p>
           </div>
 
@@ -228,6 +228,8 @@ export const DesktopFooter = () => {
           <div className="flex items-center justify-center gap-6 order-1 lg:order-2">
             <a
               href="https://www.linkedin.com/company/dreamxec"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-dreamxec-cream hover:text-dreamxec-orange transition-colors duration-300"
               aria-label="LinkedIn"
               title="LinkedIn"
@@ -236,8 +238,11 @@ export const DesktopFooter = () => {
                 <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
               </svg>
             </a>
+
             <a
               href="https://twitter.com/dreamxec"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-dreamxec-cream hover:text-dreamxec-orange transition-colors duration-300"
               aria-label="Twitter"
               title="Twitter/X"
@@ -246,8 +251,11 @@ export const DesktopFooter = () => {
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
             </a>
+
             <a
               href="https://www.instagram.com/dreamxec"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-dreamxec-cream hover:text-dreamxec-orange transition-colors duration-300"
               aria-label="Instagram"
               title="Instagram"
@@ -258,14 +266,18 @@ export const DesktopFooter = () => {
             </a>
           </div>
 
+
           {/* Right: Legal & Patriotic */}
           <div className="text-center lg:text-right order-3">
             <p className="text-dreamxec-cream/70 text-sm">
-              <a href="/terms" className="hover:text-dreamxec-orange transition-colors">
+              <a href="/terms-And-Conditions"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-dreamxec-orange transition-colors">
                 Terms of Service
               </a>
               {" | "}
-              <a href="/privacy" className="hover:text-dreamxec-orange transition-colors">
+              <a href="/privacy-policy" className="hover:text-dreamxec-orange transition-colors">
                 Privacy Policy
               </a>
               <span className="inline-block ml-2">

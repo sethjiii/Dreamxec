@@ -50,6 +50,8 @@ import Careers from './sections/Pages/company/Careers';
 import ContactUs from './sections/Pages/company/ContactUs';
 import FAQ from './sections/Pages/company/FAQ';
 import AboutUs from './components/AboutUs';
+import TermsAndConditions from './sections/Pages/legal/TermsAndConditions';
+// import PrivacyPolicy from './sections/Pages/company/PrivacyPolicy';
 import VerifyPresident from './components/VerifyPresident';
 import { LoaderProvider, useLoader } from './context/LoaderContext';
 import LoadingAnimation from './components/LoadingAnimation';
@@ -923,11 +925,7 @@ function AppContent() {
                                 path="/campaign/:id"
                                 element={
                                   <>
-                                    {/* <Header 
-                                      currentUser={user} 
-                                      onLogin={handleLoginClick}
-                                      onLogout={handleLogout}
-                                    /> */}
+
                                     <CampaignDetails
                                       currentUser={user}
                                       campaigns={approvedCampaigns}
@@ -1311,7 +1309,25 @@ function AppContent() {
 
                             {/* Footer Routes */}
                             <Routes>
+                              
+                              
                               <Route path="/start-project" element={<StartAProject />} />
+                                <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
+                                <Route path="/eligibility" element={<ProjectEligibility />} />
+                                <Route path="/resources" element={<ResourceCenter />} />
+                                <Route path="/fund-innovation" element={<FundInnovation />} />
+                                <Route path="/how-it-works/donors" element={<HowItWorksDonors />} />
+                                <Route path="/why-donate" element={<WhyDonate />} />
+                                <Route path="/corporate-partnerships" element={<CorporateCSRPartnerships />} />
+                                <Route path="/alumni-giving" element={<AlumniGivingPrograms />} />
+                                <Route path="/become-mentor" element={<BecomeMentor />} />
+                                <Route path="/perfect-storm" element={<PerfectStorm />} />
+                                <Route path="/careers" element={<Careers />} />
+                                <Route path="/contact" element={<ContactUs />} />
+                                <Route path="/faq" element={<FAQ />} />
+                                <Route path="/terms-And-Conditions" element={<TermsAndConditions />} />
+                                {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                               */}
                               <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
                               <Route path="/eligibility" element={<ProjectEligibility />} />
                               <Route path="/resources" element={<ResourceCenter />} />

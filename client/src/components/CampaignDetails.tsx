@@ -7,6 +7,7 @@ import { StarDecoration } from './icons/StarDecoration';
 import { FooterContent } from '../sections/Footer/components/FooterContent';
 import { getUserProject } from '../services/userProjectService';
 import { mapUserProjectToCampaign } from '../services/mappers';
+import MobileDonateCTA from './MobileDonateCTA';
 
 
 interface CampaignDetailsProps {
@@ -37,6 +38,8 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
   const [showDonateModal, setShowDonateModal] = useState(false);
   type CampaignTab = 'about' | 'media' | 'presentation';
   const [activeTab, setActiveTab] = useState<CampaignTab>('about');
+  const showMobileCTA = campaign?.status === 'approved';
+
 
 
 
@@ -262,7 +265,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 py-8 mt-20 pb-16">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 py-8  pb-16">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
@@ -283,58 +286,90 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
               <img
                 src={campaign.imageUrl}
                 alt={campaign.title}
-                className="w-full h-96 object-cover"
+                className="w-full h-auto object-contain bg-dreamxec-black md:h-96"
               />
             </div>
 
+
             {/* Campaign Title & Info */}
-            <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-6">
+            <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-4 md:p-6">
               <div className="card-tricolor-tag"></div>
-              <div className="flex items-start justify-between gap-4 mt-4">
-                <div>
-                  <h1 className="text-4xl font-bold text-dreamxec-navy mb-3 font-display flex items-center gap-3">
-                    {campaign.title}
+
+              {/* Mobile: Stack layout, Desktop: Horizontal layout */}
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mt-4">
+
+                {/* Content Section */}
+                <div className="flex-1">
+                  {/* Title with responsive font sizing using golden ratio scale */}
+                  <div className="flex items-start gap-3 mb-3">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dreamxec-navy font-display leading-tight flex-1">
+                      {campaign.title}
+                    </h1>
+
+                    {/* Wishlist button - positioned top-right on mobile, inline on desktop */}
                     {isDonor && (
                       <button
                         onClick={handleWishlistToggle}
                         disabled={wishlistLoading}
-                        className={`p-2 rounded-full transition-all hover:scale-110 ${isWishlisted ? 'text-red-500' : 'text-gray-300 hover:text-red-300'
+                        className={`flex-shrink-0 p-1.5 sm:p-2 rounded-full transition-all hover:scale-110 active:scale-95 ${isWishlisted
+                          ? 'text-red-500'
+                          : 'text-gray-300 hover:text-red-400'
                           }`}
-                        title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+                        aria-label={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
                       >
-                        <svg className="w-8 h-8" fill={isWishlisted ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        <svg
+                          className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8"
+                          fill={isWishlisted ? "currentColor" : "none"}
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          strokeWidth={isWishlisted ? 0 : 2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                          />
                         </svg>
                       </button>
                     )}
-                  </h1>
-                  <div className="flex items-center gap-4 text-dreamxec-navy opacity-80">
+                  </div>
+
+                  {/* Meta information - stack on mobile, horizontal on larger screens */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-dreamxec-navy opacity-80">
                     <div className="flex items-center gap-2">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                       </svg>
-                      <span className="font-sans">{campaign.clubName}</span>
+                      <span className="font-sans text-sm sm:text-base truncate">{campaign.clubName}</span>
                     </div>
+
                     <div className="flex items-center gap-2">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                       </svg>
-                      <span className="font-sans">{campaign.category}</span>
+                      <span className="font-sans text-sm sm:text-base">{campaign.category}</span>
                     </div>
                   </div>
                 </div>
-                <div className={`px-4 py-2 rounded-lg border-3 font-bold font-display ${campaign.status === 'approved' ? 'bg-dreamxec-green text-white border-dreamxec-navy' :
-                  campaign.status === 'pending' ? 'bg-yellow-400 text-dreamxec-navy border-dreamxec-navy' :
-                    'bg-red-500 text-white border-dreamxec-navy'
-                  }`}>
+
+                {/* Status Badge - full width on mobile, auto width on desktop */}
+                <div
+                  className={`px-4 py-2 rounded-lg border-3 font-bold font-display text-center text-sm sm:text-base whitespace-nowrap md:self-start ${campaign.status === 'approved'
+                    ? 'bg-dreamxec-green text-white border-dreamxec-navy'
+                    : campaign.status === 'pending'
+                      ? 'bg-yellow-400 text-dreamxec-navy border-dreamxec-navy'
+                      : 'bg-red-500 text-white border-dreamxec-navy'
+                    }`}
+                >
                   {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
                 </div>
               </div>
             </div>
+
             {/* Tabs */}
             <div className="mb-6 border-b-4 border-dreamxec-navy">
-              <div className="flex gap-4 sm:gap-6 overflow-x-auto scrollbar-hide">
-                {(['about', 'media', 'presentation'] as CampaignTab[]).map(tab => {
+              <div className="flex gap-2 sm:gap-4 md:gap-6 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+                {(['about', 'media', 'presentation'] as CampaignTab[]).map((tab, index) => {
                   const isActive = activeTab === tab;
 
                   return (
@@ -342,41 +377,94 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
                       key={tab}
                       onClick={() => setActiveTab(tab)}
                       className={`
-            relative pb-3 px-1
-            text-base sm:text-lg md:text-xl
+            relative pb-3 px-3 sm:px-4
+            min-w-[88px] sm:min-w-[100px]
+            min-h-[48px] flex items-center justify-center
+            text-sm sm:text-base md:text-lg lg:text-xl
             font-bold font-display capitalize
             whitespace-nowrap
-            transition-all duration-200
+            transition-all duration-300 ease-out
             ${isActive
-                          ? 'text-dreamxec-navy'
-                          : 'text-dreamxec-navy/60 hover:text-dreamxec-navy'}
+                          ? 'text-dreamxec-navy scale-105'
+                          : 'text-dreamxec-navy/60 hover:text-dreamxec-navy/80 active:scale-95'}
+            ${index === 0 ? 'ml-0' : ''}
           `}
+                      role="tab"
+                      aria-selected={isActive}
+                      aria-controls={`${tab}-panel`}
                     >
                       {tab}
 
-                      {/* Active underline */}
+                      {/* Active indicator with animation */}
                       {isActive && (
-                        <span className="absolute left-0 -bottom-[4px] w-full h-[4px] bg-dreamxec-orange rounded-full" />
+                        <span
+                          className="absolute left-0 -bottom-[4px] w-full h-[4px] bg-dreamxec-orange rounded-full animate-in slide-in-from-bottom-2 duration-300"
+                        />
                       )}
+
+                      {/* Touch ripple feedback indicator */}
+                      <span className="absolute inset-0 rounded-lg transition-colors active:bg-dreamxec-navy/5" />
                     </button>
                   );
                 })}
               </div>
+
+              {/* Scroll indicator for mobile - shows there's more content */}
+              <div className="block sm:hidden absolute right-0 top-0 h-12 w-8 bg-gradient-to-l from-white/90 to-transparent pointer-events-none" />
             </div>
+
 
             {/* About Tab */}
 
             {activeTab === 'about' && (
-              <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-6">
+              <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-4 sm:p-6">
                 <div className="card-tricolor-tag"></div>
-                <h2 className="text-2xl font-bold text-dreamxec-navy mb-4 font-display mt-4">
+
+                {/* Hero Title - Golden ratio scaling */}
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dreamxec-navy mb-6 font-display leading-tight mt-4 text-left">
                   About This Campaign
                 </h2>
-                <p className="text-dreamxec-navy font-sans text-lg leading-relaxed whitespace-pre-wrap">
-                  {campaign.description}
-                </p>
+
+                {/* Justified paragraphs with golden ratio spacing */}
+                <div className="space-y-6 prose prose-dreamxec-navy max-w-none">
+                  {(() => {
+                    let paragraphs = campaign.description
+                      .split('\n\n')
+                      .filter(p => p.trim().length > 0)
+                      .map(p => p.replace(/\n/g, ' ').trim());
+
+                    if (paragraphs.length === 1) {
+                      paragraphs = campaign.description
+                        .split('\n')
+                        .filter(p => p.trim().length > 0)
+                        .map(p => p.trim());
+                    }
+
+                    if (paragraphs.length === 1) {
+                      const sentences = paragraphs[0].split(/(?<=[.?!])\s+/).filter(s => s.trim().length > 0);
+                      paragraphs = [];
+                      for (let i = 0; i < sentences.length; i += 4) {
+                        paragraphs.push(sentences.slice(i, i + 4).join(' '));
+                      }
+                    }
+
+                    return paragraphs.map((paragraph, index) => (
+                      <p
+                        key={index}
+                        className="text-dreamxec-navy/90 font-sans text-base sm:text-lg lg:text-xl 
+                     leading-relaxed sm:leading-loose first:font-medium 
+                     max-w-4xl text-justify hyphens-auto
+                     indent-8 sm:indent-12 first:indent-0"
+                      >
+                        {paragraph}
+                      </p>
+                    ));
+                  })()}
+                </div>
               </div>
             )}
+
+
 
 
             {/* Media Gallery */}
@@ -421,10 +509,11 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
 
             {/* Pitch Deck */}
             {activeTab === 'presentation' && (
-              <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-6">
+              <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-4 sm:p-6">
                 <div className="card-tricolor-tag"></div>
 
-                <h2 className="text-2xl font-bold text-dreamxec-navy mb-4 font-display mt-4">
+                {/* Golden ratio typography */}
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-dreamxec-navy mb-6 font-display leading-tight mt-4 text-left">
                   Presentation Deck
                 </h2>
 
@@ -433,86 +522,105 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
                     const embedUrl = getEmbedUrl(campaign.presentationDeckUrl);
 
                     return embedUrl ? (
-                      <div className="w-full h-[70vh] border-4 border-dreamxec-navy rounded-lg overflow-hidden bg-white">
+                      /* Inline embed - no popout, responsive height */
+                      <div className="w-full aspect-video sm:aspect-[4/3] lg:max-h-[500px] border-4 border-dreamxec-navy rounded-lg overflow-hidden bg-white shadow-inner">
                         <iframe
                           src={embedUrl}
                           className="w-full h-full"
-                          allow="autoplay"
+                          allow="autoplay; fullscreen"
+                          title="Campaign Presentation"
+                          loading="lazy"
                         />
                       </div>
                     ) : (
-                      <div className="p-4 bg-dreamxec-cream rounded-lg border-3 border-dreamxec-navy">
-                        <p className="text-dreamxec-navy mb-3">
-                          Preview not available for this file type.
+                      <div className="p-6 bg-dreamxec-cream rounded-xl border-4 border-dreamxec-navy text-center">
+                        <svg className="w-16 h-16 mx-auto mb-4 text-dreamxec-navy/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p className="text-dreamxec-navy/80 mb-4 text-lg sm:text-xl font-medium">
+                          Preview not available for this file type
                         </p>
                         <a
                           href={campaign.presentationDeckUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-dreamxec-navy text-white rounded-lg font-bold hover:bg-dreamxec-orange transition"
+                          className="inline-flex items-center gap-3 px-6 py-3 bg-dreamxec-navy text-white rounded-xl font-bold font-display text-lg hover:bg-dreamxec-orange transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                         >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
                           Open Presentation
                         </a>
                       </div>
                     );
                   })()
                 ) : (
-                  <p className="text-dreamxec-navy/70">
-                    No presentation deck uploaded for this campaign.
-                  </p>
+                  <div className="p-8 sm:p-12 text-center bg-dreamxec-cream/50 rounded-xl border-2 border-dreamxec-navy/30">
+                    <svg className="w-20 h-20 mx-auto mb-6 text-dreamxec-navy/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-dreamxec-navy/70 mb-3 font-display">
+                      No Presentation Available
+                    </h3>
+                    <p className="text-dreamxec-navy/60 text-lg sm:text-xl max-w-md mx-auto leading-relaxed">
+                      This campaign hasn't uploaded a presentation deck yet.
+                    </p>
+                  </div>
                 )}
               </div>
             )}
+
+
 
 
             {/* Milestones */}
 
 
             {/* Timeline */}
-            <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-6">
+            <div className="card-pastel-offwhite rounded-xl border-4 border-dreamxec-navy shadow-lg p-5 sm:p-6 lg:p-8">
               <div className="card-tricolor-tag"></div>
 
-              <h2 className="text-2xl font-bold text-dreamxec-navy mb-6 font-display mt-4">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-dreamxec-navy mb-6 lg:mb-8 font-display leading-tight">
                 Campaign Timeline & Fund Allocation
               </h2>
 
               {campaign.milestones && campaign.milestones.length > 0 ? (
-                <div className="space-y-5">
+                <div className="space-y-6 lg:space-y-8">
                   {campaign.milestones.map((milestone, index) => (
-                    <div
-                      key={index}
-                      className="relative flex gap-4 p-5 bg-dreamxec-cream rounded-xl border-4 border-dreamxec-navy"
-                    >
-                      {/* Step number */}
-                      <span className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full bg-dreamxec-orange text-white font-bold text-lg shadow-md">
-                        {index + 1}
-                      </span>
+                    <div key={index} className="group relative flex items-start gap-4 sm:gap-5 lg:gap-6 p-4 sm:p-5 lg:p-6 bg-white/60 border border-dreamxec-navy/10 rounded-lg hover:border-dreamxec-orange/30 hover:shadow-md transition-all duration-300">
 
-                      <div className="flex-1">
-                        {/* Title + Timeline */}
-                        <div className="flex flex-wrap items-center gap-3 mb-2">
-                          <h3 className="text-lg font-bold text-dreamxec-navy">
+                      {/* Step indicator */}
+                      <div className="flex-shrink-0 pt-1">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 flex items-center justify-center rounded-full bg-gradient-to-r from-dreamxec-orange to-dreamxec-saffron border-2 border-white shadow-sm group-hover:scale-[1.05] transition-transform duration-300 font-bold text-sm sm:text-base lg:text-lg text-white">
+                          {index + 1}
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        {/* Header */}
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:gap-3 mb-3 lg:mb-4">
+                          <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-dreamxec-navy font-display leading-tight flex-1 pr-2">
                             {milestone.title}
                           </h3>
-
-                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-dreamxec-saffron text-white">
+                          <span className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm lg:text-base font-medium bg-dreamxec-orange/90 text-white whitespace-nowrap shadow-sm">
                             {milestone.timeline}
                           </span>
                         </div>
 
                         {/* Description */}
                         {milestone.description && (
-                          <p className="text-sm text-dreamxec-navy/80 mb-3 leading-relaxed">
+                          <p className="text-sm sm:text-base text-dreamxec-navy/75 leading-relaxed mb-4 lg:mb-5 max-w-2xl line-clamp-2">
                             {milestone.description}
                           </p>
                         )}
 
                         {/* Budget */}
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-semibold text-dreamxec-navy">
+                        <div className="flex items-center justify-between pt-2 border-t border-dreamxec-navy/10">
+                          <span className="text-xs sm:text-sm lg:text-base font-medium text-dreamxec-navy/80 tracking-wide">
                             Budget Allocation
                           </span>
-                          <span className="text-lg font-bold text-dreamxec-green">
+                          <span className="text-lg sm:text-xl lg:text-2xl font-bold text-dreamxec-green">
                             ₹{milestone.budget.toLocaleString()}
                           </span>
                         </div>
@@ -520,34 +628,39 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
                     </div>
                   ))}
 
-                  {/* Total Allocation */}
-                  <div className="mt-6 p-4 rounded-lg border-4 border-dreamxec-navy bg-white flex items-center justify-between">
-                    <span className="font-bold text-dreamxec-navy">
-                      Total Planned Allocation
-                    </span>
-                    <span className="text-xl font-bold text-dreamxec-green">
-                      ₹
-                      {campaign.milestones
-                        .reduce((sum, m) => sum + m.budget, 0)
-                        .toLocaleString()}
-                    </span>
+                  {/* Total */}
+                  <div className="pt-6 sm:pt-8 pb-4 sm:pb-6 px-5 sm:px-6 lg:px-8 border-t-2 border-dreamxec-navy bg-gradient-to-r from-white to-dreamxec-cream/50 rounded-xl shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <span className="text-lg sm:text-xl lg:text-2xl font-semibold text-dreamxec-navy font-display">
+                        Total Planned Allocation
+                      </span>
+                      <span className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-dreamxec-green to-emerald-700 text-transparent bg-clip-text">
+                        ₹{campaign.milestones.reduce((sum, m) => sum + m.budget, 0).toLocaleString()}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ) : (
-                <div className="p-6 rounded-lg border-4 border-dreamxec-navy bg-dreamxec-cream text-center">
-                  <p className="text-dreamxec-navy font-bold">
-                    Timeline details will be shared soon.
-                  </p>
-                  <p className="text-sm text-dreamxec-navy/70 mt-1">
-                    The campaign owner will update milestones after approval.
+                <div className="p-8 sm:p-10 lg:p-12 text-center border-2 border-dreamxec-navy/20 bg-dreamxec-cream/30 rounded-xl">
+                  <svg className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-4 text-dreamxec-navy/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-dreamxec-navy mb-2 font-display">
+                    Timeline Coming Soon
+                  </h3>
+                  <p className="text-sm sm:text-base text-dreamxec-navy/70 max-w-sm mx-auto">
+                    Milestones will appear here after campaign approval
                   </p>
                 </div>
               )}
 
-              <p className="mt-6 text-xs text-dreamxec-navy/60 italic">
-                * This timeline explains how funds will be utilized across execution phases.
+              <p className="mt-6 sm:mt-8 text-xs sm:text-sm text-dreamxec-navy/60 font-medium max-w-xl leading-relaxed pt-4 border-t border-dreamxec-navy/10">
+                * Timeline shows phased fund utilization across execution milestones
               </p>
             </div>
+
+
+
 
           </div>
 
@@ -588,12 +701,8 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
                   </p>
                   <p className="text-sm text-dreamxec-navy opacity-70 font-sans">Remaining</p>
                 </div>
-                {/* <div className="p-4 bg-dreamxec-cream rounded-lg border-3 border-dreamxec-green text-center">
-                  <p className="text-2xl font-bold text-dreamxec-navy font-display">
-                    {Math.ceil((new Date(campaign.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
-                  </p>
-                  <p className="text-sm text-dreamxec-navy opacity-70 font-sans">Days Left</p>
-                </div> */}
+
+
               </div>
 
               {/* Donate Button */}
@@ -602,9 +711,6 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
                   onClick={handleDonate}
                   className="w-full px-6 py-4 bg-dreamxec-green text-white rounded-lg border-4 border-dreamxec-navy font-bold font-display text-xl hover:scale-105 transition-transform shadow-pastel-green flex items-center justify-center gap-2"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
                   Support This Campaign
                 </button>
               )}
@@ -765,7 +871,15 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
             </form>
           </div>
         </div>
-      )}
+      )
+      }
+
+      <MobileDonateCTA
+        visible={showMobileCTA}
+        onDonateClick={handleDonate}
+        currentAmount={campaign.currentAmount}
+        goalAmount={campaign.goalAmount}
+      />
       <FooterContent />
     </div>
   );

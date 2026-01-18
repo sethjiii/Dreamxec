@@ -19,7 +19,7 @@ const upload = multer({ dest: "uploads/" });
  * 1️⃣ Submit Club Verification (President or Member uploads document)
  */
 router.post(
-  "/submit",
+  "/verify-president",
   protect,
   upload.single("document"),
   validate(clubVerificationSchema),

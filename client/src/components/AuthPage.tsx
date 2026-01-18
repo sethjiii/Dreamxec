@@ -297,7 +297,7 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
                         : 'bg-white text-dreamxec-navy border-dreamxec-navy hover:bg-dreamxec-cream'
                       }`}
                   >
-                    Student
+                    Studdent
                   </button>
                   <button
                     type="button"
@@ -313,7 +313,7 @@ export default function AuthPage({ onLogin, onSignup, onGoogleAuth, onLinkedInAu
               </div>
             )}
 
-            {/* Social Login Buttons - Hidden for Forgot Password */}
+            {/* Social Login Buttons - Hidden for Forgot Password */}   
             {!isForgotPassword && (onGoogleAuth || onLinkedInAuth) && (
               <div className="mb-6">
                 <div className="relative mb-4">

@@ -5,6 +5,8 @@ const passport = require('passport');
 const session = require('express-session');
 const AppError = require('./src/utils/AppError');
 const globalErrorHandler = require('./src/middleware/error.middleware');
+const RedisStore = require('connect-redis')(session);
+const redis = require('./src/services/redis.service');
 
 // Load environment variables
 dotenv.config();
@@ -55,13 +57,19 @@ app.use(
 // --------------------------------------------
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "default_super_secret_key",
+    store: new RedisStore({
+      client: redis,
+      prefix: "dreamxec:sess:",
+    }),
+    name: "dreamxec.sid",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // change to true ONLY when using HTTPS
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );

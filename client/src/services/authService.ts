@@ -4,7 +4,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'USER' | 'DONOR' | 'ADMIN';
+  role: 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'; // Added STUDENT_PRESIDENT
   organizationName?: string;
   studentVerified?: boolean;
 }
@@ -13,7 +13,7 @@ export interface RegisterData {
   name: string;
   email: string;
   password: string;
-  role: 'USER' | 'DONOR' | 'ADMIN';
+  role: 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'; // Added STUDENT_PRESIDENT
   organizationName?: string;
 }
 
@@ -83,7 +83,7 @@ export const resetPassword = async (token: string, password: string): Promise<Ap
 };
 
 // Google OAuth - Initiate authentication
-export const initiateGoogleAuth = (role: 'USER' | 'DONOR' | 'ADMIN'): void => {
+export const initiateGoogleAuth = (role: 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'): void => { // Added STUDENT_PRESIDENT
   const API_URL = import.meta.env.VITE_API_URL;
 
   const authUrl = `${API_URL}/auth/google?role=${role}`;
@@ -108,15 +108,13 @@ export const handleGoogleCallback = async (): Promise<ApiResponse<AuthResponse>>
 };
 
 // LinkedIn OAuth - Initiate authentication
-export const initiateLinkedInAuth = (role: 'USER' | 'DONOR' | 'ADMIN'): void => {
+export const initiateLinkedInAuth = (role: 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'): void => { // Added STUDENT_PRESIDENT
   const API_URL = import.meta.env.VITE_API_URL;
-
   const authUrl = `${API_URL}/auth/linkedin?role=${role}`;
   console.log('🔗 Redirecting to LinkedIn OAuth:', authUrl);
 
   window.location.href = authUrl;
 };
-
 
 // LinkedIn OAuth - Handle callback (called after redirect from LinkedIn)
 export const handleLinkedInCallback = async (): Promise<ApiResponse<AuthResponse>> => {

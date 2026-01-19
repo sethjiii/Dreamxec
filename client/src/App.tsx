@@ -50,7 +50,11 @@ import Careers from './sections/Pages/company/Careers';
 import ContactUs from './sections/Pages/company/ContactUs';
 import FAQ from './sections/Pages/company/FAQ';
 import AboutUs from './components/AboutUs';
+import TermsAndConditions from './sections/Pages/legal/TermsAndConditions';
+// import PrivacyPolicy from './sections/Pages/company/PrivacyPolicy';
 import VerifyPresident from './components/VerifyPresident';
+import { LoaderProvider, useLoader } from './context/LoaderContext';
+import LoadingAnimation from './components/LoadingAnimation';
 
 
 // Main App Content Component
@@ -63,7 +67,20 @@ function AppContent() {
   const [userApplications, setUserApplications] = useState<string[]>([]); // Project IDs user has applied to
   const [_showCheckEmail, setShowCheckEmail] = useState(false);
   const [signupEmail, setSignupEmail] = useState('');
+  const { showLoader, hideLoader } = useLoader();
   const navigate = useNavigate();
+
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  useEffect(() => {
+    const initialize = async () => {
+      // Load data...
+      setTimeout(() => {
+        setIsInitialLoading(false);
+      }, 2500);
+    };
+    initialize();
+  }, []);
 
   // Handle OAuth callbacks (Google and LinkedIn)
   useEffect(() => {
@@ -124,6 +141,9 @@ function AppContent() {
               navigate('/donor/dashboard');
             } else if (userData.role === 'admin') {
               navigate('/admin');
+            } else if (userData.role === 'STUDENT_PRESIDENT') {
+              // Add this new condition
+              navigate('/president');
             }
           } else {
             // Fallback: if backend indicates verification is required, show check-email
@@ -311,27 +331,49 @@ function AppContent() {
     goalAmount: number;
     bannerFile: File | null;
     mediaFiles: File[];
-    deckFile: File | null;
+    presentationDeckUrl: string;
+    milestones: {
+      title: string;
+      timeline: string;
+      budget: string | number;
+      description?: string;
+    }[];
   }) => {
+    showLoader();
     try {
-      console.log('🚀 Creating Campaign with Single Request...');
+      console.log('🚀 Creating Campaign with Milestones...');
 
       const formData = new FormData();
+
+      // Basic fields
       formData.append('title', data.title);
       formData.append('description', data.description);
-      formData.append('companyName', data.clubName); // Mapped to companyName in DB
-      // skillsRequired defaults to empty array
-      // timeline defaults to '3 months' or passed value? App hardcoded '3 months' before.
-      formData.append('timeline', '3 months');
+      formData.append('companyName', data.clubName);
       formData.append('goalAmount', data.goalAmount.toString());
 
-      // Append Files
+      // 🔹 Milestones (source of truth)
+      // Convert budget to number and send as JSON string (standard & backend-friendly)
+      const milestonesWithNumericBudget = data.milestones.map(m => ({
+        ...m,
+        budget: typeof m.budget === 'string' ? parseFloat(m.budget) : m.budget
+      }));
+      formData.append('milestones', JSON.stringify(milestonesWithNumericBudget));
+
+      // 🔹 Optional: derived timeline (display only)
+      const derivedTimeline =
+        data.milestones.length === 1
+          ? data.milestones[0].timeline
+          : `${data.milestones.length} milestones`;
+
+      formData.append('timeline', derivedTimeline);
+
+      // Files
       if (data.bannerFile) {
         formData.append('bannerFile', data.bannerFile);
       }
 
-      if (data.deckFile) {
-        formData.append('deckFile', data.deckFile);
+      if (data.presentationDeckUrl) {
+        formData.append('presentationDeckUrl', data.presentationDeckUrl);
       }
 
       if (data.mediaFiles && data.mediaFiles.length > 0) {
@@ -340,14 +382,19 @@ function AppContent() {
         });
       }
 
+      console.log('📦 Sending FormData with milestones');
+
       const response = await createUserProject(formData);
 
       console.log('📦 Create Response:', response);
 
       if (response.data?.userProject) {
-        // Map back to frontend model
-        const newCampaign = mapUserProjectToCampaign(response.data.userProject);
-        setCampaigns([...campaigns, newCampaign]);
+        const newCampaign = mapUserProjectToCampaign(
+          response.data.userProject
+        );
+
+        setCampaigns(prev => [...prev, newCampaign]);
+
         console.log('✅ Campaign created successfully:', newCampaign);
       } else {
         throw new Error('Failed to create campaign: Invalid response');
@@ -355,11 +402,15 @@ function AppContent() {
 
     } catch (error) {
       console.error('Failed to create campaign:', error);
+      hideLoader();
+      console.error('❌ Failed to create campaign:', error);
       throw error;
     }
   };
 
+
   const handleApproveCampaign = async (id: string) => {
+    showLoader();
     try {
       console.log('✅ Approving campaign:', id);
       await verifyUserProject(id, { status: 'APPROVED' });
@@ -371,11 +422,13 @@ function AppContent() {
       console.log('✅ Campaign approved successfully');
     } catch (error) {
       console.error('Failed to approve campaign:', error);
+      hideLoader()
       alert('Failed to approve campaign. Please try again.');
     }
   };
 
   const handleRejectCampaign = async (id: string, reason: string) => {
+    showLoader();
     try {
       console.log('❌ Rejecting campaign:', id, 'Reason:', reason);
       await verifyUserProject(id, { status: 'REJECTED', reason });
@@ -387,11 +440,13 @@ function AppContent() {
       console.log('❌ Campaign rejected successfully');
     } catch (error) {
       console.error('Failed to reject campaign:', error);
+      hideLoader();
       alert('Failed to reject campaign. Please try again.');
     }
   };
 
   const handleApproveProject = async (id: string) => {
+    showLoader();
     try {
       console.log('✅ Approving donor project:', id);
       await verifyDonorProject(id, { status: 'APPROVED' });
@@ -403,11 +458,13 @@ function AppContent() {
       console.log('✅ Donor project approved successfully');
     } catch (error) {
       console.error('Failed to approve donor project:', error);
+      hideLoader();
       alert('Failed to approve donor project. Please try again.');
     }
   };
 
   const handleRejectProject = async (id: string, reason: string) => {
+    showLoader();
     try {
       console.log('❌ Rejecting donor project:', id, 'Reason:', reason);
       await verifyDonorProject(id, { status: 'REJECTED', reason });
@@ -419,11 +476,13 @@ function AppContent() {
       console.log('❌ Donor project rejected successfully');
     } catch (error) {
       console.error('Failed to reject donor project:', error);
+      hideLoader();
       alert('Failed to reject donor project. Please try again.');
     }
   };
 
   const handleLogin = async (email: string, password: string, _role: 'student' | 'donor') => {
+    showLoader();
     setIsSubmitting(true);
     try {
       const response = await login({ email, password });
@@ -449,6 +508,7 @@ function AppContent() {
       }
     } catch (error) {
       console.error('Login failed:', error);
+      hideLoader();
       throw error;
     } finally {
       setIsSubmitting(false);
@@ -462,6 +522,7 @@ function AppContent() {
     role: 'student' | 'donor',
     institution?: string
   ) => {
+    showLoader();
     setIsSubmitting(true);
     try {
       console.log('🔐 Register payload:', { name, email, password, role: mapFrontendRole(role), organizationName: institution });
@@ -502,6 +563,7 @@ function AppContent() {
       }
     } catch (error) {
       console.error('Signup failed:', error);
+      hideLoader();
       throw error;
     } finally {
       setIsSubmitting(false);
@@ -509,6 +571,7 @@ function AppContent() {
   };
 
   const handleGoogleAuth = async (role: 'student' | 'donor') => {
+    showLoader();
     console.log('🔐 Google Auth initiated with role:', role);
     setIsSubmitting(true);
 
@@ -524,12 +587,14 @@ function AppContent() {
       // The callback will be handled in useEffect checking for ?token= param
     } catch (error) {
       console.error('Google auth error:', error);
+      hideLoader()
       setIsSubmitting(false);
       throw new Error('Google authentication failed');
     }
   };
 
   const handleLinkedInAuth = async (role: 'student' | 'donor') => {
+    showLoader();
     console.log('🔐 LinkedIn Auth:', { role });
 
     try {
@@ -543,6 +608,7 @@ function AppContent() {
       // with a token, and the OAuth callback handling in useEffect will process it
     } catch (error) {
       console.error('LinkedIn auth error:', error);
+      hideLoader();
       throw new Error('LinkedIn authentication failed');
     }
   };
@@ -593,6 +659,7 @@ function AppContent() {
   };
 
   const handleDonate = async (campaignId: string, amount: number) => {
+    showLoader()
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/donations/create-order`,
@@ -643,6 +710,7 @@ function AppContent() {
       new window.Razorpay(options).open();
     } catch (err) {
       console.error(err);
+      hideLoader();
       alert("❌ Donation failed");
     }
   };
@@ -657,6 +725,7 @@ function AppContent() {
     startDate: Date;
     endDate: Date;
   }) => {
+    showLoader();
     try {
       console.log('📤 Creating project with data:', data);
 
@@ -687,6 +756,7 @@ function AppContent() {
       }
     } catch (error) {
       console.error('Failed to create project:', error);
+      hideLoader();
       throw error;
     }
   };
@@ -802,7 +872,7 @@ function AppContent() {
                           <div className="pointer-events-auto">
                             <Routes>
                               {/* Homepage */}
-                              <Route
+                              {/* <Route
                                 path="/"
                                 element={
                                   <>
@@ -812,6 +882,26 @@ function AppContent() {
                                       onLogout={handleLogout}
                                     />
                                     <Main />
+                                  </>
+                                }
+                              /> */}
+                              <Route
+                                path="/"
+                                element={
+                                  <>
+                                    {isInitialLoading ? (
+                                      <LoadingAnimation fullScreen={true} showDarkModeToggle={false} />
+                                    ) : (
+                                      <>
+                                        <Header
+                                          currentUser={user}
+                                          onLogin={handleLoginClick}
+                                          onLogout={handleLogout}
+
+                                        />
+                                        <Main />
+                                      </>
+                                    )}
                                   </>
                                 }
                               />
@@ -839,11 +929,7 @@ function AppContent() {
                                 path="/campaign/:id"
                                 element={
                                   <>
-                                    {/* <Header 
-                                      currentUser={user} 
-                                      onLogin={handleLoginClick}
-                                      onLogout={handleLogout}
-                                    /> */}
+
                                     <CampaignDetails
                                       currentUser={user}
                                       campaigns={approvedCampaigns}
@@ -879,7 +965,18 @@ function AppContent() {
                                       <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-12 text-center max-w-md">
                                         <div className="card-tricolor-tag"></div>
                                         <p className="text-dreamxec-navy text-xl font-sans mt-4">
-                                          Please log in as a student to access the dashboard.
+                                          <p className="text-dreamxec-navy text-xl font-sans mt-4">
+                                            Every journey begins with the right role.
+                                            <br />
+                                            Log in as a student to access your DreamXec dashboard.
+                                          </p>
+                                          <button
+                                            onClick={() => navigate("/auth")}
+                                            className="mt-8 px-8 py-3 bg-dreamxec-orange text-white font-bold rounded-xl
+                     hover:bg-dreamxec-saffron transition-colors shadow-lg"
+                                          >
+                                            Log in
+                                          </button>
                                         </p>
                                       </div>
                                     </div>
@@ -1219,6 +1316,25 @@ function AppContent() {
                             {/* Footer Routes */}
                             <Routes>
                               <Route path="/start-project" element={<StartAProject />} />
+                              
+                              
+                              <Route path="/start-project" element={<StartAProject />} />
+                                <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
+                                <Route path="/eligibility" element={<ProjectEligibility />} />
+                                <Route path="/resources" element={<ResourceCenter />} />
+                                <Route path="/fund-innovation" element={<FundInnovation />} />
+                                <Route path="/how-it-works/donors" element={<HowItWorksDonors />} />
+                                <Route path="/why-donate" element={<WhyDonate />} />
+                                <Route path="/corporate-partnerships" element={<CorporateCSRPartnerships />} />
+                                <Route path="/alumni-giving" element={<AlumniGivingPrograms />} />
+                                <Route path="/become-mentor" element={<BecomeMentor />} />
+                                <Route path="/perfect-storm" element={<PerfectStorm />} />
+                                <Route path="/careers" element={<Careers />} />
+                                <Route path="/contact" element={<ContactUs />} />
+                                <Route path="/faq" element={<FAQ />} />
+                                <Route path="/terms-And-Conditions" element={<TermsAndConditions />} />
+                                {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                               */}
                               <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
                               <Route path="/eligibility" element={<ProjectEligibility />} />
                               <Route path="/resources" element={<ResourceCenter />} />
@@ -1266,7 +1382,9 @@ const App = () => {
 
   return (
     <Router>
-      <AppContent />
+      <LoaderProvider>
+        <AppContent />
+      </LoaderProvider>
     </Router>
   );
 };

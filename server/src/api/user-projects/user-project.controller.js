@@ -18,18 +18,26 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
     return next(new AppError('You must be a verified student to create a campaign.', 403));
   }
 
-  const { id, title, description, companyName, skillsRequired, timeline, goalAmount } = req.body;
+  const {
+    title,
+    description,
+    companyName,
+    skillsRequired,
+    timeline,
+    goalAmount
+  } = req.body;
+
 
   const initialProject = await prisma.userProject.create({
     data: {
-      id: id || undefined, 
+      id: id || undefined,
       title,
       description,
       companyName: companyName || null,
-      skillsRequired: skillsRequired ? (typeof skillsRequired === 'string' ? JSON.parse(skillsRequired) : skillsRequired) : [], 
+      skillsRequired: skillsRequired ? (typeof skillsRequired === 'string' ? JSON.parse(skillsRequired) : skillsRequired) : [],
       timeline: timeline || null,
-      goalAmount: parseFloat(goalAmount), 
-      imageUrl: null, 
+      goalAmount: parseFloat(goalAmount),
+      imageUrl: null,
       campaignMedia: [],
       presentationDeckUrl: null,
       userId: req.user.id,
@@ -38,7 +46,7 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
 
   const projectId = initialProject.id;
   const updates = {};
-  
+
   console.log('📦 Canpaign Created:', projectId);
   console.log('📂 Files received:', req.files ? Object.keys(req.files) : 'None');
 
@@ -73,7 +81,7 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
           let folder = `dreamxec/campaigns/${projectId}/others`;
           if (file.mimetype.startsWith('image/')) folder = `dreamxec/campaigns/${projectId}/images`;
           else if (file.mimetype.startsWith('video/')) folder = `dreamxec/campaigns/${projectId}/videos`;
-          
+
           const url = await uploadToCloudinary(file.path, folder);
           mediaUrls.push(url);
         }

@@ -11,7 +11,7 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
     return next(new AppError('You must be a verified student to create a campaign.', 403));
   }
 
-  const { id, title, description, companyName, skillsRequired, timeline, goalAmount } = req.body;
+  // const { id, title, description, companyName, skillsRequired, timeline, goalAmount } = req.body;
 
   const initialProject = await prisma.userProject.create({
     data: {
@@ -35,6 +35,7 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
     companyName,
     skillsRequired,
     goalAmount,
+   timeline,
     presentationDeckUrl,
   } = req.body;
 

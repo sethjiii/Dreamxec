@@ -1,4 +1,17 @@
-export type UserRole = 'student' | 'admin' | 'donor' | 'DONOR' | 'STUDENT_PRESIDENT';
+// src/types/index.ts
+
+import type { Milestone } from "../components/CampaignDetails";
+
+/* =========================================================
+   User & Roles
+========================================================= */
+
+export type UserRole =
+  | 'student'
+  | 'admin'
+  | 'donor'
+  | 'DONOR'
+  | 'STUDENT_PRESIDENT';
 
 export interface User {
   id: string;
@@ -6,6 +19,10 @@ export interface User {
   email: string;
   role: UserRole;
 }
+
+/* =========================================================
+   Campaign Types
+========================================================= */
 
 export interface Campaign {
   id: string;
@@ -16,15 +33,23 @@ export interface Campaign {
   currentAmount: number;
   status: 'approved' | 'pending' | 'rejected';
   createdAt: Date;
-  deadline: Date;
+
   category?: string;
   imageUrl?: string;
-  campaignMedia?: string[]; // Array of media URLs
-  presentationDeckUrl?: string | null; // URL for PDF/PPT deck
-  createdBy?: string; // User ID of the creator
-  userId?: string; // Sometimes mapped as userId (alias for createdBy)
-  rejectionReason?: string; // Reason for rejection (if rejected)
+  campaignMedia?: string[];
+  presentationDeckUrl?: string | null;
+
+  createdBy?: string;
+  userId?: string;
+  rejectionReason?: string;
+
+  // ✅ Milestone-based timeline
+  milestones?: Milestone[];
 }
+
+/* =========================================================
+   Project Types (Donor)
+========================================================= */
 
 export interface Project {
   id: string;
@@ -40,7 +65,7 @@ export interface Project {
   createdAt: Date;
   interestedUsers: ProjectApplication[];
   status: 'approved' | 'pending' | 'rejected';
-  rejectionReason?: string; // Reason for rejection (if rejected)
+  rejectionReason?: string;
 }
 
 export interface ProjectApplication {
@@ -56,6 +81,10 @@ export interface ProjectApplication {
   appliedAt: Date;
 }
 
+/* =========================================================
+   Student
+========================================================= */
+
 export interface Student {
   id: string;
   name: string;
@@ -63,4 +92,3 @@ export interface Student {
   university: string;
   avatar?: string;
 }
-

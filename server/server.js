@@ -32,10 +32,16 @@ const wishlistRoutes = require('./src/api/wishlist/wishlist.routes');
 const uploadRoutes = require('./src/api/upload/upload.routes');
 const otpRoutes=require("./src/api/otp/otp.routes")
 const studentverfication=require("./src/api/studentVerification/studentVerification.routes")
+const healthRoutes = require("./src/routes/health.routes");
 // Load Passport (Google only, LinkedIn handled via OIDC file)
 require('./src/config/passport');
 
 const app = express();
+
+setTimeout(async () => {
+  const health = await checkRedisHealth();
+  console.log("🧠 Redis health check:", health);
+}, 3000);
 
 // --------------------------------------------
 // 1️⃣ CORS CONFIG — Required for OAuth cookies/sessions
@@ -78,6 +84,10 @@ app.use(
   webhookRoutes
 );
 
+//-------------------------------
+//Redis Health Check
+//-------------------------------
+app.use("/api", healthRoutes);
 
 // --------------------------------------------
 // 5️⃣ JSON BODY PARSER

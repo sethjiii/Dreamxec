@@ -1,35 +1,45 @@
-const otpGenerator = require('otp-generator');
-const crypto = require('crypto');
+const otpGenerator = require("otp-generator");
+const crypto = require("crypto");
 const sendEmail = require("../../services/email.service");
 const { sendWhatsAppMessage } = require("../../services/whatsapp.service");
 const redis = require("../../services/redis.service");
 
 /* ───────────────── CONSTANTS ───────────────── */
-const OTP_EXPIRY = 300;           // 5 minutes
-const COOLDOWN_PERIOD = 60;       // 60 seconds
-const BLOCK_PERIOD = 900;         // 15 minutes
-const MAX_ATTEMPTS_PER_WINDOW = 3;
+const OTP_EXPIRY = 300;              // 5 minutes
+const COOLDOWN_PERIOD = 60;          // 1 minute
+const RATE_LIMIT_WINDOW = 900;       // 15 minutes
+const MAX_REQUESTS = 3;
 const MAX_VERIFY_ATTEMPTS = 3;
+const LOCK_PERIOD = 1800;            // 30 minutes
 
 /* ───────────────── HELPERS ───────────────── */
 
 const hashOtp = (otp) =>
-  crypto.createHash('sha256').update(otp).digest('hex');
+  crypto.createHash("sha256").update(otp).digest("hex");
 
-const generateAndStoreOtp = async (type, identifier) => {
+const generateAndStoreOtp = async (type, value) => {
   const otp = otpGenerator.generate(6, {
+    digits: true,
     upperCaseAlphabets: false,
     lowerCaseAlphabets: false,
     specialChars: false,
-    digits: true,
   });
 
-  const hashedOtp = hashOtp(otp);
-
-  await redis.set(`otp:${type}:${identifier}`, hashedOtp, 'EX', OTP_EXPIRY);
-  await redis.set(`attempts:${type}:${identifier}`, 0, 'EX', OTP_EXPIRY);
+  await redis.multi()
+    .set(`otp:${type}:${value}`, hashOtp(otp), "EX", OTP_EXPIRY)
+    .set(`attempts:${type}:${value}`, 0, "EX", OTP_EXPIRY)
+    .exec();
 
   return otp;
+};
+
+const safeTTL = async (key, fallback) => {
+  let ttl = await redis.ttl(key);
+  if (ttl < 0) {
+    await redis.expire(key, fallback);
+    ttl = fallback;
+  }
+  return ttl;
 };
 
 /* ───────────────── GENERATE OTP ───────────────── */
@@ -44,56 +54,78 @@ const generateOtp = async (req, res) => {
       });
     }
 
-    /* ─── Rate limit per identifier ─── */
-    const identifier = email || phonenumber;
-    const rateLimitKey = `rate_limit:${identifier}`;
-    const requestCount = await redis.get(rateLimitKey);
+    const targets = [];
+    if (email) targets.push({ type: "email", value: email });
+    if (phonenumber) targets.push({ type: "phone", value: phonenumber });
 
-    if (requestCount && parseInt(requestCount) >= MAX_ATTEMPTS_PER_WINDOW) {
-      const ttl = await redis.ttl(rateLimitKey);
-      return res.status(429).json({
-        message: `Too many requests. Try again in ${Math.ceil(ttl / 60)} minutes.`,
-      });
+    for (const { type, value } of targets) {
+      const lockKey = `otp_lock:${type}:${value}`;
+      const cooldownKey = `cooldown:${value}`;
+      const rateLimitKey = `rate_limit:${value}`;
+
+      /* 🔒 BLOCK IF LOCKED */
+      if (await redis.get(lockKey)) {
+        const ttl = await safeTTL(lockKey, LOCK_PERIOD);
+        return res.status(429).json({
+          message: `Too many failed attempts. Try again in ${ttl} seconds.`,
+        });
+      }
+
+      /* ⏳ COOLDOWN (ATOMIC) */
+      const cooldownSet = await redis.set(
+        cooldownKey,
+        "1",
+        "EX",
+        COOLDOWN_PERIOD,
+        "NX"
+      );
+
+      if (!cooldownSet) {
+        const ttl = await safeTTL(cooldownKey, COOLDOWN_PERIOD);
+        return res.status(429).json({
+          message: `Please wait ${ttl} seconds before requesting again.`,
+        });
+      }
+
+      /* 🚦 RATE LIMIT */
+      const currentCount = Number(await redis.get(rateLimitKey)) || 0;
+
+      if (currentCount >= MAX_REQUESTS) {
+        const ttl = await safeTTL(rateLimitKey, RATE_LIMIT_WINDOW);
+        return res.status(429).json({
+          message: `Too many requests. Try again in ${Math.ceil(ttl / 60)} minutes.`,
+        });
+      }
+
+      await redis.set(
+        rateLimitKey,
+        currentCount + 1,
+        "EX",
+        RATE_LIMIT_WINDOW
+      );
     }
 
-    const cooldownKey = `cooldown:${identifier}`;
-    if (await redis.get(cooldownKey)) {
-      const ttl = await redis.ttl(cooldownKey);
-      return res.status(429).json({
-        message: `Please wait ${ttl} seconds before requesting again.`,
-      });
-    }
-
-    await redis.multi()
-      .incr(rateLimitKey)
-      .expire(rateLimitKey, BLOCK_PERIOD)
-      .exec();
-
-    await redis.set(cooldownKey, '1', 'EX', COOLDOWN_PERIOD);
-
-    /* ─── EMAIL OTP ─── */
+    /* 📧 EMAIL OTP */
     if (email) {
-      const emailOtp = await generateAndStoreOtp('email', email);
-
+      const otp = await generateAndStoreOtp("email", email);
       await sendEmail({
         email,
         subject: "DreamXec Email OTP",
-        message: `Your Email OTP is ${emailOtp}. It is valid for 5 minutes.`,
+        message: `Your OTP is ${otp}. It is valid for 5 minutes.`,
       });
     }
 
-    /* ─── WHATSAPP OTP ─── */
+    /* 📱 WHATSAPP OTP */
     if (phonenumber) {
-      const phoneOtp = await generateAndStoreOtp('phone', phonenumber);
-
+      const otp = await generateAndStoreOtp("phone", phonenumber);
       await sendWhatsAppMessage({
         to: `+91${phonenumber}`,
-        message: `Your DreamXec WhatsApp OTP is ${phoneOtp}. Valid for 5 minutes.`,
+        message: `Your DreamXec OTP is ${otp}. Valid for 5 minutes.`,
       });
     }
 
     return res.json({
-      message: "OTP sent successfully to email and WhatsApp",
+      message: "OTP sent successfully",
     });
 
   } catch (error) {
@@ -107,44 +139,66 @@ const generateOtp = async (req, res) => {
 const verifyOtp = async (req, res) => {
   try {
     const { type, value, otp } = req.body;
-    // type = "email" | "phone"
-    // value = email OR phone number
 
     if (!type || !value || !otp) {
       return res.status(400).json({
-        message: "type, value, and otp are required",
+        message: "type, value and otp are required",
       });
     }
 
     const otpKey = `otp:${type}:${value}`;
     const attemptsKey = `attempts:${type}:${value}`;
+    const lockKey = `otp_lock:${type}:${value}`;
 
-    const storedHash = await redis.get(otpKey);
-    if (!storedHash) {
-      return res.status(400).json({ message: "OTP expired or invalid" });
-    }
-
-    const attempts = await redis.get(attemptsKey);
-    if (attempts && parseInt(attempts) >= MAX_VERIFY_ATTEMPTS) {
+    /* 🔒 BLOCK IF LOCKED */
+    if (await redis.get(lockKey)) {
+      const ttl = await safeTTL(lockKey, LOCK_PERIOD);
       return res.status(429).json({
-        message: "Too many failed attempts. Verification locked.",
+        message: `Verification locked. Try again in ${ttl} seconds.`,
       });
     }
 
-    const submittedHash = hashOtp(otp);
+    const storedHash = await redis.get(otpKey);
+    if (!storedHash) {
+      return res.status(400).json({
+        message: "OTP expired or invalid",
+      });
+    }
 
-    if (submittedHash === storedHash) {
-      await redis.del(otpKey);
-      await redis.del(attemptsKey);
-      await redis.set(`verified:${type}:${value}`, 'true', 'EX', 1800);
+    const attempts = Number(await redis.get(attemptsKey)) || 0;
+
+    /* 🔐 LOCK AFTER MAX FAILURES */
+    if (attempts >= MAX_VERIFY_ATTEMPTS) {
+      await redis.multi()
+        .del(otpKey)
+        .del(attemptsKey)
+        .set(lockKey, "1", "EX", LOCK_PERIOD)
+        .exec();
+
+      return res.status(429).json({
+        message: "Too many failed attempts. Locked for 30 minutes.",
+      });
+    }
+
+    /* ✅ VERIFY OTP */
+    if (hashOtp(otp) === storedHash) {
+      await redis.multi()
+        .del(otpKey)
+        .del(attemptsKey)
+        .del(lockKey)
+        .set(`verified:${type}:${value}`, "true", "EX", 1800)
+        .exec();
 
       return res.json({
         message: `${type.toUpperCase()} OTP verified successfully`,
       });
     }
 
+    /* ❌ WRONG OTP */
     await redis.incr(attemptsKey);
-    return res.status(401).json({ message: "Invalid OTP" });
+    return res.status(401).json({
+      message: "Invalid OTP",
+    });
 
   } catch (error) {
     console.error("Verify OTP Error:", error);

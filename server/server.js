@@ -7,6 +7,8 @@ const AppError = require('./src/utils/AppError');
 const globalErrorHandler = require('./src/middleware/error.middleware');
 const RedisStore = require('connect-redis').default;
 const redis = require('./src/services/redis.service');
+const cleanupOtpRedisKeys = require("./src/utils/redisOTPCleanup");
+
 
 // Load environment variables
 dotenv.config();
@@ -35,6 +37,8 @@ const uploadRoutes = require('./src/api/upload/upload.routes');
 const otpRoutes=require("./src/api/otp/otp.routes")
 const studentverfication=require("./src/api/studentVerification/studentVerification.routes")
 const healthRoutes = require("./src/routes/health.routes");
+const adminRedisRoutes = require("./src/api/admin/adminRedis.routes");
+
 // Load Passport (Google only, LinkedIn handled via OIDC file)
 require('./src/config/passport');
 
@@ -147,6 +151,7 @@ app.use('/api/donor-projects', donorProjectRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin', adminRedisRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use("/api/club-verification", clubVerificationRoutes);
 app.use("/api/club-referral", clubReferralRoutes);
@@ -171,6 +176,23 @@ app.all('*', (req, res, next) => {
 // GLOBAL ERROR HANDLER
 // --------------------------------------------
 app.use(globalErrorHandler);
+
+// --------------------------------------------
+// REDIS OTP CLEANUP ON SERVER START
+// --------------------------------------------
+redis.on("ready", async () => {
+  console.log("✅ Redis connected");
+
+  if (process.env.CLEAN_REDIS_ON_BOOT === "true") {
+    try {
+      const deleted = await cleanupOtpRedisKeys();
+      console.log(`🧹 Redis OTP cleanup done. Deleted ${deleted} keys.`);
+    } catch (err) {
+      console.error("❌ Redis OTP cleanup failed:", err);
+    }
+  }
+});
+
 
 // --------------------------------------------
 // START SERVER

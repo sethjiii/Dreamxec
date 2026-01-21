@@ -1,38 +1,57 @@
-const sgMail = require('@sendgrid/mail');
+const sgMail = require("@sendgrid/mail");
 
-if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY.startsWith('SG.')) {
+if (
+  process.env.SENDGRID_API_KEY &&
+  process.env.SENDGRID_API_KEY.startsWith("SG.")
+) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 } else {
-  console.warn('SendGrid API key not configured or invalid. Email functionality will be disabled.');
+  console.warn(
+    "SendGrid API key not configured or invalid. Email functionality disabled."
+  );
 }
 
-const sendEmail = async (options) => {
- console.log(options)
-  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_API_KEY.startsWith('SG.')) {
-    console.log('Email would be sent:', {
-      to: options.email,
-      subject: options.subject,
-      message: options.message
-    });
+const sendEmail = async ({ email, subject, message }) => {
+  console.log("Sending email:", { email, subject });
+
+  if (
+    !process.env.SENDGRID_API_KEY ||
+    !process.env.SENDGRID_API_KEY.startsWith("SG.")
+  ) {
+    console.log("Mock email:", { email, subject, message });
     return;
   }
 
   const msg = {
-    to: options.email,
-    from: process.env.SENDGRID_FROM_EMAIL,
-    subject: options.subject,
-    text: options.message,
+    to: email,
+
+    // 🔥 THIS IS THE FIX
+    from: {
+      email: process.env.SENDGRID_FROM_EMAIL, // MUST MATCH AUTH DOMAIN
+      name: "DreamXec",
+    },
+
+    subject,
+    text: message,
+
+    // optional but recommended
+    html: `
+      <div style="font-family: Arial, sans-serif">
+        <h2>DreamXec Verification Code</h2>
+        <p>Your OTP is:</p>
+        <h1>${message.match(/\d{6}/)?.[0]}</h1>
+        <p>This code is valid for 5 minutes.</p>
+      </div>
+    `,
   };
 
   try {
-    await sgMail.send(msg);
-    console.log('Email sent successfully');
+    const [response] = await sgMail.send(msg);
+    console.log("Email sent:", response.statusCode);
   } catch (error) {
-    console.error('Error sending email:', error);
-    if (error.response) {
-      console.error(error.response.body);
-    }
-    throw new Error('Email could not be sent.');
+    console.error("Error sending email:");
+    console.error(error.response?.body || error);
+    throw new Error("Email could not be sent.");
   }
 };
 

@@ -182,6 +182,7 @@ function AppContent() {
             name: response.data.user.name,
             email: response.data.user.email,
             role: mapBackendRole(response.data.user.role),
+            studentVerified: response.data.user.studentVerified,
           });
         }
       } catch (error) {
@@ -939,6 +940,8 @@ function AppContent() {
                                       <StudentDashboard
                                         studentName={user.name || 'User'}
                                         campaigns={userCampaigns}
+                                        user={user}
+                                        studentVerified={user.studentVerified}
                                         onCreateCampaign={() => navigate('/create')}
                                         onViewCampaign={(id) => navigate(`/campaign/${id}`)}
                                         isClubPresident={user.role === 'STUDENT_PRESIDENT'}
@@ -989,6 +992,9 @@ function AppContent() {
                                         isClubPresident={user?.role === 'STUDENT_PRESIDENT'}
                                         isClubMember={false} // Logic can be updated if you track membership
                                         clubVerified={user?.role === 'STUDENT_PRESIDENT'}
+                                        user={user}
+                                        // studentVerified={}
+                                        studentVerified={user?.role === 'student'}
                                       />
                                     </>
                                   ) : (
@@ -1347,8 +1353,9 @@ function AppContent() {
 
                             {/* Footer Routes */}
                             <Routes>
-
-
+                              <Route path="/start-project" element={<StartAProject />} />
+                              
+                              
                               <Route path="/start-project" element={<StartAProject />} />
                               <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
                               <Route path="/eligibility" element={<ProjectEligibility />} />
@@ -1364,7 +1371,7 @@ function AppContent() {
                               <Route path="/contact" element={<ContactUs />} />
                               <Route path="/faq" element={<FAQ />} />
                               <Route path="/terms-And-Conditions" element={<TermsAndConditions />} />
-                              {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+  {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                                */}
                               <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
                               <Route path="/eligibility" element={<ProjectEligibility />} />
@@ -1383,33 +1390,34 @@ function AppContent() {
                               <Route path="/contact" element={<ContactUs />} />
                               <Route path="/faq" element={<FAQ />} />
 
-                            </Routes>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            role="region"
-            aria-label="bottom of page"
-            className="caret-transparent h-0 pointer-events-none text-nowrap overflow-hidden"
-          >
-            <span className="caret-transparent hidden text-nowrap">
-              bottom of page
-            </span>
-          </div>
-        </div>
-      </div>
+                            </Routes >
+                          </div >
+                        </div >
+                      </div >
+                    </div >
+                  </div >
+                </div >
+              </div >
+            </div >
+          </div >
+    <div
+      role="region"
+      aria-label="bottom of page"
+      className="caret-transparent h-0 pointer-events-none text-nowrap overflow-hidden"
+    >
+      <span className="caret-transparent hidden text-nowrap">
+        bottom of page
+      </span>
     </div>
+        </div >
+      </div >
+    </div >
   );
 };
 
 // Main App Component with Router
 const App = () => {
+
   return (
     <Router>
       <LoaderProvider>

@@ -856,9 +856,9 @@ function AppContent() {
         }}
         containerStyle={{
           top: 50,
-          right: 20,    
+          right: 20,
         }}
-          
+
       />
 
       {/* Floating doodle animations */}
@@ -1007,13 +1007,11 @@ function AppContent() {
                                         campaigns={userCampaigns}
                                         onCreateCampaign={() => navigate('/create')}
                                         onViewCampaign={(id) => navigate(`/campaign/${id}`)}
-                                        // FIXED: Passed correct props expected by the component
                                         isClubPresident={user?.role === 'STUDENT_PRESIDENT'}
-                                        isClubMember={false} // Logic can be updated if you track membership
+                                        isClubMember={false}
                                         clubVerified={user?.role === 'STUDENT_PRESIDENT'}
                                         user={user}
-                                        // studentVerified={}
-                                        studentVerified={user?.role === 'student'}
+                                        studentVerified={user.studentVerified}
                                       />
                                     </>
                                   ) : (
@@ -1373,8 +1371,8 @@ function AppContent() {
                             {/* Footer Routes */}
                             <Routes>
                               <Route path="/start-project" element={<StartAProject />} />
-                              
-                              
+
+
                               <Route path="/start-project" element={<StartAProject />} />
                               <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
                               <Route path="/eligibility" element={<ProjectEligibility />} />
@@ -1390,7 +1388,7 @@ function AppContent() {
                               <Route path="/contact" element={<ContactUs />} />
                               <Route path="/faq" element={<FAQ />} />
                               <Route path="/terms-And-Conditions" element={<TermsAndConditions />} />
-  {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                              {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                                */}
                               <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
                               <Route path="/eligibility" element={<ProjectEligibility />} />
@@ -1419,15 +1417,15 @@ function AppContent() {
               </div >
             </div >
           </div >
-    <div
-      role="region"
-      aria-label="bottom of page"
-      className="caret-transparent h-0 pointer-events-none text-nowrap overflow-hidden"
-    >
-      <span className="caret-transparent hidden text-nowrap">
-        bottom of page
-      </span>
-    </div>
+          <div
+            role="region"
+            aria-label="bottom of page"
+            className="caret-transparent h-0 pointer-events-none text-nowrap overflow-hidden"
+          >
+            <span className="caret-transparent hidden text-nowrap">
+              bottom of page
+            </span>
+          </div>
         </div >
       </div >
     </div >

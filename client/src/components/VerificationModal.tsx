@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { generateEmailOtp, generateMobileOtp, submitVerification, createVerificationPaymentOrder } from '../services/verificationService';
 import { data } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import apiRequest from '../services/api';
 interface VerificationModalProps {
     isOpen: boolean;
@@ -72,7 +73,7 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
 
     const sendEmailOtp = async () => {
         if (!studentEmail) {
-            alert("Please enter a student email first.");
+            toast.error("Please enter a student email first.");
             return;
         }
         setEmailOtpStatus('sending');
@@ -90,13 +91,13 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
         } catch (error) {
             console.error(error);
             setEmailOtpStatus('failed');
-            alert("Failed to send Email OTP. Please try again.");
+            toast.error("Failed to send Email OTP. Please try again.");
         }
     };
 
     const verifyEmailOtpHandler = async () => {
         if (!emailOtp) {
-            alert("Please enter the OTP sent to your email.");
+            toast("Please enter the OTP sent to your email.");
             return;
         }
 
@@ -114,19 +115,19 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
             });
 
             setEmailOtpStatus("verified");
-            alert("Email verified successfully!");
+            toast.success("Email verified successfully!");
 
         } catch (error) {
             console.error(error);
             setEmailOtpStatus("failed");
-            alert("Invalid or expired OTP. Please try again.");
+            toast.error("Invalid or expired OTP. Please try again.");
         }
     };
 
 
     const sendMobileOtp = async () => {
         if (!mobile) {
-            alert("Please enter a mobile number first.");
+            toast.error("Please enter a mobile number first.");
             return;
         }
         setMobileOtpStatus('sending');
@@ -137,14 +138,14 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
                 setMobileOtpStatus('sent');
                 setMobileTimer(60); // Start cooldown
                 if (res.otp) alert(`OTP sent to ${mobile}. ${res.otp} (Dev Mode)`);
-                else alert(`OTP sent to ${mobile}.`);
+                else toast.success(`OTP sent to ${mobile}.`);
             } else {
                 throw new Error("Failed to send OTP");
             }
         } catch (error) {
             console.error(error);
             setMobileOtpStatus('failed');
-            alert("Failed to send WhatsApp OTP. Please try again.");
+            toast.error("Failed to send WhatsApp OTP. Please try again.");
         }
     };
 

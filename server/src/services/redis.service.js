@@ -1,21 +1,24 @@
-const { createClient } = require("redis");
-const dotenv = require("dotenv");
+const redis = require("redis");
 
-dotenv.config();
-
-const redisClient = createClient({
-  url: process.env.REDIS_URL || "redis://127.0.0.1:6379",
+const client = redis.createClient({
+  url: process.env.REDIS_URL,
+  socket: {
+    reconnectStrategy: (retries) => {
+      console.log(`🔁 Redis reconnect attempt #${retries}`);
+      return Math.min(retries * 100, 3000); // retry delay
+    },
+  },
 });
 
-redisClient.on("error", (err) => {
-  console.error("❌ Redis Client Error:", err);
+client.on("connect", () => {
+  console.log("🔄 Redis connecting...");
 });
 
-(async () => {
-  if (!redisClient.isOpen) {
-    await redisClient.connect();
-    console.log("✅ Redis connected");
-  }
-})();
 
-module.exports = redisClient;
+client.on("error", (err) => {
+  console.error("❌ Redis Client Error:", err.message);
+});
+
+client.connect();
+
+module.exports = client;

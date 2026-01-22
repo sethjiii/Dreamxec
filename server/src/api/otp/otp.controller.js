@@ -17,35 +17,6 @@ const LOCK_PERIOD = 1800;            // 30 minutes
 const hashOtp = (otp) =>
   crypto.createHash("sha256").update(otp).digest("hex");
 
-// 🟢 FIX: Robust TTL checker that never returns negative numbers
-const safeTTL = async (key, fallback) => {
-  try {
-    const ttl = await redis.ttl(key);
-    
-    // Case -2: Key does not exist (Expired during race condition)
-    if (ttl === -2) {
-      return 0; // Allow user to retry immediately or show 0s wait
-    }
-    
-    // Case -1: Key exists but has NO expiry (Stuck key)
-    if (ttl === -1) {
-      await redis.expire(key, fallback); // Force expiry
-      return fallback;
-    }
-
-    // Sanity check: If negative for any other reason, return fallback
-    if (ttl < 0) {
-        await redis.expire(key, fallback);
-        return fallback;
-    }
-
-    return ttl;
-  } catch (err) {
-    console.error(`safeTTL Error for ${key}:`, err);
-    return fallback; // Fail safe
-  }
-};
-
 const generateAndStoreOtp = async (type, value) => {
   const otp = otpGenerator.generate(6, {
     digits: true,
@@ -60,6 +31,15 @@ const generateAndStoreOtp = async (type, value) => {
     .exec();
 
   return otp;
+};
+
+const safeTTL = async (key, fallback) => {
+  let ttl = await redis.ttl(key);
+  if (ttl < 0) {
+    await redis.expire(key, fallback);
+    ttl = fallback;
+  }
+  return ttl;
 };
 
 /* ───────────────── GENERATE OTP ───────────────── */
@@ -101,11 +81,7 @@ const generateOtp = async (req, res) => {
       );
 
       if (!cooldownSet) {
-        let ttl = await safeTTL(cooldownKey, COOLDOWN_PERIOD);
-        
-        // 🟢 FIX: Double safety to prevent "-1 seconds"
-        if (ttl <= 0) ttl = COOLDOWN_PERIOD;
-
+        const ttl = await safeTTL(cooldownKey, COOLDOWN_PERIOD);
         return res.status(429).json({
           message: `Please wait ${ttl} seconds before requesting again.`,
         });
@@ -116,9 +92,8 @@ const generateOtp = async (req, res) => {
 
       if (currentCount >= MAX_REQUESTS) {
         const ttl = await safeTTL(rateLimitKey, RATE_LIMIT_WINDOW);
-        const minutes = Math.ceil(ttl / 60);
         return res.status(429).json({
-          message: `Too many requests. Try again in ${minutes > 0 ? minutes : 1} minutes.`,
+          message: `Too many requests. Try again in ${Math.ceil(ttl / 60)} minutes.`,
         });
       }
 

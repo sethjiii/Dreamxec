@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Toast, Toaster } from 'react-hot-toast';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import FloatingDoodles from './components/FloatingDoodles';
 import { Header } from './sections/Header';
@@ -855,6 +856,24 @@ function AppContent() {
 
   return (
     <div className="text-dreamxec-navy text-[10px] not-italic normal-nums font-normal accent-auto caret-transparent block h-full tracking-[normal] leading-[normal] list-outside list-disc overflow-x-auto overflow-y-scroll pointer-events-auto text-start indent-[0px] normal-case visible border-separate font-sans">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 5000,
+          style: {
+            background: '#fff',
+            color: '#333',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            borderRadius: '8px',
+          },
+        }}
+        containerStyle={{
+          top: 50,
+          right: 20,    
+        }}
+          
+      />
+
       {/* Floating doodle animations */}
       <FloatingDoodles count={8} />
 

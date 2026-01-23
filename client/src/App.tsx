@@ -869,9 +869,9 @@ function AppContent() {
         }}
         containerStyle={{
           top: 50,
-          right: 20,    
+          right: 20,
         }}
-          
+
       />
 
       {/* Floating doodle animations */}
@@ -1020,13 +1020,11 @@ function AppContent() {
                                         campaigns={userCampaigns}
                                         onCreateCampaign={() => navigate('/create')}
                                         onViewCampaign={(id) => navigate(`/campaign/${id}`)}
-                                        // FIXED: Passed correct props expected by the component
                                         isClubPresident={user?.role === 'STUDENT_PRESIDENT'}
-                                        isClubMember={false} // Logic can be updated if you track membership
+                                        isClubMember={false}
                                         clubVerified={user?.role === 'STUDENT_PRESIDENT'}
                                         user={user}
-                                        // studentVerified={}
-                                        studentVerified={user?.role === 'student'}
+                                        studentVerified={user.studentVerified}
                                       />
                                     </>
                                   ) : (

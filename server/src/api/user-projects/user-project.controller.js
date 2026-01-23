@@ -12,10 +12,9 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
   }
 
   // const { id, title, description, companyName, skillsRequired, timeline, goalAmount } = req.body;
-
   const initialProject = await prisma.userProject.create({
     data: {
-      id: id || undefined, 
+      id: id || undefined,  
       title,
       description,
       companyName: companyName || null,
@@ -28,6 +27,9 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
       userId: req.user.id,
     },
   });
+ if(!req.user.studentVerified){
+    return next(new AppError('Please verify your student identity before creating a campaign.', 403))
+  }  
   const {
     id,
     title,

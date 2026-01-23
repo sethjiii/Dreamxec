@@ -1056,7 +1056,7 @@ function AppContent() {
                               <Route
                                 path="/create"
                                 element={
-                                  user?.role === 'student' ? (
+                                  user?.role === 'student' || user?.role === 'STUDENT_PRESIDENT' ? (
                                     <>
                                       <Header
                                         currentUser={user}
@@ -1097,6 +1097,7 @@ function AppContent() {
                                         allCampaigns={campaigns}
                                         pendingProjects={pendingProjects}
                                         allProjects={projects}
+                                    
                                         onApprove={handleApproveCampaign}
                                         onReject={handleRejectCampaign}
                                         onApproveProject={handleApproveProject}

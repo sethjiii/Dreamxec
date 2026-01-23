@@ -26,19 +26,19 @@ const ensureClubVerified = (req, res, next) => {
 };
 
 // B. Check if user has active DreamXec Membership
-const ensureMembershipActive = (req, res, next) => {
-  const user = req.user;
+// const ensureMembershipActive = (req, res, next) => {
+//   const user = req.user;
 
-  if (!user) return next(new AppError('You must be logged in', 401));
+//   if (!user) return next(new AppError('You must be logged in', 401));
 
-  // Admins bypass membership
-  if (user.role === 'ADMIN') return next();
+//   // Admins bypass membership
+//   if (user.role === 'ADMIN') return next();
 
-  // Checking membership flag set after Razorpay verification
-  if (user.membershipActive) return next();
+//   // Checking membership flag set after Razorpay verification
+//   if (user.membershipActive) return next();
 
-  return next(new AppError('Activate membership to create campaigns', 403));
-};
+//   return next(new AppError('Activate membership to create campaigns', 403));
+// };
 
 // ---------------------------------------------------------
 // 🚀 C. NEW: Strict Campaign Eligibility Check (The Missing Function)

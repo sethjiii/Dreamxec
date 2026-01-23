@@ -1097,6 +1097,7 @@ function AppContent() {
                                         allCampaigns={campaigns}
                                         pendingProjects={pendingProjects}
                                         allProjects={projects}
+                                    
                                         onApprove={handleApproveCampaign}
                                         onReject={handleRejectCampaign}
                                         onApproveProject={handleApproveProject}

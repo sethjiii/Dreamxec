@@ -351,20 +351,33 @@ function AppContent() {
       formData.append('description', data.description);
       formData.append('companyName', data.clubName);
       formData.append('goalAmount', data.goalAmount.toString());
+      formData.append('presentationDeckUrl', data.presentationDeckUrl || '');
+
+      // Optional timeline derived from milestones
+      const derivedTimeline = data.milestones.length > 0
+        ? data.milestones[0].timeline
+        : 'TBD';
+      formData.append('timeline', derivedTimeline);
 
       // 🔹 Milestones (source of truth)
       // Convert budget to number and send as JSON string (standard & backend-friendly)
-      const milestonesWithNumericBudget = data.milestones.map(m => ({
+      // const milestonesWithNumericBudget = data.milestones.map(m => ({
+      //   ...m,
+      //   budget: typeof m.budget === 'string' ? parseFloat(m.budget) : m.budget
+      // }));
+      // formData.append('milestones', JSON.stringify(milestonesWithNumericBudget));
+      const cleanMilestones = data.milestones.map(m => ({
         ...m,
-        budget: typeof m.budget === 'string' ? parseFloat(m.budget) : m.budget
+        budget: Number(m.budget) // Ensure number
       }));
-      formData.append('milestones', JSON.stringify(milestonesWithNumericBudget));
+
+      formData.append('milestones', JSON.stringify(cleanMilestones));
 
       // 🔹 Optional: derived timeline (display only)
-      const derivedTimeline =
-        data.milestones.length === 1
-          ? data.milestones[0].timeline
-          : `${data.milestones.length} milestones`;
+      // const derivedTimeline =
+      //   data.milestones.length === 1
+      //     ? data.milestones[0].timeline
+      //     : `${data.milestones.length} milestones`;
 
       formData.append('timeline', derivedTimeline);
 

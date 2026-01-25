@@ -8,6 +8,11 @@ export interface User {
   name?: string;
   role: UserRole;
   emailVerified: boolean;
+  studentVerified?: boolean;
+  isClubPresident?: boolean;
+  isClubMember?: boolean;
+  clubVerified?: boolean;
+  clubIds: string[];
   createdAt: string;
   updatedAt: string;
 }

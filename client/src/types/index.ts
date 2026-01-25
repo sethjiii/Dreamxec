@@ -19,6 +19,10 @@ export interface User {
   email: string;
   role: UserRole;
   studentVerified?: boolean;
+  isClubPresident: boolean;
+  isClubMember: boolean;
+  clubVerified: boolean;
+  clubIds: string[]; 
 }
 
 /* =========================================================

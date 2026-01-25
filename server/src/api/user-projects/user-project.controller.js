@@ -20,12 +20,15 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
     companyName,
     skillsRequired,
     goalAmount,
-    timeline,
     presentationDeckUrl,
   } = req.body;
 
   // 🔴 REMOVED: The duplicate 'initialProject' creation block that caused the crash.
 
+  let timeline = req.body.timeline;
+  if (Array.isArray(timeline)) {
+    timeline = timeline[timeline.length - 1]; 
+  }
   /* -------------------------
      PARSE MILESTONES
   -------------------------- */

@@ -789,346 +789,572 @@ function AppContent() {
           top: 50,
           right: 20,
         }}
+
       />
 
       <FloatingDoodles count={8} />
 
       <div className="relative caret-transparent z-10">
         <div className="caret-transparent">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                isInitialLoading ? (
-                  <LoadingAnimation fullScreen={true} showDarkModeToggle={false} />
-                ) : (
-                  <>
-                    <Header
-                      currentUser={user}
-                      onLogin={handleLoginClick}
-                      onLogout={handleLogout}
-                    />
-                    <Main />
-                  </>
-                )
-              }
-            />
+          <div
+            role="region"
+            aria-label="top of page"
+            className="caret-transparent h-0 pointer-events-none text-nowrap overflow-hidden"
+          >
+            <span className="caret-transparent hidden text-nowrap">
+              top of page
+            </span>
+          </div>
+          <div className="relative caret-transparent min-h-full mx-auto top-0">
+            <div className="caret-transparent">
+              <div className="caret-transparent">
+                <div className="caret-transparent grid grid-cols-[1fr] grid-rows-[1fr] h-full">
+                  <div className="relative self-stretch caret-transparent grid col-end-2 col-start-1 row-end-2 row-start-1 grid-cols-[minmax(0px,1fr)] grid-rows-[1fr] justify-self-stretch">
+                    <div className="caret-transparent">
+                      <div className="relative caret-transparent grid grid-cols-[minmax(0px,1fr)] grid-rows-[1fr] overflow-clip">
+                        <div className="relative box-border caret-transparent grid grid-cols-[minmax(0px,1fr)] grid-rows-[auto] pointer-events-none">
+                          <div className="pointer-events-auto">
+                            <Routes>
+                              {/* Homepage */}
+                              <Route
+                                path="/"
+                                element={
+                                  <>
+                                    {isInitialLoading ? (
+                                      <LoadingAnimation fullScreen={true} showDarkModeToggle={false} />
+                                    ) : (
+                                      <>
+                                        <Header
+                                          currentUser={user}
+                                          onLogin={handleLoginClick}
+                                          onLogout={handleLogout}
 
-            <Route
-              path="/campaigns"
-              element={
-                <>
-                  <Header
-                    currentUser={user}
-                    onLogin={handleLoginClick}
-                    onLogout={handleLogout}
-                  />
-                  <BrowseCampaigns
-                    campaigns={approvedCampaigns}
-                    onViewCampaign={(id) => navigate(`/campaign/${id}`)}
-                  />
-                </>
-              }
-            />
+                                        />
+                                        <Main />
+                                      </>
+                                    )}
+                                  </>
+                                }
+                              />
 
-            <Route
-              path="/campaign/:id"
-              element={
-                <CampaignDetails
-                  currentUser={user}
-                  campaigns={approvedCampaigns}
-                  onDonate={handleDonate}
-                />
-              }
-            />
+                              {/* Browse Campaigns */}
+                              <Route
+                                path="/campaigns"
+                                element={
+                                  <>
+                                    <Header
+                                      currentUser={user}
+                                      onLogin={handleLoginClick}
+                                      onLogout={handleLogout}
+                                    />
+                                    <BrowseCampaigns
+                                      campaigns={approvedCampaigns}
+                                      onViewCampaign={(id) => navigate(`/campaign/${id}`)}
+                                    />
+                                  </>
+                                }
+                              />
+                              {/* <Route path="/refer-club" element={<ReferClub />} /> */}
+                              {/* Campaign Detail */}
+                              <Route
+                                path="/campaign/:id"
+                                element={
+                                  <>
 
-            <Route path="/refer-club" element={<ReferClub />} />
+                                    <CampaignDetails
+                                      currentUser={user}
+                                      campaigns={approvedCampaigns}
+                                      onDonate={handleDonate}
+                                    />
+                                  </>
+                                }
+                              />
+                              <Route path="/refer-club" element={<ReferClub />} />
+                              {/* Student Dashboard */}
+                              {/* <Route
+                                path="/dashboard"
+                                element={
+                                  (user?.role === 'student' || user?.role === 'STUDENT_PRESIDENT') ? (
+                                    <>
+                                      <Header
+                                        currentUser={user}
+                                        onLogin={handleLoginClick}
+                                        onLogout={handleLogout}
+                                      />
+                                      <StudentDashboard
+                                        studentName={user.name || 'User'}
+                                        campaigns={userCampaigns}
+                                        user={user}
+                                        studentVerified={user.studentVerified}
+                                        onCreateCampaign={() => navigate('/create')}
+                                        onViewCampaign={(id) => navigate(`/campaign/${id}`)}
+                                        isClubPresident={user.role === 'STUDENT_PRESIDENT'}
+                                        isClubMember={false}
+                                        clubVerified={user.role === 'STUDENT_PRESIDENT'}
+                                      />
 
-            <Route
-              path="/dashboard"
-              element={
-                (user?.role === 'student' || user?.role === 'STUDENT_PRESIDENT') ? (
-                  <>
-                    <Header
-                      currentUser={user}
-                      onLogin={handleLoginClick}
-                      onLogout={handleLogout}
-                    />
-                    <StudentDashboard
-                      studentName={user.name || 'User'}
-                      campaigns={userCampaigns}
-                      onCreateCampaign={() => navigate('/create')}
-                      onViewCampaign={(id) => navigate(`/campaign/${id}`)}
-                      // ✅ FIX: Use user fields safely
-                      isClubPresident={user?.isClubPresident || false}
-                      isClubMember={user?.isClubMember || false}
-                      clubVerified={user?.clubVerified || false}
-                      user={user}
-                      studentVerified={user?.studentVerified || false}
-                    />
-                  </>
-                ) : (
-                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
-                    <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-12 text-center max-w-md">
-                      <div className="card-tricolor-tag"></div>
-                      <p className="text-dreamxec-navy text-xl font-sans mt-4">
-                        Please log in as a student to access your dashboard.
-                      </p>
-                      <button
-                        onClick={() => navigate("/auth")}
-                        className="mt-8 px-8 py-3 bg-dreamxec-orange text-white font-bold rounded-xl hover:bg-dreamxec-saffron transition-colors shadow-lg"
-                      >
-                        Log in
-                      </button>
-                    </div>
-                  </div>
-                )
-              }
-            />
+                                    </>
+                                  ) : (
+                                    <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                      <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-12 text-center max-w-md">
+                                        <div className="card-tricolor-tag"></div>
+                                        <p className="text-dreamxec-navy text-xl font-sans mt-4">
+                                          <p className="text-dreamxec-navy text-xl font-sans mt-4">
+                                            Every journey begins with the right role.
+                                            <br />
+                                            Log in as a student to access your DreamXec dashboard.
+                                          </p>
+                                          <button
+                                            onClick={() => navigate("/auth")}
+                                            className="mt-8 px-8 py-3 bg-dreamxec-orange text-white font-bold rounded-xl
+                     hover:bg-dreamxec-saffron transition-colors shadow-lg"
+                                          >
+                                            Log in
+                                          </button>
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )
+                                }
+                              /> */}
+                              <Route
+                                path="/dashboard"
+                                element={
+                                  (user?.role === 'student' || user?.role === 'STUDENT_PRESIDENT') ? (
+                                    <>
+                                      <Header
+                                        currentUser={user}
+                                        onLogin={handleLoginClick}
+                                        onLogout={handleLogout}
+                                      />
+                                      <StudentDashboard
+                                        studentName={user.name || 'User'}
+                                        campaigns={userCampaigns}
+                                        onCreateCampaign={() => navigate('/create')}
+                                        onViewCampaign={(id) => navigate(`/campaign/${id}`)}
+                                        isClubPresident={user?.role === 'STUDENT_PRESIDENT'}
+                                        isClubMember={false}
+                                        clubVerified={user?.role === 'STUDENT_PRESIDENT'}
+                                        user={user}
+                                        studentVerified={user.studentVerified}
+                                      />
+                                    </>
+                                  ) : (
+                                    // ... (restricted access div remains the same)
+                                    <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                      <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-12 text-center max-w-md">
+                                        <div className="card-tricolor-tag"></div>
+                                        <div className="text-dreamxec-navy text-xl font-sans mt-4">
+                                          <p className="text-dreamxec-navy text-xl font-sans mt-4">
+                                            Every journey begins with the right role.
+                                            <br />
+                                            Log in as a student to access your DreamXec dashboard.
+                                          </p>
+                                          <button
+                                            onClick={() => navigate("/auth")}
+                                            className="mt-8 px-8 py-3 bg-dreamxec-orange text-white font-bold rounded-xl
+                     hover:bg-dreamxec-saffron transition-colors shadow-lg"
+                                          >
+                                            Log in
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )
+                                }
+                              />
 
-            <Route
-              path="/create"
-              element={
-                (user?.role === 'student' || user?.role === 'STUDENT_PRESIDENT') ? (
-                  <>
-                    <Header
-                      currentUser={user}
-                      onLogin={handleLoginClick}
-                      onLogout={handleLogout}
-                    />
-                    <CreateCampaign
-                      onBack={() => navigate('/dashboard')}
-                      onSubmit={handleCreateCampaign}
-                    />
-                  </>
-                ) : (
-                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
-                    <p>Please log in as a student to create campaigns.</p>
-                  </div>
-                )
-              }
-            />
+                              {/* Create Campaign */}
+                              <Route
+                                path="/create"
+                                element={
+                                  user?.role === 'student' || user?.role === 'STUDENT_PRESIDENT' ? (
+                                    <>
+                                      <Header
+                                        currentUser={user}
+                                        onLogin={handleLoginClick}
+                                        onLogout={handleLogout}
+                                      />
+                                      <CreateCampaign
+                                        onBack={() => navigate('/dashboard')}
+                                        onSubmit={handleCreateCampaign}
+                                      />
+                                    </>
+                                  ) : (
+                                    <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                      <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-12 text-center max-w-md">
+                                        <div className="card-tricolor-tag"></div>
+                                        <p className="text-dreamxec-navy text-xl font-sans mt-4">
+                                          Please log in as a student to create campaigns.
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )
+                                }
+                              />
 
-            <Route
-              path="/admin"
-              element={
-                user?.role === 'admin' ? (
-                  <>
-                    <Header
-                      currentUser={user}
-                      onLogin={handleLoginClick}
-                      onLogout={handleLogout}
-                    />
-                    <AdminDashboard
-                      pendingCampaigns={pendingCampaigns}
-                      allCampaigns={campaigns}
-                      pendingProjects={pendingProjects}
-                      allProjects={projects}
-                      onApprove={handleApproveCampaign}
-                      onReject={handleRejectCampaign}
-                      onApproveProject={handleApproveProject}
-                      onRejectProject={handleRejectProject}
-                    />
-                  </>
-                ) : (
-                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
-                    <p>Please log in as an admin.</p>
-                  </div>
-                )
-              }
-            />
+                              {/* Admin Dashboard */}
+                              <Route
+                                path="/admin"
+                                element={
+                                  user?.role === 'admin' ? (
+                                    <>
+                                      <Header
+                                        currentUser={user}
+                                        onLogin={handleLoginClick}
+                                        onLogout={handleLogout}
+                                      />
+                                      <AdminDashboard
+                                        pendingCampaigns={pendingCampaigns}
+                                        allCampaigns={campaigns}
+                                        pendingProjects={pendingProjects}
+                                        allProjects={projects}
+                                    
+                                        onApprove={handleApproveCampaign}
+                                        onReject={handleRejectCampaign}
+                                        onApproveProject={handleApproveProject}
+                                        onRejectProject={handleRejectProject}
+                                      />
+                                    </>
+                                  ) : (
+                                    <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                      <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-12 text-center max-w-md">
+                                        <div className="card-tricolor-tag"></div>
+                                        <p className="text-dreamxec-navy text-xl font-sans mt-4">
+                                          Please log in as an admin to access the admin dashboard.
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )
+                                }
+                              />
 
-            <Route path="/admin/referrals" element={<AdminClubReferrals />} />
-            <Route path="/admin/verifications" element={<AdminClubVerifications />} />
+                              <Route path="/admin/referrals" element={<AdminClubReferrals />} />
+                              <Route path="/admin/club-referrals" element={<AdminClubReferrals />} />
 
-            <Route
-              path="/auth"
-              element={
-                <AuthPage
-                  onLogin={handleLogin}
-                  onSignup={handleSignup}
-                  onGoogleAuth={handleGoogleAuth}
-                  onLinkedInAuth={handleLinkedInAuth}
-                  onForgotPassword={handleForgotPassword}
-                  currentUser={user}
-                  onHeaderLogin={handleLoginClick}
-                  onLogout={handleLogout}
-                />
-              }
-            />
+                              <Route path="/admin/verifications" element={<AdminClubVerifications />} />
+                              <Route path="/admin/club-verifications" element={<AdminClubVerifications />} />
 
-            {/* Alias Route */}
-            <Route path="/login" element={<AuthPage onLogin={handleLogin} onSignup={handleSignup} onGoogleAuth={handleGoogleAuth} onLinkedInAuth={handleLinkedInAuth} onForgotPassword={handleForgotPassword} currentUser={user} onHeaderLogin={handleLoginClick} onLogout={handleLogout} />} />
+                              {/* Auth Page - Login/Signup */}
+                              <Route
+                                path="/auth"
+                                element={
+                                  <AuthPage
+                                    onLogin={handleLogin}
+                                    onSignup={handleSignup}
+                                    onGoogleAuth={handleGoogleAuth}
+                                    onLinkedInAuth={handleLinkedInAuth}
+                                    onForgotPassword={handleForgotPassword}
+                                    currentUser={user}
+                                    onHeaderLogin={handleLoginClick}
+                                    onLogout={handleLogout}
+                                  />
+                                }
+                              />
 
-            <Route path="/auth/callback" element={<AuthCallback />} />
+                              {/* Login alias */}
+                              <Route
+                                path="/login"
+                                element={
+                                  <AuthPage
+                                    onLogin={handleLogin}
+                                    onSignup={handleSignup}
+                                    onGoogleAuth={handleGoogleAuth}
+                                    onLinkedInAuth={handleLinkedInAuth}
+                                    onForgotPassword={handleForgotPassword}
+                                    currentUser={user}
+                                    onHeaderLogin={handleLoginClick}
+                                    onLogout={handleLogout}
+                                  />
+                                }
+                              />
 
-            <Route
-              path="/check-email"
-              element={
-                <CheckEmail
-                  email={signupEmail}
-                  onBackToLogin={() => {
-                    setShowCheckEmail(false);
-                    navigate('/auth');
-                  }}
-                />
-              }
-            />
+                              {/* OAuth callback handler */}
+                              <Route path="/auth/callback" element={<AuthCallback />} />
 
-            <Route
-              path="/verify-email/:token"
-              element={
-                <EmailVerification
-                  onVerificationSuccess={handleEmailVerificationSuccess}
-                />
-              }
-            />
+                              {/* Check Email Page */}
+                              <Route
+                                path="/check-email"
+                                element={
+                                  <CheckEmail
+                                    email={signupEmail}
+                                    onBackToLogin={() => {
+                                      setShowCheckEmail(false);
+                                      navigate('/auth');
+                                    }}
+                                  />
+                                }
+                              />
 
-            <Route
-              path="/profile"
-              element={
-                user ? (
-                  <UserProfile
-                    user={user}
-                    onUpdateBankDetails={handleUpdateBankDetails}
-                    onBack={() => navigate(-1)}
-                  />
-                ) : (
-                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
-                    <p>Please log in to access your profile.</p>
-                  </div>
-                )
-              }
-            />
+                              {/* Email Verification */}
+                              <Route
+                                path="/verify-email/:token"
+                                element={
+                                  <EmailVerification
+                                    onVerificationSuccess={handleEmailVerificationSuccess}
+                                  />
+                                }
+                              />
 
-            <Route
-              path="/donor/dashboard"
-              element={
-                user?.role === 'donor' ? (
-                  <>
-                    <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
-                    <DonorDashboard
-                      donorName={user.name || 'Donor'}
-                      projectsCount={donorProjects.length}
-                      onCreateProject={() => navigate('/donor/create')}
-                      onViewProjects={() => navigate('/donor/projects')}
-                      getDonorApplications={async () => []}
-                      updateApplicationStatus={async () => { }}
-                      getDonationSummary={async () => ({})}
-                    />
-                  </>
-                ) : (
-                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
-                    <p>Please log in as a donor.</p>
-                  </div>
-                )
-              }
-            />
+                              {/* User Profile - Bank Details */}
+                              <Route
+                                path="/profile"
+                                element={
+                                  user ? (
+                                    <UserProfile
+                                      user={user}
+                                      onUpdateBankDetails={handleUpdateBankDetails}
+                                      onBack={() => navigate(-1)}
+                                    />
+                                  ) : (
+                                    <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                      <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-12 text-center max-w-md">
+                                        <div className="card-tricolor-tag"></div>
+                                        <p className="text-dreamxec-navy text-xl font-sans mt-4">
+                                          Please log in to access your profile.
+                                        </p>
+                                        <button
+                                          onClick={handleLoginClick}
+                                          className="mt-6 px-6 py-3 bg-dreamxec-orange text-white rounded-lg border-4 border-dreamxec-navy font-bold font-display hover:scale-105 transition-transform shadow-pastel-saffron"
+                                        >
+                                          Sign In
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )
+                                }
+                              />
 
-            <Route
-              path="/donor/create"
-              element={
-                user?.role === 'donor' ? (
-                  <>
-                    <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
-                    <CreateProject
-                      onBack={() => navigate('/donor/dashboard')}
-                      onSubmit={handleCreateProject}
-                    />
-                  </>
-                ) : (
-                  <div>Please log in as a donor.</div>
-                )
-              }
-            />
+                              {/* Donor Dashboard */}
+                              <Route
+                                path="/donor/dashboard"
+                                element={
+                                  user?.role === 'donor' ? (
+                                    <>
+                                      <Header
+                                        currentUser={user}
+                                        onLogin={handleLoginClick}
+                                        onLogout={handleLogout}
+                                      />
+                                      <DonorDashboard
+                                        donorName={user.name || 'Donor'}
+                                        projectsCount={donorProjects.length}
+                                        onCreateProject={() => navigate('/donor/create')}
+                                        onViewProjects={() => navigate('/donor/projects')}
+                                        getDonorApplications={async () => []}
+                                        updateApplicationStatus={async () => { }}
+                                        getDonationSummary={async () => ({})}
+                                      />
+                                    </>
+                                  ) : (
+                                    <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                      <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-12 text-center max-w-md">
+                                        <div className="card-tricolor-tag"></div>
+                                        <p className="text-dreamxec-navy text-xl font-sans mt-4">
+                                          Please log in as a donor to access the donor dashboard.
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )
+                                }
+                              />
 
-            <Route
-              path="/donor/projects"
-              element={
-                user?.role === 'donor' ? (
-                  <>
-                    <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
-                    <DonorProjects
-                      projects={donorProjects}
-                      onBack={() => navigate('/donor/dashboard')}
-                      onUpdateApplicationStatus={handleUpdateApplicationStatus}
-                    />
-                  </>
-                ) : (
-                  <div>Please log in as a donor.</div>
-                )
-              }
-            />
+                              {/* Create Project */}
+                              <Route
+                                path="/donor/create"
+                                element={
+                                  user?.role === 'donor' ? (
+                                    <>
+                                      <Header
+                                        currentUser={user}
+                                        onLogin={handleLoginClick}
+                                        onLogout={handleLogout}
+                                      />
+                                      <CreateProject
+                                        onBack={() => navigate('/donor/dashboard')}
+                                        onSubmit={handleCreateProject}
+                                      />
+                                    </>
+                                  ) : (
+                                    <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                      <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-12 text-center max-w-md">
+                                        <div className="card-tricolor-tag"></div>
+                                        <p className="text-dreamxec-navy text-xl font-sans mt-4">
+                                          Please log in as a donor to create projects.
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )
+                                }
+                              />
 
-            <Route
-              path="/projects"
-              element={
-                user?.role === 'student' ? (
-                  <>
-                    <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
-                    <BrowseProjects
-                      projects={approvedProjects}
-                      currentUserId={user?.id}
-                      role={user?.role}
-                      onApply={handleApplyToProject}
-                      userApplications={userApplications}
-                    />
-                  </>
-                ) : (
-                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
-                    <p>Please log in as a student to browse projects.</p>
-                  </div>
-                )
-              }
-            />
+                              {/* Donor Projects */}
+                              <Route
+                                path="/donor/projects"
+                                element={
+                                  user?.role === 'donor' ? (
+                                    <>
+                                      <Header
+                                        currentUser={user}
+                                        onLogin={handleLoginClick}
+                                        onLogout={handleLogout}
+                                      />
+                                      <DonorProjects
+                                        projects={donorProjects}
+                                        onBack={() => navigate('/donor/dashboard')}
+                                        onUpdateApplicationStatus={handleUpdateApplicationStatus}
+                                      />
+                                    </>
+                                  ) : (
+                                    <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                      <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-12 text-center max-w-md">
+                                        <div className="card-tricolor-tag"></div>
+                                        <p className="text-dreamxec-navy text-xl font-sans mt-4">
+                                          Please log in as a donor to view your projects.
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )
+                                }
+                              />
 
-            <Route
-              path="/about"
-              element={
-                <>
-                  <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
-                  <AboutUs />
-                </>
-              }
-            />
 
-            <Route
-              path="/verify-president"
-              element={
-                <>
-                  <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
-                  <VerifyPresident />
-                </>
-              }
-            />
+                              {/* Browse Projects - For Students */}
+                              <Route
+                                path="/projects"
+                                element={
+                                  user?.role === 'student' ? (
+                                    <>
+                                      <Header
+                                        currentUser={user}
+                                        onLogin={handleLoginClick}
+                                        onLogout={handleLogout}
+                                      />
+                                      <BrowseProjects
+                                        projects={approvedProjects}
+                                        currentUserId={user?.id}
+                                        role={user?.role}
+                                        onApply={handleApplyToProject}
+                                        userApplications={userApplications}
+                                      />
+                                    </>
+                                  )
+                                    : (
+                                      <>
+                                        <Header
+                                          currentUser={user}
+                                          onLogin={handleLoginClick}
+                                          onLogout={handleLogout}
+                                        />
+                                        <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                          <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-12 text-center max-w-md">
+                                            <div className="card-tricolor-tag"></div>
+                                            <p className="text-dreamxec-navy text-xl font-sans mt-4">
+                                              Please log in as a student to browse projects.
+                                            </p>
+                                          </div>
+                                        </div>
+                                      </>
 
-            {/* President Routes */}
-            <Route path="/president" element={<PresidentLayout><PresidentDashboard /></PresidentLayout>} />
-            <Route path="/president/members" element={<PresidentLayout><PresidentMembers /></PresidentLayout>} />
-            <Route path="/president/campaigns" element={<PresidentLayout><PresidentCampaigns /></PresidentLayout>} />
-            <Route path="/president/upload-members" element={<PresidentLayout><UploadMembers /></PresidentLayout>} />
-            <Route path="/president/add-member" element={<PresidentLayout><AddMemberManually /></PresidentLayout>} />
+                                    )
+                                }
+                              />
 
-            {/* Static Pages */}
-            <Route path="/start-project" element={<StartAProject />} />
-            <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
-            <Route path="/eligibility" element={<ProjectEligibility />} />
-            <Route path="/resources" element={<ResourceCenter />} />
-            <Route path="/fund-innovation" element={<FundInnovation />} />
-            <Route path="/how-it-works/donors" element={<HowItWorksDonors />} />
-            <Route path="/why-donate" element={<WhyDonate />} />
-            <Route path="/corporate-partnerships" element={<CorporateCSRPartnerships />} />
-            <Route path="/alumni-giving" element={<AlumniGivingPrograms />} />
-            <Route path="/become-mentor" element={<BecomeMentor />} />
-            <Route path="/perfect-storm" element={<PerfectStorm />} />
-            <Route path="/careers" element={<Careers />} />
-            <Route path="/contact" element={<ContactUs />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/terms-And-Conditions" element={<TermsAndConditions />} />
-          </Routes>
-        </div>
-      </div>
-    </div>
+                              {/* About Us */}
+                              <Route
+                                path="/about"
+                                element={
+                                  <>
+                                    <Header
+                                      currentUser={user}
+                                      onLogin={handleLoginClick}
+                                      onLogout={handleLogout}
+                                    />
+                                    <AboutUs />
+                                  </>
+                                }
+                              />
+                              {/* verify-president */}
+                              <Route path="/verify-president" element={
+                                <>
+                                  <Header
+                                    currentUser={user}
+                                    onLogin={handleLoginClick}
+                                    onLogout={handleLogout}
+                                  />
+                                  <VerifyPresident />
+                                </>
+                              } />
+
+                              {/* President Dashboard */}
+                              <Route path="/president" element={<PresidentLayout><PresidentDashboard /></PresidentLayout>} />
+                              <Route path="/president/members" element={<PresidentLayout><PresidentMembers /></PresidentLayout>} />
+                              <Route path="/president/campaigns" element={<PresidentLayout><PresidentCampaigns /></PresidentLayout>} />
+                              <Route path="/president/upload-members" element={<PresidentLayout><UploadMembers /></PresidentLayout>} />
+                              <Route path="/president/add-member" element={<PresidentLayout><AddMemberManually /></PresidentLayout>} />
+                            </Routes>
+
+                            {/* Footer Routes */}
+                            <Routes>
+                              <Route path="/start-project" element={<StartAProject />} />
+
+
+                              <Route path="/start-project" element={<StartAProject />} />
+                              <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
+                              <Route path="/eligibility" element={<ProjectEligibility />} />
+                              <Route path="/resources" element={<ResourceCenter />} />
+                              <Route path="/fund-innovation" element={<FundInnovation />} />
+                              <Route path="/how-it-works/donors" element={<HowItWorksDonors />} />
+                              <Route path="/why-donate" element={<WhyDonate />} />
+                              <Route path="/corporate-partnerships" element={<CorporateCSRPartnerships />} />
+                              <Route path="/alumni-giving" element={<AlumniGivingPrograms />} />
+                              <Route path="/become-mentor" element={<BecomeMentor />} />
+                              <Route path="/perfect-storm" element={<PerfectStorm />} />
+                              <Route path="/careers" element={<Careers />} />
+                              <Route path="/contact" element={<ContactUs />} />
+                              <Route path="/faq" element={<FAQ />} />
+                              <Route path="/terms-And-Conditions" element={<TermsAndConditions />} />
+                              {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                               */}
+                              <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
+                              <Route path="/eligibility" element={<ProjectEligibility />} />
+                              <Route path="/resources" element={<ResourceCenter />} />
+
+
+
+                              <Route path="/fund-innovation" element={<FundInnovation />} />
+                              <Route path="/how-it-works/donors" element={<HowItWorksDonors />} />
+                              <Route path="/why-donate" element={<WhyDonate />} />
+                              <Route path="/corporate-partnerships" element={<CorporateCSRPartnerships />} />
+                              <Route path="/alumni-giving" element={<AlumniGivingPrograms />} />
+                              <Route path="/become-mentor" element={<BecomeMentor />} />
+                              <Route path="/perfect-storm" element={<PerfectStorm />} />
+                              <Route path="/careers" element={<Careers />} />
+                              <Route path="/contact" element={<ContactUs />} />
+                              <Route path="/faq" element={<FAQ />} />
+
+                            </Routes >
+                          </div >
+                        </div >
+                      </div >
+                    </div >
+                  </div >
+                </div >
+              </div >
+            </div >
+          </div >
+          <div
+            role="region"
+            aria-label="bottom of page"
+            className="caret-transparent h-0 pointer-events-none text-nowrap overflow-hidden"
+          >
+            <span className="caret-transparent hidden text-nowrap">
+              bottom of page
+            </span>
+          </div>
+        </div >
+      </div >
+    </div >
   );
 }
 

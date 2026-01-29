@@ -7,42 +7,38 @@ const uploadToCloudinary = require('../../utils/uploadToCloudinary');
    CREATE USER PROJECT (WITH MILESTONES)
 ====================================================== */
 exports.createUserProject = catchAsync(async (req, res, next) => {
-  // 1. Authorization Check
+  // 1. Authorization
   if (!req.user.studentVerified) {
-    return next(new AppError('You must be a verified student to create a campaign.', 403));
+    return next(
+      new AppError('You must be a verified student to create a campaign.', 403)
+    );
   }
 
-  // 🟢 FIX: Extract variables FIRST, before using them
+  // 2. Destructure FIRST
   const {
-    id,
     title,
     description,
     companyName,
     skillsRequired,
     goalAmount,
     presentationDeckUrl,
+    milestones,
   } = req.body;
 
-  // 🔴 REMOVED: The duplicate 'initialProject' creation block that caused the crash.
-
-  let timeline = req.body.timeline;
-  if (Array.isArray(timeline)) {
-    timeline = timeline[timeline.length - 1]; 
-  }
   /* -------------------------
      PARSE MILESTONES
   -------------------------- */
   let parsedMilestones = [];
 
-  if (req.body.milestones) {
-    if (typeof req.body.milestones === 'string') {
+  if (milestones) {
+    if (typeof milestones === 'string') {
       try {
-        parsedMilestones = JSON.parse(req.body.milestones);
+        parsedMilestones = JSON.parse(milestones);
       } catch {
         return next(new AppError('Invalid milestones format', 400));
       }
     } else {
-      parsedMilestones = req.body.milestones;
+      parsedMilestones = milestones;
     }
   }
 
@@ -50,7 +46,6 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
     return next(new AppError('At least one milestone is required', 400));
   }
 
-  // Validate Budget
   const totalMilestoneBudget = parsedMilestones.reduce(
     (sum, m) => sum + Number(m.budget || 0),
     0
@@ -67,38 +62,32 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
   -------------------------- */
   const uploads = {};
 
-  if (req.files) {
-    // Banner image (REQUIRED)
-    if (req.files.bannerFile?.[0]) {
-      uploads.imageUrl = await uploadToCloudinary(
-        req.files.bannerFile[0].path,
-        'dreamxec/campaigns/images'
-      );
-    }
-    // Media files (OPTIONAL)
-    if (req.files.mediaFiles?.length) {
-      uploads.campaignMedia = await Promise.all(
-        req.files.mediaFiles.map((file) => {
-          let folder = 'dreamxec/campaigns/others';
-          if (file.mimetype.startsWith('image/'))
-            folder = 'dreamxec/campaigns/images';
-          if (file.mimetype.startsWith('video/'))
-            folder = 'dreamxec/campaigns/videos';
+  if (req.files?.bannerFile?.[0]) {
+    uploads.imageUrl = await uploadToCloudinary(
+      req.files.bannerFile[0].path,
+      'dreamxec/campaigns/images'
+    );
+  }
 
-          return uploadToCloudinary(file.path, folder);
-        })
-      );
-    }
+  if (req.files?.mediaFiles?.length) {
+    uploads.campaignMedia = await Promise.all(
+      req.files.mediaFiles.map((file) => {
+        let folder = 'dreamxec/campaigns/others';
+        if (file.mimetype.startsWith('image/'))
+          folder = 'dreamxec/campaigns/images';
+        if (file.mimetype.startsWith('video/'))
+          folder = 'dreamxec/campaigns/videos';
+        return uploadToCloudinary(file.path, folder);
+      })
+    );
   }
 
   /* -------------------------
-     CREATE PROJECT + MILESTONES (Transaction)
+     TRANSACTION
   -------------------------- */
   const project = await prisma.$transaction(async (tx) => {
-    // 1. Create Project
     const createdProject = await tx.userProject.create({
       data: {
-        id: id || undefined,
         title,
         description,
         companyName: companyName || null,
@@ -108,27 +97,24 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
             : skillsRequired
           : [],
         goalAmount: Number(goalAmount),
-        imageUrl: uploads.imageUrl,
-        campaignMedia: uploads.campaignMedia || [],
-        timeline: timeline || null,
+        timeline: typeof timeline === 'string' ? timeline : null,
         presentationDeckUrl: presentationDeckUrl?.trim() || null,
+        imageUrl: uploads.imageUrl || null,
+        campaignMedia: uploads.campaignMedia || [],
         userId: req.user.id,
-        status: 'PENDING' // Ensure default status is set
+        status: 'PENDING',
       },
     });
 
-    // 2. Create Milestones
-    if (parsedMilestones.length > 0) {
-      await tx.milestone.createMany({
-        data: parsedMilestones.map((m) => ({
-          title: m.title,
-          timeline: m.timeline,
-          budget: Number(m.budget),
-          description: m.description || null,
-          projectId: createdProject.id,
-        })),
-      });
-    }
+    await tx.milestone.createMany({
+      data: parsedMilestones.map((m) => ({
+        title: m.title,
+        timeline: m.timeline,
+        budget: Number(m.budget),
+        description: m.description || null,
+        projectId: createdProject.id,
+      })),
+    });
 
     return createdProject;
   });
@@ -139,10 +125,11 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
   });
 });
 
+
 // ... (Rest of the file: updateUserProject, deleteUserProject, etc. remains the same)
 exports.updateUserProject = catchAsync(async (req, res, next) => {
   // ... (Keep existing update logic)
-    const userProject = await prisma.userProject.findUnique({
+  const userProject = await prisma.userProject.findUnique({
     where: { id: req.params.id },
     include: { milestones: true },
   });

@@ -24,53 +24,48 @@ exports.createUserProjectSchema = z.object({
     .object({
       title: z.string().min(5).max(200),
       description: z.string().min(20),
-      companyName: z.string().optional(),
+
+      companyName: z
+        .string()
+        .trim()
+        .min(1)
+        .optional()
+        .transform((v) => (v === '' ? undefined : v)),
 
       goalAmount: z.preprocess(
         (val) => (typeof val === 'string' ? parseFloat(val) : val),
         z.number().positive('Goal amount must be positive')
       ),
 
-      skillsRequired: z.preprocess(
-        (val) => {
+      skillsRequired: z
+        .preprocess((val) => {
           if (typeof val === 'string') {
             try {
               return JSON.parse(val);
             } catch {
-              return [];
+              throw new Error('Invalid skillsRequired JSON');
             }
           }
           return val;
-        },
-        z.array(z.string()).optional()
-      ),
+        }, z.array(z.string()))
+        .optional(),
 
-      // ✅ Milestones come as JSON string via FormData
       milestones: z
         .string()
         .transform((val) => {
           try {
             return JSON.parse(val);
           } catch {
-            return [];
+            throw new Error('Invalid milestones JSON');
           }
         })
-        .refine(
-          (val) => Array.isArray(val) && val.length > 0,
-          'At least one milestone is required'
-        )
-        .refine(
-          (val) => val.every((m) => milestoneSchema.safeParse(m).success),
-          'Invalid milestone structure'
-        ),
+        .pipe(z.array(milestoneSchema).min(1, 'At least one milestone is required')),
 
-      // External link
       presentationDeckUrl: z.string().url().optional().or(z.literal('')),
     })
     .superRefine((data, ctx) => {
-      // 🔒 Validate total milestone budget ≤ goalAmount
       const totalMilestoneBudget = data.milestones.reduce(
-        (sum, m) => sum + Number(m.budget || 0),
+        (sum, m) => sum + m.budget,
         0
       );
 
@@ -84,6 +79,7 @@ exports.createUserProjectSchema = z.object({
     }),
 });
 
+
 /* =========================================================
    UPDATE USER PROJECT
 ========================================================= */
@@ -91,47 +87,37 @@ exports.createUserProjectSchema = z.object({
 exports.updateUserProjectSchema = z.object({
   body: z
     .object({
-      title: z
-        .string()
-        .min(5, 'Title must be at least 5 characters')
-        .max(200, 'Title too long')
-        .optional(),
+      title: z.string().min(5).max(200).optional(),
+      description: z.string().min(20).optional(),
 
-      description: z
+      companyName: z
         .string()
-        .min(20, 'Description must be at least 20 characters')
-        .optional(),
-
-      companyName: z.string().optional(),
+        .trim()
+        .optional()
+        .transform((v) => (v === '' ? undefined : v)),
 
       skillsRequired: z
-        .preprocess(
-          (val) => {
-            if (typeof val === 'string') {
-              try {
-                return JSON.parse(val);
-              } catch {
-                return [];
-              }
+        .preprocess((val) => {
+          if (typeof val === 'string') {
+            try {
+              return JSON.parse(val);
+            } catch {
+              throw new Error('Invalid skillsRequired JSON');
             }
-            return val;
-          },
-          z.array(z.string()).optional()
-        ),
+          }
+          return val;
+        }, z.array(z.string()))
+        .optional(),
 
       goalAmount: z
         .preprocess(
           (val) => (typeof val === 'string' ? parseFloat(val) : val),
-          z.number().positive('Goal amount must be positive')
+          z.number().positive()
         )
         .optional(),
 
-      imageUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
-      campaignMedia: z.array(z.string().url()).optional(),
-
       presentationDeckUrl: z.string().url().optional().or(z.literal('')),
 
-      // ✅ Optional milestone update (only PENDING / REJECTED allowed in controller)
       milestones: z
         .string()
         .optional()
@@ -140,25 +126,19 @@ exports.updateUserProjectSchema = z.object({
           try {
             return JSON.parse(val);
           } catch {
-            return undefined;
+            throw new Error('Invalid milestones JSON');
           }
         })
-        .refine(
-          (val) =>
-            val === undefined ||
-            (Array.isArray(val) &&
-              val.every((m) => milestoneSchema.safeParse(m).success)),
-          'Invalid milestone structure'
-        ),
+        .pipe(z.array(milestoneSchema).optional()),
     })
     .superRefine((data, ctx) => {
-      if (data.milestones && data.goalAmount) {
-        const totalMilestoneBudget = data.milestones.reduce(
-          (sum, m) => sum + Number(m.budget || 0),
+      if (data.milestones && data.goalAmount !== undefined) {
+        const total = data.milestones.reduce(
+          (sum, m) => sum + m.budget,
           0
         );
 
-        if (totalMilestoneBudget > data.goalAmount) {
+        if (total > data.goalAmount) {
           ctx.addIssue({
             path: ['milestones'],
             message: 'Total milestone budget cannot exceed goal amount',
@@ -168,3 +148,4 @@ exports.updateUserProjectSchema = z.object({
       }
     }),
 });
+

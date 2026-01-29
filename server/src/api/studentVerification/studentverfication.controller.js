@@ -120,7 +120,10 @@ const verify = catchAsync(async (req, res, next) => {
             }
         });
     });
-
+await prisma.user.update({
+    where: { id: user.id },
+    data: { studentVerified: false }
+})
     return res.status(201).json({
         success: true,
         message: "Verification submitted successfully. Please wait for admin approval.",

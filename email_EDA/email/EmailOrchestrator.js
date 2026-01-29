@@ -1,171 +1,59 @@
-import emailQueue from "./queue/emailQueue.js";
-import eventBus from "../infra/eventBus.js";
-import {
-    adminTemplates,
-    studentTemplates,
-    studentPresidentTemplates,
-    donorTemplates
-} from "./templates/index.js";
+import emailQueueService from "./queue/emailQueue.js";
+import eventBus, { EVENTS } from "../infra/eventBus.js";
+import { EMAIL_RULES } from "./config/emailRules.js";
+import RecipientResolver from "./utils/RecipientResolver.js";
 
 class EmailOrchestrator {
-    constructor(queue = emailQueue) {
+    constructor(queue = emailQueueService) {
         this.queue = queue;
         this.init();
     }
 
     init() {
-        this.registerEvent("CAMPAIGN_SUBMITTED", [
-            { role: "ADMIN", template: adminTemplates.newCampaignSubmitted }
-        ]);
-        this.registerEvent("CLUB_VERIFICATION_PENDING", [
-            { role: "ADMIN", template: adminTemplates.clubVerificationPending }
-        ]);
-        this.registerEvent("HIGH_VALUE_DONATION", [
-            { role: "ADMIN", template: adminTemplates.highValueDonationAlert }
-        ]);
-        this.registerEvent("PAYOUT_FAILED", [
-            { role: "ADMIN", template: adminTemplates.failedPayoutRefund }
-        ]);
-        this.registerEvent("REFUND_FAILED", [
-            { role: "ADMIN", template: adminTemplates.failedPayoutRefund }
-        ]);
-        this.registerEvent("SUSPICIOUS_ACTIVITY", [
-            { role: "ADMIN", template: adminTemplates.suspiciousActivity }
-        ]);
-        this.registerEvent("KYC_FAILURE", [
-            { role: "ADMIN", template: adminTemplates.kycFailure }
-        ]);
-        this.registerEvent("SYSTEM_ERROR", [
-            { role: "ADMIN", template: adminTemplates.systemError }
-        ]);
-        this.registerEvent("PLATFORM_REPORT", [
-            { role: "ADMIN", template: adminTemplates.platformReport }
-        ]);
-
-        // STUDENT EVENTS
-        this.registerEvent("USER_WELCOME", [
-            { role: "STUDENT", template: studentTemplates.welcomeEmail }
-        ]);
-        this.registerEvent("EMAIL_VERIFICATION", [
-            { role: "STUDENT", template: studentTemplates.emailVerification }
-        ]);
-        this.registerEvent("PROFILE_REMINDER", [
-            { role: "STUDENT", template: studentTemplates.profileCompletionReminder }
-        ]);
-        this.registerEvent("CLUB_JOINED", [
-            { role: "STUDENT", template: studentTemplates.clubJoinConfirmation }
-        ]);
-        this.registerEvent("CAMPAIGN_SUGGESTION", [
-            { role: "STUDENT", template: studentTemplates.campaignDiscovery }
-        ]);
-        this.registerEvent("PLATFORM_ANNOUNCEMENT", [
-            { role: "STUDENT", template: studentTemplates.platformAnnouncement }
-        ]);
-        this.registerEvent("SECURITY_ALERT", [
-            { role: "STUDENT", template: studentTemplates.securityAlert } // Covers "Account security alerts"
-        ]);
-
-        // STUDENT PRESIDENT EVENTS
-        this.registerEvent("CLUB_VERIFICATION_STATUS", [
-            { role: "STUDENT_PRESIDENT", template: studentPresidentTemplates.clubVerificationStatus }
-        ]);
-        this.registerEvent("CAMPAIGN_CREATED", [
-            { role: "STUDENT_PRESIDENT", template: studentPresidentTemplates.campaignCreated }
-        ]);
-        this.registerEvent("CAMPAIGN_LIVE", [
-            { role: "STUDENT_PRESIDENT", template: studentPresidentTemplates.campaignLive }
-        ]);
-        this.registerEvent("LOW_DONATION_REMINDER", [
-            { role: "STUDENT_PRESIDENT", template: studentPresidentTemplates.lowDonationReminder }
-        ]);
-        this.registerEvent("CAMPAIGN_COMPLETED", [
-            { role: "STUDENT_PRESIDENT", template: studentPresidentTemplates.campaignCompleted }
-        ]);
-        this.registerEvent("FUND_WITHDRAWAL_STATUS", [
-            { role: "STUDENT_PRESIDENT", template: studentPresidentTemplates.fundWithdrawalStatus }
-        ]);
-
-        // DONOR EVENTS
-        this.registerEvent("DONATION_FAILED", [
-            { role: "DONOR", template: donorTemplates.donationFailed }
-        ]);
-        this.registerEvent("THANK_YOU", [
-            { role: "DONOR", template: donorTemplates.thankYou }
-        ]);
-        this.registerEvent("CAMPAIGN_UPDATE", [
-            { role: "DONOR", template: donorTemplates.campaignProgress }
-        ]);
-        this.registerEvent("IMPACT_REPORT", [
-            { role: "DONOR", template: donorTemplates.impactReport }
-        ]);
-        this.registerEvent("DONATE_AGAIN", [
-            { role: "DONOR", template: donorTemplates.donateAgain }
-        ]);
-        this.registerEvent("TAX_RECEIPT", [
-            { role: "DONOR", template: donorTemplates.taxReceipt }
-        ]);
-
-
-        this.registerEvent("CAMPAIGN_APPROVED", [
-            { role: "ADMIN", template: adminTemplates.campaignStatusUpdate },
-            { role: "STUDENT_PRESIDENT", template: studentPresidentTemplates.campaignApprovalStatus }
-        ]);
-        this.registerEvent("CAMPAIGN_REJECTED", [
-            { role: "ADMIN", template: adminTemplates.campaignStatusUpdate },
-            { role: "STUDENT_PRESIDENT", template: studentPresidentTemplates.campaignApprovalStatus }
-        ]);
-
-        this.registerEvent("DONATION_SUCCESS", [
-            { role: "DONOR", template: donorTemplates.donationSuccess },
-            { role: "STUDENT_PRESIDENT", template: studentPresidentTemplates.donationReceived },
-            { role: "ADMIN", template: (data) => ({ subject: `Donation Received: ${data.amount}`, body: `Donation of ${data.amount} received.` }) } 
-        ]);
-
-        this.registerEvent("REFUND_ISSUED", [
-            { role: "DONOR", template: donorTemplates.refundStatus },
-            { role: "ADMIN", template: adminTemplates.failedPayoutRefund } 
-        ]);
-
-        this.registerEvent("CAMPAIGN_MILESTONE", [
-            { role: "STUDENT_PRESIDENT", template: studentPresidentTemplates.campaignMilestone },
-            { role: "DONOR", template: donorTemplates.campaignProgress } 
-        ]);
+        console.log("[EmailOrchestrator] Initializing with rules...");
         
-        this.registerEvent("SECURITY_ALERT_ALL", [
-             { role: "STUDENT", template: studentTemplates.securityAlert },
-             { role: "ADMIN", template: adminTemplates.suspiciousActivity }
-        ]);
-
+        // Iterate over rules to register events dynamically
+        for (const [eventName, rules] of Object.entries(EMAIL_RULES)) {
+            this.registerEvent(eventName, rules);
+        }
     }
 
-    registerEvent(eventName, actions) {
-        eventBus.on(eventName, async (data) => {
+    registerEvent(eventName, rules) {
+        eventBus.subscribe(eventName, async (data) => {
             console.log(`[EmailOrchestrator] Received event: ${eventName}`);
             
-            for (const action of actions) {
+            for (const rule of rules) {
                 try {
-                    let toEmail;
-                    if (action.role === "ADMIN") toEmail = process.env.ADMIN_EMAIL || "admin@dreamxec.com";
-                    else if (action.role === "STUDENT") toEmail = data.studentEmail || data.userEmail || data.email;
-                    else if (action.role === "STUDENT_PRESIDENT") toEmail = data.presidentEmail || data.email;
-                    else if (action.role === "DONOR") toEmail = data.donorEmail || data.email;
+                    const toEmail = RecipientResolver.resolve(rule.role, data);
+                    
                     if (!toEmail) {
-                        console.warn(`[EmailOrchestrator] Skipping ${action.role} email for ${eventName}: No email address found in payload.`);
+                        console.warn(`[EmailOrchestrator] Skipping ${rule.role} email for ${eventName}: No email address resolved.`);
                         continue;
                     }
 
-                    const emailContent = action.template(data);
+                    // Validate template
+                    if (typeof rule.template !== 'function') {
+                        console.error(`[EmailOrchestrator] Invalid template for ${eventName} / ${rule.role}`);
+                        continue;
+                    }
+
+                    const emailContent = rule.template(data);
                     
+                    // Priority is now driven by config
+                    const opts = rule.priority ? { priority: rule.priority } : {};
+
                     await this.queue.add("sendEmail", {
-                        providerName: "ses",
+                        providerName: "ses", // Still hardcoded for now, but dispatcher handles fallback
                         to: toEmail,
                         subject: emailContent.subject,
-                        html: emailContent.body
-                    });
+                        html: emailContent.body,
+                        eventName, // Metadata
+                        role: rule.role // Metadata
+                    }, opts);
                     
-                    console.log(`[EmailOrchestrator] Queued email for ${action.role} (${toEmail})`);
+                    console.log(`[EmailOrchestrator] Queued email for ${rule.role} (${toEmail}) with priority ${rule.priority || 'default'}`);
                 } catch (error) {
-                    console.error(`[EmailOrchestrator] Error processing ${eventName} for ${action.role}:`, error);
+                    console.error(`[EmailOrchestrator] Error processing ${eventName} for ${rule.role}:`, error);
                 }
             }
         });

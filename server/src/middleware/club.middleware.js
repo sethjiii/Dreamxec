@@ -46,6 +46,8 @@ const ensureClubVerified = (req, res, next) => {
 const validateCampaignEligibility = (req, res, next) => {
   const user = req.user;
 
+  
+
   // 1. Sanity Check
   if (!user) {
     return next(new AppError('You must be logged in to create a campaign.', 401));

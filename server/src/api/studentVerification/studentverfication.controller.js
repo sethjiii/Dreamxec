@@ -68,12 +68,11 @@ const verify = catchAsync(async (req, res, next) => {
         return next(new AppError("Document file is required", 400));
     }
 
-    /* ─── OTP VERIFICATION CHECK ─── */
     const emailVerified = await redis.get(`verified:email:${studentEmail}`);
     const phoneVerified = await redis.get(`verified:phone:${mobileNumber}`);
 
     if (!emailVerified || !phoneVerified) {
-        return next(new AppError("Email and WhatsApp OTP verification required before submission.", 403));
+        return next(new AppError("Email and WhatsApp OTP verification required.", 403));
     }
 
     const generated_signature = crypto
@@ -82,28 +81,24 @@ const verify = catchAsync(async (req, res, next) => {
         .digest("hex");
 
     if (generated_signature !== razorpay_signature) {
-        return next(new AppError("Payment verification failed! Invalid signature.", 400));
+        return next(new AppError("Payment verification failed!", 400));
     }
 
-    /* ─── Upload Document ─── */
     const folder = `dreamxec/verifications/${user.id}`;
     const documentUrl = await uploadToCloudinary(file.path, folder);
 
-    // Create Verification Request
-    // NOTE: We DO set user.studentVerified = true here. That happens on Admin Approval.
     const result = await prisma.$transaction(async (tx) => {
-        // A. Immediately verify the user
+
         await tx.user.update({
             where: { id: user.id },
             data: { 
-                studentVerified: true,   // ✅ Auto-verify
+                studentVerified: true,
                 emailVerified: true,
-                canCreateCampaign: true, // ✅ Unlock campaigns (if club req met)
-                hasPaid: true            // ✅ Mark as paid
+                canCreateCampaign: true,
+                hasPaid: true
             } 
         });
 
-        // B. Save Verification Record as 'VERIFIED'
         return await tx.studentVerification.create({
             data: {
                 fullName,
@@ -116,20 +111,18 @@ const verify = catchAsync(async (req, res, next) => {
                 razorpayOrderId: razorpay_order_id,
                 razorpaySignature: razorpay_signature,
                 userId: user.id,
-                status: "VERIFIED" // ✅ Saved as verified
+                status: "VERIFIED"
             }
         });
     });
-await prisma.user.update({
-    where: { id: user.id },
-    data: { studentVerified: false }
-})
+
     return res.status(201).json({
         success: true,
-        message: "Verification submitted successfully. Please wait for admin approval.",
+        message: "Student verified successfully.",
         data: result
     });
 });
+
 
 /* ───────────────────────────────────────── */
 /* ADMIN: LIST VERIFICATIONS                 */

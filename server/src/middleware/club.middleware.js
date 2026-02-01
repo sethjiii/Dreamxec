@@ -26,25 +26,27 @@ const ensureClubVerified = (req, res, next) => {
 };
 
 // B. Check if user has active DreamXec Membership
-const ensureMembershipActive = (req, res, next) => {
-  const user = req.user;
+// const ensureMembershipActive = (req, res, next) => {
+//   const user = req.user;
 
-  if (!user) return next(new AppError('You must be logged in', 401));
+//   if (!user) return next(new AppError('You must be logged in', 401));
 
-  // Admins bypass membership
-  if (user.role === 'ADMIN') return next();
+//   // Admins bypass membership
+//   if (user.role === 'ADMIN') return next();
 
-  // Checking membership flag set after Razorpay verification
-  if (user.membershipActive) return next();
+//   // Checking membership flag set after Razorpay verification
+//   if (user.membershipActive) return next();
 
-  return next(new AppError('Activate membership to create campaigns', 403));
-};
+//   return next(new AppError('Activate membership to create campaigns', 403));
+// };
 
 // ---------------------------------------------------------
 // 🚀 C. NEW: Strict Campaign Eligibility Check (The Missing Function)
 // ---------------------------------------------------------
 const validateCampaignEligibility = (req, res, next) => {
   const user = req.user;
+
+  
 
   // 1. Sanity Check
   if (!user) {
@@ -67,13 +69,8 @@ const validateCampaignEligibility = (req, res, next) => {
   }
 
   // 4. Check Club Association
-  if (!user.clubId) {
-    return next(
-      new AppError(
-        'Campaign creation blocked: You are not associated with any club. Please register a club as President or refer an existing club.',
-        403
-      )
-    );
+  if (!user.clubIds || user.clubIds.length === 0) {
+    return next(new AppError('You are not associated with any club.', 403));
   }
 
   // 5. Check Club Verification Status
@@ -103,6 +100,6 @@ const validateCampaignEligibility = (req, res, next) => {
 
 module.exports = {
   ensureClubVerified,
-  ensureMembershipActive,
+  // ensureMembershipActive,
   validateCampaignEligibility, // 🟢 Exporting the new function
 };

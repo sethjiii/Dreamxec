@@ -1,167 +1,238 @@
-const { z } = require('zod');
+const { z } = require("zod");
 
-/* =========================================================
-   Shared Milestone Schema
-========================================================= */
+/* =====================================================
+   CONSTANTS (ANTI-ABUSE LIMITS)
+===================================================== */
 
-// This represents ONE milestone object
+const MAX_TEAM_MEMBERS = 20;
+const MAX_FAQS = 15;
+const MAX_MILESTONES = 20;
+const MAX_GOAL_AMOUNT = 10_000_000; // 1 Cr limit safety
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+const safeJSONParse = (val, label) => {
+  try {
+    return JSON.parse(val);
+  } catch {
+    throw new Error(`Invalid ${label} JSON`);
+  }
+};
+
+const youtubeRegex =
+  /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+
+/* =====================================================
+   MILESTONE
+===================================================== */
+
 const milestoneSchema = z.object({
-  title: z.string().min(3, 'Milestone title must be at least 3 characters'),
-  timeline: z.string().min(1, 'Milestone timeline is required'),
+  title: z.string().min(3).max(100),
+  timeline: z.string().min(1).max(100),
+
   budget: z.preprocess(
-    (val) => (typeof val === 'string' ? parseFloat(val) : val),
-    z.number().positive('Milestone budget must be positive')
+    (v) => (typeof v === "string" ? parseFloat(v) : v),
+    z.number().positive().max(MAX_GOAL_AMOUNT)
   ),
-  description: z.string().optional(),
+
+  description: z.string().max(500).optional(),
 });
 
-/* =========================================================
-   CREATE USER PROJECT
-========================================================= */
+/* =====================================================
+   TEAM MEMBER
+===================================================== */
+
+const teamMemberSchema = z.object({
+  name: z.string().min(2).max(50),
+  role: z.string().min(2).max(50),
+
+  // image injected by backend
+  image: z.string().url().optional(),
+});
+
+/* =====================================================
+   FAQ
+===================================================== */
+
+const faqSchema = z.object({
+  question: z.string().min(5).max(200),
+  answer: z.string().min(5).max(500),
+});
+
+/* =====================================================
+   CREATE PROJECT
+===================================================== */
 
 exports.createUserProjectSchema = z.object({
   body: z
     .object({
+      /* ------------------ */
+      /* BASIC INFO */
+      /* ------------------ */
+
       title: z.string().min(5).max(200),
-      description: z.string().min(20),
-      companyName: z.string().optional(),
+      description: z.string().min(20).max(5000),
+
+      companyName: z
+        .string()
+        .trim()
+        .max(120)
+        .optional()
+        .transform((v) => (v === "" ? undefined : v)),
+
+      campaignType: z
+        .enum(["INDIVIDUAL", "TEAM"])
+        .default("INDIVIDUAL"),
 
       goalAmount: z.preprocess(
-        (val) => (typeof val === 'string' ? parseFloat(val) : val),
-        z.number().positive('Goal amount must be positive')
+        (v) => (typeof v === "string" ? parseFloat(v) : v),
+        z.number().positive().max(MAX_GOAL_AMOUNT)
       ),
 
-      skillsRequired: z.preprocess(
-        (val) => {
-          if (typeof val === 'string') {
-            try {
-              return JSON.parse(val);
-            } catch {
-              return [];
-            }
-          }
-          return val;
-        },
-        z.array(z.string()).optional()
-      ),
+      /* ------------------ */
+      /* SKILLS */
+      /* ------------------ */
 
-      // ✅ Milestones come as JSON string via FormData
-      milestones: z
+      skillsRequired: z
+        .preprocess((v) => {
+          if (!v) return [];
+          if (typeof v === "string") return safeJSONParse(v, "skills");
+          return v;
+        }, z.array(z.string().min(2).max(50)).max(20))
+        .optional(),
+
+      /* ------------------ */
+      /* TEAM */
+      /* ------------------ */
+
+      teamMembers: z
+        .preprocess((v) => {
+          if (!v) return [];
+          if (typeof v === "string") return safeJSONParse(v, "teamMembers");
+          return v;
+        }, z.array(teamMemberSchema).max(MAX_TEAM_MEMBERS))
+        .optional(),
+
+      /* ------------------ */
+      /* FAQS */
+      /* ------------------ */
+
+      faqs: z
+        .preprocess((v) => {
+          if (!v) return [];
+          if (typeof v === "string") return safeJSONParse(v, "faqs");
+          return v;
+        }, z.array(faqSchema).max(MAX_FAQS))
+        .optional(),
+
+      /* ------------------ */
+      /* YOUTUBE */
+      /* ------------------ */
+
+      youtubeUrl: z
         .string()
-        .transform((val) => {
-          try {
-            return JSON.parse(val);
-          } catch {
-            return [];
-          }
-        })
+        .optional()
         .refine(
-          (val) => Array.isArray(val) && val.length > 0,
-          'At least one milestone is required'
-        )
-        .refine(
-          (val) => val.every((m) => milestoneSchema.safeParse(m).success),
-          'Invalid milestone structure'
+          (v) => !v || youtubeRegex.test(v),
+          "Invalid YouTube URL"
         ),
 
-      // External link
-      presentationDeckUrl: z.string().url().optional().or(z.literal('')),
+      /* ------------------ */
+      /* MILESTONES */
+      /* ------------------ */
+
+      milestones: z
+        .preprocess(
+          (v) =>
+            typeof v === "string"
+              ? safeJSONParse(v, "milestones")
+              : v,
+          z
+            .array(milestoneSchema)
+            .min(1)
+            .max(MAX_MILESTONES)
+        ),
+
+      presentationDeckUrl: z
+        .string()
+        .url()
+        .optional()
+        .or(z.literal("")),
     })
+
+    /* =====================================================
+       SUPER VALIDATION
+    ===================================================== */
+
     .superRefine((data, ctx) => {
-      // 🔒 Validate total milestone budget ≤ goalAmount
-      const totalMilestoneBudget = data.milestones.reduce(
-        (sum, m) => sum + Number(m.budget || 0),
+      /* ------------------ */
+      /* Budget vs Milestones */
+      /* ------------------ */
+
+      const totalMilestones = data.milestones.reduce(
+        (s, m) => s + m.budget,
         0
       );
 
-      if (totalMilestoneBudget > data.goalAmount) {
+      if (totalMilestones > data.goalAmount) {
         ctx.addIssue({
-          path: ['milestones'],
-          message: 'Total milestone budget cannot exceed goal amount',
+          path: ["milestones"],
+          message:
+            "Total milestone budget cannot exceed goal amount",
           code: z.ZodIssueCode.custom,
         });
       }
-    }),
-});
 
-/* =========================================================
-   UPDATE USER PROJECT
-========================================================= */
+      /* ------------------ */
+      /* Team rule */
+      /* ------------------ */
 
-exports.updateUserProjectSchema = z.object({
-  body: z
-    .object({
-      title: z
-        .string()
-        .min(5, 'Title must be at least 5 characters')
-        .max(200, 'Title too long')
-        .optional(),
+      if (
+        data.campaignType === "TEAM" &&
+        (!data.teamMembers ||
+          data.teamMembers.length === 0)
+      ) {
+        ctx.addIssue({
+          path: ["teamMembers"],
+          message:
+            "TEAM campaign must include team members",
+          code: z.ZodIssueCode.custom,
+        });
+      }
 
-      description: z
-        .string()
-        .min(20, 'Description must be at least 20 characters')
-        .optional(),
+      /* ------------------ */
+      /* Duplicate milestone titles */
+      /* ------------------ */
 
-      companyName: z.string().optional(),
+      const titles = data.milestones.map((m) =>
+        m.title.toLowerCase()
+      );
 
-      skillsRequired: z
-        .preprocess(
-          (val) => {
-            if (typeof val === 'string') {
-              try {
-                return JSON.parse(val);
-              } catch {
-                return [];
-              }
-            }
-            return val;
-          },
-          z.array(z.string()).optional()
-        ),
+      if (new Set(titles).size !== titles.length) {
+        ctx.addIssue({
+          path: ["milestones"],
+          message:
+            "Milestone titles must be unique",
+          code: z.ZodIssueCode.custom,
+        });
+      }
 
-      goalAmount: z
-        .preprocess(
-          (val) => (typeof val === 'string' ? parseFloat(val) : val),
-          z.number().positive('Goal amount must be positive')
-        )
-        .optional(),
+      /* ------------------ */
+      /* Duplicate FAQ questions */
+      /* ------------------ */
 
-      imageUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
-      campaignMedia: z.array(z.string().url()).optional(),
-
-      presentationDeckUrl: z.string().url().optional().or(z.literal('')),
-
-      // ✅ Optional milestone update (only PENDING / REJECTED allowed in controller)
-      milestones: z
-        .string()
-        .optional()
-        .transform((val) => {
-          if (!val) return undefined;
-          try {
-            return JSON.parse(val);
-          } catch {
-            return undefined;
-          }
-        })
-        .refine(
-          (val) =>
-            val === undefined ||
-            (Array.isArray(val) &&
-              val.every((m) => milestoneSchema.safeParse(m).success)),
-          'Invalid milestone structure'
-        ),
-    })
-    .superRefine((data, ctx) => {
-      if (data.milestones && data.goalAmount) {
-        const totalMilestoneBudget = data.milestones.reduce(
-          (sum, m) => sum + Number(m.budget || 0),
-          0
+      if (data.faqs) {
+        const questions = data.faqs.map((f) =>
+          f.question.toLowerCase()
         );
 
-        if (totalMilestoneBudget > data.goalAmount) {
+        if (new Set(questions).size !== questions.length) {
           ctx.addIssue({
-            path: ['milestones'],
-            message: 'Total milestone budget cannot exceed goal amount',
+            path: ["faqs"],
+            message:
+              "Duplicate FAQ questions detected",
             code: z.ZodIssueCode.custom,
           });
         }

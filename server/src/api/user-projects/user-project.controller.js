@@ -7,65 +7,109 @@ const uploadToCloudinary = require('../../utils/uploadToCloudinary');
    CREATE USER PROJECT (WITH MILESTONES)
 ====================================================== */
 exports.createUserProject = catchAsync(async (req, res, next) => {
-  // 1. Authorization Check
+
+  /* =============================
+     AUTH CHECK
+  ============================== */
   if (!req.user.studentVerified) {
-    return next(new AppError('You must be a verified student to create a campaign.', 403));
+    return next(
+      new AppError('You must be a verified student to create a campaign.', 403)
+    );
   }
 
-  // const { id, title, description, companyName, skillsRequired, timeline, goalAmount } = req.body;
-  const initialProject = await prisma.userProject.create({
-    data: {
-      id: id || undefined,  
-      title,
-      description,
-      companyName: companyName || null,
-      skillsRequired: skillsRequired ? (typeof skillsRequired === 'string' ? JSON.parse(skillsRequired) : skillsRequired) : [], 
-      timeline: timeline || null,
-      goalAmount: parseFloat(goalAmount), 
-      imageUrl: null, 
-      campaignMedia: [],
-      presentationDeckUrl: null,
-      userId: req.user.id,
-    },
-  });
- if(!req.user.studentVerified){
-    return next(new AppError('Please verify your student identity before creating a campaign.', 403))
-  }  
+  /* =============================
+     BODY FIELDS
+  ============================== */
   const {
-    id,
     title,
     description,
     companyName,
     skillsRequired,
+    campaignType = "INDIVIDUAL",
+    teamMembers,
+    faqs,
+    youtubeUrl,
     goalAmount,
-    timeline,
     presentationDeckUrl,
+    milestones,
   } = req.body;
 
-  // 🔴 REMOVED: The duplicate 'initialProject' creation block that caused the crash.
+  /* =============================
+     PARSE TEAM MEMBERS
+  ============================== */
+  let parsedTeamMembers = [];
 
-  /* -------------------------
+  if (teamMembers) {
+    try {
+      parsedTeamMembers =
+        typeof teamMembers === "string"
+          ? JSON.parse(teamMembers)
+          : teamMembers;
+    } catch {
+      return next(new AppError("Invalid teamMembers JSON", 400));
+    }
+  }
+
+  // If team campaign → must have members
+  if (campaignType === "TEAM" && parsedTeamMembers.length === 0) {
+    return next(
+      new AppError("Team campaigns must include team members", 400)
+    );
+  }
+
+  /* =============================
+     PARSE FAQS
+  ============================== */
+  let parsedFaqs = [];
+
+  if (faqs) {
+    try {
+      parsedFaqs =
+        typeof faqs === "string"
+          ? JSON.parse(faqs)
+          : faqs;
+    } catch {
+      return next(new AppError("Invalid FAQs format", 400));
+    }
+  }
+
+  /* =============================
+     YOUTUBE SANITIZATION
+  ============================== */
+  let cleanYoutubeUrl = null;
+
+  if (youtubeUrl) {
+    const match = youtubeUrl.match(
+      /(?:youtube\.com.*(?:\?|&)v=|youtu\.be\/)([^&\n?#]+)/
+    );
+
+    if (!match) {
+      return next(new AppError("Invalid YouTube URL", 400));
+    }
+
+    cleanYoutubeUrl = `https://www.youtube.com/watch?v=${match[1]}`;
+  }
+
+  /* =============================
      PARSE MILESTONES
-  -------------------------- */
+  ============================== */
   let parsedMilestones = [];
 
-  if (req.body.milestones) {
-    if (typeof req.body.milestones === 'string') {
-      try {
-        parsedMilestones = JSON.parse(req.body.milestones);
-      } catch {
-        return next(new AppError('Invalid milestones format', 400));
-      }
-    } else {
-      parsedMilestones = req.body.milestones;
+  if (milestones) {
+    try {
+      parsedMilestones =
+        typeof milestones === "string"
+          ? JSON.parse(milestones)
+          : milestones;
+    } catch {
+      return next(new AppError("Invalid milestones format", 400));
     }
   }
 
   if (!Array.isArray(parsedMilestones) || parsedMilestones.length === 0) {
-    return next(new AppError('At least one milestone is required', 400));
+    return next(new AppError("At least one milestone is required", 400));
   }
 
-  // Validate Budget
   const totalMilestoneBudget = parsedMilestones.reduce(
     (sum, m) => sum + Number(m.budget || 0),
     0
@@ -73,91 +117,129 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
 
   if (totalMilestoneBudget > Number(goalAmount)) {
     return next(
-      new AppError('Total milestone budget cannot exceed goal amount', 400)
+      new AppError("Total milestone budget cannot exceed goal amount", 400)
     );
   }
 
-  /* -------------------------
-     FILE UPLOADS
-  -------------------------- */
+  /* =============================
+    FILE UPLOADS
+ ============================== */
   const uploads = {};
 
-  if (req.files) {
-    // Banner image (REQUIRED)
-    if (req.files.bannerFile?.[0]) {
-      uploads.imageUrl = await uploadToCloudinary(
-        req.files.bannerFile[0].path,
-        'dreamxec/campaigns/images'
-      );
-    }
-    // Media files (OPTIONAL)
-    if (req.files.mediaFiles?.length) {
-      uploads.campaignMedia = await Promise.all(
-        req.files.mediaFiles.map((file) => {
-          let folder = 'dreamxec/campaigns/others';
-          if (file.mimetype.startsWith('image/'))
-            folder = 'dreamxec/campaigns/images';
-          if (file.mimetype.startsWith('video/'))
-            folder = 'dreamxec/campaigns/videos';
-
-          return uploadToCloudinary(file.path, folder);
-        })
-      );
-    }
+  /* ---------- Banner ---------- */
+  if (req.files?.bannerFile?.[0]) {
+    uploads.imageUrl = await uploadToCloudinary(
+      req.files.bannerFile[0].path,
+      "dreamxec/campaigns/images"
+    );
   }
 
-  /* -------------------------
-     CREATE PROJECT + MILESTONES (Transaction)
-  -------------------------- */
+  /* ---------- Media ---------- */
+  if (req.files?.mediaFiles?.length) {
+    uploads.campaignMedia = await Promise.all(
+      req.files.mediaFiles.map((file) => {
+        const folder = file.mimetype.startsWith("image/")
+          ? "dreamxec/campaigns/images"
+          : "dreamxec/campaigns/others";
+
+        return uploadToCloudinary(file.path, folder);
+      })
+    );
+  }
+
+  /* =============================
+     TEAM MEMBER IMAGE UPLOAD
+  ============================== */
+
+  let finalTeamMembers = parsedTeamMembers;
+
+  if (campaignType === "TEAM") {
+
+    const teamImages = req.files?.teamImages || [];
+
+    if (teamImages.length !== parsedTeamMembers.length) {
+      return next(
+        new AppError(
+          "Each team member must have one image",
+          400
+        )
+      );
+    }
+
+    const uploadedImages = await Promise.all(
+      teamImages.map(file =>
+        uploadToCloudinary(
+          file.path,
+          "dreamxec/team-members"
+        )
+      )
+    );
+
+    finalTeamMembers = parsedTeamMembers.map((member, i) => ({
+      ...member,
+      image: uploadedImages[i],
+    }));
+  }
+
+  /* =============================
+     TRANSACTION
+  ============================== */
   const project = await prisma.$transaction(async (tx) => {
-    // 1. Create Project
+
     const createdProject = await tx.userProject.create({
       data: {
-        id: id || undefined,
         title,
         description,
         companyName: companyName || null,
+
+        campaignType,
+        teamMembers: finalTeamMembers,
+        faqs: parsedFaqs,
+        youtubeUrl: cleanYoutubeUrl,
+
         skillsRequired: skillsRequired
-          ? typeof skillsRequired === 'string'
+          ? typeof skillsRequired === "string"
             ? JSON.parse(skillsRequired)
             : skillsRequired
           : [],
+
         goalAmount: Number(goalAmount),
-        imageUrl: uploads.imageUrl,
-        campaignMedia: uploads.campaignMedia || [],
-        timeline: timeline || null,
+
         presentationDeckUrl: presentationDeckUrl?.trim() || null,
+
+        imageUrl: uploads.imageUrl || null,
+        campaignMedia: uploads.campaignMedia || [],
+
         userId: req.user.id,
-        status: 'PENDING' // Ensure default status is set
+        status: "PENDING",
       },
     });
 
-    // 2. Create Milestones
-    if (parsedMilestones.length > 0) {
-      await tx.milestone.createMany({
-        data: parsedMilestones.map((m) => ({
-          title: m.title,
-          timeline: m.timeline,
-          budget: Number(m.budget),
-          description: m.description || null,
-          projectId: createdProject.id,
-        })),
-      });
-    }
+    await tx.milestone.createMany({
+      data: parsedMilestones.map((m) => ({
+        title: m.title,
+        timeline: m.timeline,
+        budget: Number(m.budget),
+        description: m.description || null,
+        projectId: createdProject.id,
+      })),
+    });
 
     return createdProject;
   });
 
   res.status(201).json({
-    status: 'success',
+    status: "success",
     data: { userProject: project },
   });
 });
 
+
+
 // ... (Rest of the file: updateUserProject, deleteUserProject, etc. remains the same)
 exports.updateUserProject = catchAsync(async (req, res, next) => {
   // ... (Keep existing update logic)
-    const userProject = await prisma.userProject.findUnique({
+  const userProject = await prisma.userProject.findUnique({
     where: { id: req.params.id },
     include: { milestones: true },
   });

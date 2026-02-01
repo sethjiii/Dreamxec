@@ -1,7 +1,8 @@
 const prisma = require('../../config/prisma');
 const catchAsync = require('../../utils/catchAsync');
 const AppError = require('../../utils/AppError');
-const sendEmail = require('../../services/email.service');
+const AppError = require('../../utils/AppError');
+// const sendEmail = require('../../services/email.service'); // Deprecated
 
 // USER: Create a project
 exports.createProject = catchAsync(async (req, res, next) => {
@@ -23,6 +24,18 @@ exports.createProject = catchAsync(async (req, res, next) => {
     403
   ));
 }
+
+  // Publish Campaign Created Event
+  const { publishEvent } = require('../../services/eventPublisher');
+  const EVENTS = require('../../config/events'); 
+
+  await publishEvent(EVENTS.CAMPAIGN_CREATED, {
+    name: req.user.name,
+    email: req.user.email,
+    projectTitle: project.title,
+    goalAmount: project.goalAmount,
+    campaignUrl: `${process.env.CLIENT_URL}/projects/${project.id}` // Assuming URL structure
+  });
 
   res.status(201).json({ status: 'success', data: { project } });
 });
@@ -190,26 +203,20 @@ exports.verifyProject = catchAsync(async (req, res, next) => {
     data: updateData
   });
 
-  // Send email notification to project owner
+  // Publish appropriate event based on status
+  const { publishEvent } = require('../../services/eventPublisher');
+  const EVENTS = require('../../config/events'); 
+
+  const eventName = status === 'APPROVED' ? EVENTS.CAMPAIGN_APPROVED : EVENTS.CAMPAIGN_REJECTED;
+
   if (project.owner) {
-    let rejectionDetails = 'Please review your project details and resubmit if needed.';
-    if (reason) {
-      rejectionDetails = `Reason for rejection: ${reason}\n\nPlease review the feedback, update your project, and resubmit if needed.`;
-    }
-    const approvalMessage = 'Congratulations! Your project is now live and accepting donations.';
-    
-    const message = `Dear ${project.owner.name},\n\nYour project "${project.title}" has been ${status.toLowerCase()}.\n\n${status === 'APPROVED' ? approvalMessage : rejectionDetails}\n\nBest regards,\nThe Crowdfunding Team`;
-    
-    try {
-      await sendEmail({
-        email: project.owner.email,
-        subject: `Your Project "${project.title}" has been ${status}`,
-        message
-      });
-    } catch (err) {
-      console.error('Email sending error:', err);
-      // Note: The operation will still succeed even if the email fails.
-    }
+    await publishEvent(eventName, {
+      name: project.owner.name,
+      email: project.owner.email,
+      projectTitle: project.title,
+      status,
+      reason: status === 'REJECTED' ? reason : null
+    });
   }
 
   res.status(200).json({ 

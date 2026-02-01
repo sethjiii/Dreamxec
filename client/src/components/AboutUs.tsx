@@ -39,7 +39,7 @@ const AboutUs = () => {
                         </p>
 
                         <p className="text-lg text-dreamxec-navy font-sans leading-[1.75] text-justify">
-                            By 2030, DreamXec aims to enable over one million Indian students to launch, fund,
+                            By 2030, DreamXec aims to enable over one million's Indian students to launch, fund,
                             and execute innovation projects. These students will go on to build startups,
                             create jobs, file patents, and solve real social and technological problems—shaping
                             a more innovative, inclusive, and entrepreneurial India.

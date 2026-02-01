@@ -4,7 +4,7 @@ const { promisify } = require('util');
 const prisma = require('../../config/prisma');
 const catchAsync = require('../../utils/catchAsync');
 const AppError = require('../../utils/AppError');
-const sendEmail = require('../../services/email.service');
+// const sendEmail = require('../../services/email.service'); // Deprecated
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -139,10 +139,25 @@ await prisma.donation.updateMany({
   const message = `Hi ${name},\n\nPlease click on the following link to verify your email address:\n${verificationURL}\n\nThis link will expire in 10 minutes.\n\nIf you didn't request this, please ignore this email.`;
 
   try {
-    await sendEmail({
+    // ----------------------------------------------------
+    // INTEGRATION: Publish event to Email EDA Service
+    // ----------------------------------------------------
+    const { publishEvent } = require('../../services/eventPublisher.service');
+    const EVENTS = require('../../config/events');
+    
+    // Publish Welcome Event
+    await publishEvent(EVENTS.USER_WELCOME, {
+      name: newAccount.name,
       email: newAccount.email,
-      subject: 'Email Verification - Project X',
-      message,
+      dashboardUrl: `${process.env.CLIENT_URL}/dashboard`
+    });
+
+    // Publish Verification Event
+    await publishEvent(EVENTS.EMAIL_VERIFICATION, {
+        name: newAccount.name,
+        email: newAccount.email,
+        verificationUrl: verificationURL,
+        otp: "N/A"
     });
 
     res.status(201).json({
@@ -158,7 +173,7 @@ await prisma.donation.updateMany({
       },
     });
   } catch (err) {
-    console.error('Email sending error:', err);
+    console.error('Email sending/publishing error:', err);
     // Registration was successful, but email failed
     res.status(201).json({
       status: 'success',
@@ -409,13 +424,14 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 
   const resetURL = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
-  const message = `Hi ${account.name},\n\nYou requested a password reset. Click the link below to reset your password:\n${resetURL}\n\nThis link will expire in 10 minutes.\n\nIf you didn't request this, please ignore this email.`;
 
   try {
-    await sendEmail({
-      email: account.email,
-      subject: 'Password Reset Request - Project X',
-      message,
+    const { publishEvent } = require('../../services/eventPublisher.service');
+    // Using string literal for now, event constant update coming next
+    await publishEvent("PASSWORD_RESET_REQUEST", {
+        name: account.name,
+        email: account.email,
+        resetUrl: resetURL
     });
 
     res.status(200).json({

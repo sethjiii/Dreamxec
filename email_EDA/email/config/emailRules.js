@@ -4,7 +4,11 @@ import {
     adminTemplates,
     studentTemplates,
     studentPresidentTemplates,
-    donorTemplates
+    studentPresidentTemplates,
+    donorTemplates,
+    mentorTemplates,
+    corporateTemplates,
+    alumniTemplates
 } from "../templates/index.js";
 
 const DEFAULT_ADMIN_EMAIL_FN = () => process.env.ADMIN_EMAIL || "admin@dreamxec.com";
@@ -54,8 +58,14 @@ export const EMAIL_RULES = {
     [EVENTS.USER_WELCOME]: [
         { role: "STUDENT", template: studentTemplates.welcomeEmail, priority: JOB_PRIORITY.HIGH }
     ],
+    [EVENTS.EMAIL_OTP_REQUEST]: [
+        { role: "STUDENT", template: studentTemplates.emailOtp, priority: JOB_PRIORITY.HIGH }
+    ],
     [EVENTS.EMAIL_VERIFICATION]: [
         { role: "STUDENT", template: studentTemplates.emailVerification, priority: JOB_PRIORITY.HIGH }
+    ],
+    [EVENTS.PASSWORD_RESET_REQUEST]: [
+        { role: "STUDENT", template: studentTemplates.passwordReset, priority: JOB_PRIORITY.HIGH }
     ],
     [EVENTS.PROFILE_REMINDER]: [
         { role: "STUDENT", template: studentTemplates.profileCompletionReminder, priority: JOB_PRIORITY.LOW }
@@ -111,6 +121,53 @@ export const EMAIL_RULES = {
     ],
     [EVENTS.TAX_RECEIPT]: [
         { role: "DONOR", template: donorTemplates.taxReceipt, priority: JOB_PRIORITY.MEDIUM }
+    ],
+
+    // MENTOR EVENTS
+    [EVENTS.MENTORSHIP_REQUEST]: [
+        { role: "MENTOR", template: mentorTemplates.mentorshipRequest, priority: JOB_PRIORITY.HIGH }
+    ],
+    [EVENTS.MENTOR_CHECKIN]: [
+        { role: "MENTOR", template: mentorTemplates.monthlyCheckIn, priority: JOB_PRIORITY.MEDIUM }
+    ],
+    [EVENTS.MENTOR_SUPPORT_LETTER]: [
+        { role: "MENTOR", template: mentorTemplates.supportLetterRequest, priority: JOB_PRIORITY.MEDIUM }
+    ],
+
+    // CORPORATE EVENTS
+    [EVENTS.CORPORATE_PARTNERSHIP_INQUIRY]: [
+        { role: "CORPORATE", template: corporateTemplates.partnershipInquiry, priority: JOB_PRIORITY.MEDIUM }
+    ],
+    [EVENTS.CORPORATE_FOLLOWUP]: [
+        { role: "CORPORATE", template: corporateTemplates.partnershipFollowUp, priority: JOB_PRIORITY.MEDIUM }
+    ],
+    [EVENTS.CORPORATE_PROJECT_UPDATE]: [
+        { role: "CORPORATE", template: corporateTemplates.projectUpdate, priority: JOB_PRIORITY.LOW }
+    ],
+    [EVENTS.CORPORATE_THANK_YOU]: [
+        { role: "CORPORATE", template: corporateTemplates.thankYou, priority: JOB_PRIORITY.MEDIUM }
+    ],
+
+    // ALUMNI EVENTS
+    [EVENTS.ALUMNI_OUTREACH]: [
+        { role: "ALUMNI", template: alumniTemplates.alumniOutreach, priority: JOB_PRIORITY.MEDIUM }
+    ],
+    [EVENTS.ALUMNI_DONATION_APPEAL]: [
+        { role: "ALUMNI", template: alumniTemplates.donationAppeal, priority: JOB_PRIORITY.MEDIUM }
+    ],
+    [EVENTS.ALUMNI_NEWSLETTER]: [
+        { role: "ALUMNI", template: alumniTemplates.monthlyNewsletter, priority: JOB_PRIORITY.LOW }
+    ],
+
+    // PROJECT EVENTS (Using existing or new templates mapped to roles)
+    [EVENTS.PROJECT_LAUNCH]: [
+        { role: "DONOR", template: studentTemplates.crowdfundingLaunch, priority: JOB_PRIORITY.MEDIUM }
+    ],
+    [EVENTS.PROJECT_GOAL_ACHIEVED]: [
+        { role: "DONOR", template: studentTemplates.fundingGoalAchieved, priority: JOB_PRIORITY.MEDIUM }
+    ],
+    [EVENTS.PROJECT_FINAL_REPORT]: [
+        { role: "DONOR", template: studentTemplates.finalReport, priority: JOB_PRIORITY.LOW }
     ],
 
     // MIXED EVENTS

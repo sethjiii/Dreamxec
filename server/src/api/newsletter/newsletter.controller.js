@@ -1,5 +1,5 @@
 const AppError = require('../../utils/AppError');
-const {sendEmail}=require("../../services/email.service");
+// const {sendEmail}=require("../../services/email.service");
 const prisma = require('../../config/prisma'); // use your Prisma client wrapper
 const catchAsync = require('../../utils/catchAsync');
 const isValidEmail = (email) => {
@@ -17,12 +17,22 @@ const sendEmails  = catchAsync(async (req,res,next)=>{
     const subscribers = await prisma.subscriber.findMany({
       where: { isActive: true },
     });
+    
+    // EDA Integration
+    const { publishEvent } = require("../../services/eventPublisher");
+    const EVENTS = require("../../config/events");
+
     for(const subscriber of subscribers){
-      sendEmail({email:subscriber.email,subject,message});
+      publishEvent(EVENTS.PLATFORM_ANNOUNCEMENT, {
+        email: subscriber.email,
+        title: subject,
+        message: message
+      });
     }
+    
     res.status(200).json({
       success:true,
-      message:"Email sent successfully"
+      message:"Newsletter emails queued successfully"
     })
 })
 

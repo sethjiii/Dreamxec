@@ -105,6 +105,41 @@ exports.razorpayWebhook = async (req, res) => {
         },
       });
     });
+
+    // PUBLISH EVENT
+    try {
+        const { publishEvent } = require("../../services/eventPublisher.service");
+        const EVENTS = require("../../config/events");
+
+        // We need donor details. If guest, use guestEmail. If logged-in, fetch user?
+        // The webhook payload has guestEmail in notes if guest.
+        // If donorId is present, we might want to fetch donor name/email if not in notes (but notes are reliable for snapshot).
+        // Notes: guestName, guestEmail.
+        
+        const donorEmail = req.user ? req.user.email : guestEmail; // req.user likely null in webhook unless middleware sets it (unlikely for webhook)
+        // Webhook context usually doesn't have req.user. Use notes.
+        const actualEmail = guestEmail; // Or if donorId exists, might need to fetch, but usually guestEmail is populated in notes for reference or we should fetch.
+        
+        // Simpler: Use the email stored in Donation if we could get it, 
+        // but notes represent what was sent.
+        
+        // Wait, if it's a registered donor, guestEmail might be empty in notes? 
+        // Let's check createOrder:
+        // notes: { guestEmail: email || "" } -> uses body email.
+        
+        if (actualEmail) {
+            await publishEvent(EVENTS.DONATION_SUCCESS, {
+                email: actualEmail,
+                amount: amount,
+                transactionId: payment.id,
+                projectTitle: `Project ID ${projectId}`, // ideally fetch title or pass in notes
+                date: new Date().toLocaleDateString(),
+                role: 'DONOR'
+            });
+        }
+    } catch (e) {
+        console.error("Failed to publish donation event", e);
+    }
   }
 
   return res.json({ status: "ok" });

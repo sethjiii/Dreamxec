@@ -67,26 +67,23 @@ exports.verifyUserProject = catchAsync(async (req, res, next) => {
     data: updateData
   });
 
-  // Send email notification to project owner
-  if (userProject.user && userProject.user.email) {
-    let rejectionDetails = 'Please review your project details and resubmit if needed.';
-    if (reason) {
-      rejectionDetails = `Reason: ${reason}\n\nPlease review the feedback, update your project, and resubmit.`;
-    }
-    const approvalMessage = 'Congratulations! Your project is now live and accepting donations.';
-    
-    const message = `Dear ${userProject.user.name},\n\nYour project "${userProject.title}" has been ${status.toLowerCase()}.\n\n${status === 'APPROVED' ? approvalMessage : rejectionDetails}\n\nBest regards,\nThe Platform Team`;
-    
-    try {
-      await sendEmail({
-        email: userProject.user.email,
-        subject: `Your Project "${userProject.title}" has been ${status}`,
-        message
-      });
-    } catch (err) {
-      console.error('Email sending error:', err);
-    }
-  }
+  // Publish appropriate event based on status
+  const { publishEvent } = require('../../services/eventPublisher');
+  const EVENTS = require('../../config/events'); 
+
+  const eventName = status === 'APPROVED' ? EVENTS.CAMPAIGN_APPROVED : EVENTS.CAMPAIGN_REJECTED;
+
+  // We explicitly modify the role for the resolved email rule if needed, 
+  // or ensure the Subscriber maps it correctly.
+  // For now, we publish general campaign events.
+  await publishEvent(eventName, {
+      name: userProject.user.name,
+      email: userProject.user.email,
+      projectTitle: userProject.title,
+      status,
+      reason: status === 'REJECTED' ? reason : null,
+      role: 'STUDENT' // Hint for resolver if needed
+  });
 
   res.status(200).json({ 
     status: 'success', 
@@ -124,26 +121,20 @@ exports.verifyDonorProject = catchAsync(async (req, res, next) => {
     data: updateData
   });
 
-  // Send email notification to donor
-  if (donorProject.donor && donorProject.donor.email) {
-    let rejectionDetails = 'Please review your project details and resubmit if needed.';
-    if (reason) {
-      rejectionDetails = `Reason: ${reason}\n\nPlease review the feedback, update your project, and resubmit.`;
-    }
-    const approvalMessage = 'Congratulations! Your project is now live.';
-    
-    const message = `Dear ${donorProject.donor.name},\n\nYour project "${donorProject.title}" has been ${status.toLowerCase()}.\n\n${status === 'APPROVED' ? approvalMessage : rejectionDetails}\n\nBest regards,\nThe Platform Team`;
-    
-    try {
-      await sendEmail({
-        email: donorProject.donor.email,
-        subject: `Your Project "${donorProject.title}" has been ${status}`,
-        message
-      });
-    } catch (err) {
-      console.error('Email sending error:', err);
-    }
-  }
+  // Publish event
+  const { publishEvent } = require('../../services/eventPublisher');
+  const EVENTS = require('../../config/events'); 
+
+  const eventName = status === 'APPROVED' ? EVENTS.CAMPAIGN_APPROVED : EVENTS.CAMPAIGN_REJECTED;
+
+  await publishEvent(eventName, {
+      name: donorProject.donor.name,
+      email: donorProject.donor.email,
+      projectTitle: donorProject.title,
+      status,
+      reason: status === 'REJECTED' ? reason : null,
+      role: 'DONOR'
+  });
 
   res.status(200).json({ 
     status: 'success', 
@@ -260,18 +251,17 @@ exports.verifyClub = catchAsync(async (req, res, next) => {
     });
   }
 
-  // send email
-  try {
-    await sendEmail({
+  // Publish event
+  const { publishEvent } = require('../../services/eventPublisher');
+  const EVENTS = require('../../config/events'); 
+
+  await publishEvent(EVENTS.CLUB_VERIFICATION_STATUS, {
+      name: request.user.name,
       email: request.user.email,
-      subject: `Your club verification was ${status}`,
-      message: status === 'APPROVED'
-        ? `Congratulations! You are now verified as: ${request.position}`
-        : `Your verification request was rejected.\nReason: ${reason}`
-    });
-  } catch (err) {
-    console.error(err);
-  }
+      position: request.position,
+      status,
+      reason: status === 'REJECTED' ? reason : null
+  });
 
   res.status(200).json({ status: 'success', data: { updated } });
 });

@@ -1,6 +1,7 @@
 const otpGenerator = require("otp-generator");
 const crypto = require("crypto");
-const sendEmail = require("../../services/email.service");
+const crypto = require("crypto");
+// const sendEmail = require("../../services/email.service"); // Deprecated
 const { sendWhatsAppMessage } = require("../../services/whatsapp.service");
 const redis = require("../../services/redis.service");
 
@@ -108,10 +109,13 @@ const generateOtp = async (req, res) => {
     /* 📧 EMAIL OTP */
     if (email) {
       const otp = await generateAndStoreOtp("email", email);
-      await sendEmail({
+      
+      const { publishEvent } = require("../../services/eventPublisher");
+      const EVENTS = require("../../config/events");
+
+      await publishEvent(EVENTS.EMAIL_OTP_REQUEST, {
         email,
-        subject: "DreamXec Email OTP",
-        message: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+        otp
       });
     }
 

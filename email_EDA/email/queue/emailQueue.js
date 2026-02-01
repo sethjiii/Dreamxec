@@ -39,7 +39,7 @@ class EmailQueueService {
 
     setupEventListeners() {
         this.queueEvents.on('waiting', ({ jobId }) => {
-            // console.log(`[EmailQueue] Job ${jobId} is waiting`); // Verbose
+            console.log(`[EmailQueue] Job ${jobId} is waiting`); // Verbose
         });
 
         this.queueEvents.on('active', ({ jobId }) => {

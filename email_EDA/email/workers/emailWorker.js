@@ -18,7 +18,6 @@ const emailWorker = new Worker(QUEUE_NAME, async (job) => {
     connection: redisClient,
     concurrency: CONCURRENCY
 });
-
 emailWorker.on("completed", (job) => {
     console.log(`[EmailWorker] Job ${job.id} has completed!`);
 });

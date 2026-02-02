@@ -12,7 +12,6 @@ class EmailOrchestrator {
     init() {
         console.log("[EmailOrchestrator] Initializing with rules...");
         
-        // Iterate over rules to register events dynamically
         for (const [eventName, rules] of Object.entries(EMAIL_RULES)) {
             this.registerEvent(eventName, rules);
         }
@@ -31,7 +30,6 @@ class EmailOrchestrator {
                         continue;
                     }
 
-                    // Validate template
                     if (typeof rule.template !== 'function') {
                         console.error(`[EmailOrchestrator] Invalid template for ${eventName} / ${rule.role}`);
                         continue;
@@ -43,12 +41,12 @@ class EmailOrchestrator {
                     const opts = rule.priority ? { priority: rule.priority } : {};
 
                     await this.queue.add("sendEmail", {
-                        providerName: "ses", // Still hardcoded for now, but dispatcher handles fallback
+                        providerName: "ses",
                         to: toEmail,
                         subject: emailContent.subject,
                         html: emailContent.body,
-                        eventName, // Metadata
-                        role: rule.role // Metadata
+                        eventName,
+                        role: rule.role
                     }, opts);
                     
                     console.log(`[EmailOrchestrator] Queued email for ${rule.role} (${toEmail}) with priority ${rule.priority || 'default'}`);

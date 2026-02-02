@@ -1,7 +1,7 @@
 import { redisClient } from "./redis.js";
 import eventBus from "./eventBus.js";
 
-const CHANNEL_NAME = "dreamxec:events"; // Shared channel name
+const CHANNEL_NAME = "dreamxec:events";
 
 class RedisEventBridge {
     constructor() {

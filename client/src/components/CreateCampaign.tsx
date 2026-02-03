@@ -237,7 +237,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
   if (showSuccess) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-dreamxec-cream to-white flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl border-4 border-dreamxec-navy shadow-lg p-8 text-center max-w-sm w-full mx-auto">
+        <div className=" rounded-2xl border-4 border-dreamxec-navy shadow-lg p-8 text-center max-w-sm w-full mx-auto">
           <div className="w-20 h-20 bg-dreamxec-green rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-white shadow-md">
             <CheckCircleIcon className="w-10 h-10 text-white" />
           </div>
@@ -257,7 +257,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
   const inputCls = "w-full px-3 py-2 border-2 border-dreamxec-navy rounded-lg text-sm font-medium bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange/20 transition-all";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dreamxec-cream to-white relative overflow-hidden">
+    <div className="min-h-screen  relative overflow-hidden">
       {/* Decorations */}
       <div className="absolute top-10 left-4 opacity-20 pointer-events-none">
         <StarDecoration className="w-10 h-10" color="#FF7F00" />
@@ -308,7 +308,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
 
       {/* Main Form */}
       <div className="max-w-4xl mx-auto px-4 pb-12">
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl border-4 border-dreamxec-navy shadow-lg p-4 sm:p-6">
+        <div className=" backdrop-blur-xl rounded-2xl border-4 border-dreamxec-navy shadow-lg p-4 sm:p-6">
 
           <form onSubmit={handleSubmit} className="space-y-5">
 

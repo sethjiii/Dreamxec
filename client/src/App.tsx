@@ -7,6 +7,7 @@ import { Main } from './components/Main';
 import BrowseCampaigns from './components/BrowseCampaigns';
 import StudentDashboard from './components/StudentDashboard';
 import CreateCampaign from './components/CreateCampaign';
+import CreateCampaignDemo from './components/CreateCampaignDemo';
 import AdminDashboard from './components/AdminDashboard';
 import AuthPage from './components/AuthPage';
 import UserProfile from './components/UserProfile';
@@ -28,6 +29,7 @@ import PresidentLayout from "./components/president/PresidentLayout";
 import AdminClubReferrals from './components/admin/AdminClubReferrals';
 import AdminClubVerifications from './components/admin/AdminClubVerifications';
 import AuthCallback from './components/AuthCallback';
+
 
 // Import API services
 import { login, register, logout as apiLogout, getCurrentUser, initiateGoogleAuth, handleGoogleCallback, initiateLinkedInAuth, handleLinkedInCallback } from './services/authService';
@@ -1065,6 +1067,22 @@ function AppContent() {
                                       </div>
                                     </div>
                                   )
+                                }
+                              />
+
+                              <Route
+                                path="/create-demo-campaign"
+                                element={
+                                  <>
+                                    <Header
+                                      currentUser={user}
+                                      onLogin={handleLoginClick}
+                                      onLogout={handleLogout}
+                                    />
+                                    <CreateCampaignDemo
+                                      onBack={() => navigate("/dashboard")}
+                                    />
+                                  </>
                                 }
                               />
 

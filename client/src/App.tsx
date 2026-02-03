@@ -7,6 +7,7 @@ import { Main } from './components/Main';
 import BrowseCampaigns from './components/BrowseCampaigns';
 import StudentDashboard from './components/StudentDashboard';
 import CreateCampaign from './components/CreateCampaign';
+import CreateCampaignDemo from './components/CreateCampaignDemo';
 import AdminDashboard from './components/AdminDashboard';
 import AuthPage from './components/AuthPage';
 import UserProfile from './components/UserProfile';
@@ -28,6 +29,7 @@ import PresidentLayout from "./components/president/PresidentLayout";
 import AdminClubReferrals from './components/admin/AdminClubReferrals';
 import AdminClubVerifications from './components/admin/AdminClubVerifications';
 import AuthCallback from './components/AuthCallback';
+
 
 // Import API services
 import { login, register, logout as apiLogout, getCurrentUser, initiateGoogleAuth, handleGoogleCallback, initiateLinkedInAuth, handleLinkedInCallback } from './services/authService';
@@ -320,149 +322,149 @@ function AppContent() {
     );
   }
 
- const handleCreateCampaign = async (data: {
-  title: string;
-  description: string;
-  clubName: string;
-  // skillsRequired?: string[];
-  goalAmount: number;
-
-  bannerFile: File | null;
-  mediaFiles: File[];
-
-  presentationDeckUrl: string;
-
-  /* NEW */
-  campaignType: "INDIVIDUAL" | "TEAM";
-
-  teamMembers?: {
-    name: string;
-    role: string;
-    image?: File | null; // FE image file
-  }[];
-
-  faqs?: {
-    question: string;
-    answer: string;
-  }[];
-
-  youtubeUrl?: string;
-
-  milestones: {
+  const handleCreateCampaign = async (data: {
     title: string;
-    timeline: string;
-    budget: string | number;
-    description?: string;
-  }[];
-}) => {
+    description: string;
+    clubName: string;
+    // skillsRequired?: string[];
+    goalAmount: number;
 
-  showLoader();
+    bannerFile: File | null;
+    mediaFiles: File[];
 
-  try {
-    console.log("🚀 Creating Campaign...");
+    presentationDeckUrl: string;
 
-    const formData = new FormData();
+    /* NEW */
+    campaignType: "INDIVIDUAL" | "TEAM";
 
-    /* ---------------- BASIC ---------------- */
+    teamMembers?: {
+      name: string;
+      role: string;
+      image?: File | null; // FE image file
+    }[];
 
-    formData.append("title", data.title);
-    formData.append("description", data.description);
-    formData.append("companyName", data.clubName);
-    formData.append("goalAmount", data.goalAmount.toString());
+    faqs?: {
+      question: string;
+      answer: string;
+    }[];
 
-    formData.append(
-      "presentationDeckUrl",
-      data.presentationDeckUrl || ""
-    );
+    youtubeUrl?: string;
 
-    /* ---------------- TYPE ---------------- */
+    milestones: {
+      title: string;
+      timeline: string;
+      budget: string | number;
+      description?: string;
+    }[];
+  }) => {
 
-    formData.append("campaignType", data.campaignType);
+    showLoader();
 
-    /* ---------------- YOUTUBE ---------------- */
+    try {
+      console.log("🚀 Creating Campaign...");
 
-    if (data.youtubeUrl) {
-      formData.append("youtubeUrl", data.youtubeUrl);
-    }
+      const formData = new FormData();
 
-    /* ---------------- FAQS ---------------- */
+      /* ---------------- BASIC ---------------- */
 
-    if (data.faqs?.length) {
-      formData.append("faqs", JSON.stringify(data.faqs));
-    }
+      formData.append("title", data.title);
+      formData.append("description", data.description);
+      formData.append("companyName", data.clubName);
+      formData.append("goalAmount", data.goalAmount.toString());
 
-    /* ---------------- MILESTONES ---------------- */
+      formData.append(
+        "presentationDeckUrl",
+        data.presentationDeckUrl || ""
+      );
 
-    const cleanMilestones = data.milestones.map(m => ({
-      ...m,
-      budget: Number(m.budget),
-    }));
+      /* ---------------- TYPE ---------------- */
 
-    formData.append(
-      "milestones",
-      JSON.stringify(cleanMilestones)
-    );
+      formData.append("campaignType", data.campaignType);
 
-    /* ---------------- TEAM ---------------- */
+      /* ---------------- YOUTUBE ---------------- */
 
-    if (
-      data.campaignType === "TEAM" &&
-      data.teamMembers?.length
-    ) {
-      // Send team data WITHOUT images
-      const teamData = data.teamMembers.map(m => ({
-        name: m.name,
-        role: m.role,
+      if (data.youtubeUrl) {
+        formData.append("youtubeUrl", data.youtubeUrl);
+      }
+
+      /* ---------------- FAQS ---------------- */
+
+      if (data.faqs?.length) {
+        formData.append("faqs", JSON.stringify(data.faqs));
+      }
+
+      /* ---------------- MILESTONES ---------------- */
+
+      const cleanMilestones = data.milestones.map(m => ({
+        ...m,
+        budget: Number(m.budget),
       }));
 
       formData.append(
-        "teamMembers",
-        JSON.stringify(teamData)
+        "milestones",
+        JSON.stringify(cleanMilestones)
       );
 
-      // Send images separately
-      data.teamMembers.forEach(member => {
-        if (member.image) {
-          formData.append("teamImages", member.image);
-        }
-      });
+      /* ---------------- TEAM ---------------- */
+
+      if (
+        data.campaignType === "TEAM" &&
+        data.teamMembers?.length
+      ) {
+        // Send team data WITHOUT images
+        const teamData = data.teamMembers.map(m => ({
+          name: m.name,
+          role: m.role,
+        }));
+
+        formData.append(
+          "teamMembers",
+          JSON.stringify(teamData)
+        );
+
+        // Send images separately
+        data.teamMembers.forEach(member => {
+          if (member.image) {
+            formData.append("teamImages", member.image);
+          }
+        });
+      }
+
+      /* ---------------- FILES ---------------- */
+
+      if (data.bannerFile) {
+        formData.append("bannerFile", data.bannerFile);
+      }
+
+      if (data.mediaFiles?.length) {
+        data.mediaFiles.forEach(file => {
+          formData.append("mediaFiles", file);
+        });
+      }
+
+      /* ---------------- API CALL ---------------- */
+
+      const response = await createUserProject(formData);
+
+      if (response.data?.userProject) {
+        const newCampaign = mapUserProjectToCampaign(
+          response.data.userProject
+        );
+
+        setCampaigns(prev => [...prev, newCampaign]);
+
+        console.log("✅ Campaign created:", newCampaign);
+      } else {
+        throw new Error("Invalid response");
+      }
+
+    } catch (error) {
+      console.error("❌ Campaign creation failed:", error);
+      throw error;
+    } finally {
+      hideLoader();
     }
-
-    /* ---------------- FILES ---------------- */
-
-    if (data.bannerFile) {
-      formData.append("bannerFile", data.bannerFile);
-    }
-
-    if (data.mediaFiles?.length) {
-      data.mediaFiles.forEach(file => {
-        formData.append("mediaFiles", file);
-      });
-    }
-
-    /* ---------------- API CALL ---------------- */
-
-    const response = await createUserProject(formData);
-
-    if (response.data?.userProject) {
-      const newCampaign = mapUserProjectToCampaign(
-        response.data.userProject
-      );
-
-      setCampaigns(prev => [...prev, newCampaign]);
-
-      console.log("✅ Campaign created:", newCampaign);
-    } else {
-      throw new Error("Invalid response");
-    }
-
-  } catch (error) {
-    console.error("❌ Campaign creation failed:", error);
-    throw error;
-  } finally {
-    hideLoader();
-  }
-};
+  };
 
 
   const handleApproveCampaign = async (id: string) => {
@@ -1062,6 +1064,22 @@ function AppContent() {
                                       </div>
                                     </div>
                                   )
+                                }
+                              />
+
+                              <Route
+                                path="/create-demo-campaign"
+                                element={
+                                  <>
+                                    <Header
+                                      currentUser={user}
+                                      onLogin={handleLoginClick}
+                                      onLogout={handleLogout}
+                                    />
+                                    <CreateCampaignDemo
+                                      onBack={() => navigate("/dashboard")}
+                                    />
+                                  </>
                                 }
                               />
 

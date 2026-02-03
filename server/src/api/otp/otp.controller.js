@@ -1,6 +1,5 @@
 const otpGenerator = require("otp-generator");
 const crypto = require("crypto");
-const crypto = require("crypto");
 // const sendEmail = require("../../services/email.service"); // Deprecated
 const { sendWhatsAppMessage } = require("../../services/whatsapp.service");
 const redis = require("../../services/redis.service");

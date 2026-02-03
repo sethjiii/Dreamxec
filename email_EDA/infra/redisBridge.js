@@ -5,7 +5,7 @@ const CHANNEL_NAME = "dreamxec:events";
 
 class RedisEventBridge {
     constructor() {
-        this.subscriber = redisClient.duplicate();
+        this.subscriber = redisClient.duplicate({ lazyConnect: true });
         this.init();
     }
 
@@ -14,17 +14,31 @@ class RedisEventBridge {
             console.error("[RedisBridge] Subscriber Error:", err);
         });
 
-        await this.subscriber.connect();
+        if (this.subscriber.status === 'ready' || this.subscriber.status === 'connecting') {
+            console.log("[RedisBridge] Subscriber already connected or connecting.");
+        } else {
+            await this.subscriber.connect();
+        }
         
         console.log(`[RedisBridge] Subscribing to channel: ${CHANNEL_NAME}`);
         
-        await this.subscriber.subscribe(CHANNEL_NAME, (message) => {
+        await this.subscriber.subscribe(CHANNEL_NAME);
+        
+        this.subscriber.on("message", (channel, message) => {
+            if (channel !== CHANNEL_NAME) return;
+
             try {
-                const { event, data } = JSON.parse(message);
+                const parsedMessage = JSON.parse(message);
+                
+                if (!parsedMessage || typeof parsedMessage !== 'object') {
+                    console.warn(`[RedisBridge] Received invalid message format: ${message}`);
+                    return;
+                }
+
+                const { event, data } = parsedMessage;
                 
                 if (event && data) {
                     console.log(`[RedisBridge] Received remote event: ${event}`);
-                    // Forward to internal EventBus
                     eventBus.publish(event, data);
                 }
             } catch (error) {

@@ -1,3 +1,5 @@
+const { publishEvent } = require('../../services/eventPublisher.service');
+const EVENTS = require('../../config/events');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
@@ -142,8 +144,6 @@ await prisma.donation.updateMany({
     // ----------------------------------------------------
     // INTEGRATION: Publish event to Email EDA Service
     // ----------------------------------------------------
-    const { publishEvent } = require('../../services/eventPublisher.service');
-    const EVENTS = require('../../config/events');
     
     // Publish Welcome Event
     await publishEvent(EVENTS.USER_WELCOME, {

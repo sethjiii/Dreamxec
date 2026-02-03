@@ -4,7 +4,7 @@ import {
     adminTemplates,
     studentTemplates,
     studentPresidentTemplates,
-    studentPresidentTemplates,
+    
     donorTemplates,
     mentorTemplates,
     corporateTemplates,

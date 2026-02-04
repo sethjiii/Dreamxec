@@ -329,7 +329,8 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
                                     placeholder="Enter your full name as per ID"
-                                    className="w-full px-4 py-2 rounded-lg border-2 border-dreamxec-navy/20 focus:border-dreamxec-orange focus:outline-none"
+                                    className="w-full px-4 py-2 rounded-lg border-2 border-dreamxec-navy/20 focus:border-dreamxec-orange focus:outline-none caret-black"
+                                     style={{ caretColor: "black" }}
                                     required
                                 />
                             </div>
@@ -345,7 +346,8 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
                                         value={studentEmail}
                                         onChange={(e) => setStudentEmail(e.target.value)}
                                         placeholder="e.g., student@college.edu"
-                                        className="flex-1 px-4 py-2 rounded-lg border-2 border-dreamxec-navy/20 focus:border-dreamxec-orange focus:outline-none disabled:bg-gray-100 disabled:text-gray-500"
+                                        className="flex-1 px-4 py-2 rounded-lg border-2 border-dreamxec-navy/20 focus:border-dreamxec-orange focus:outline-none disabled:bg-gray-100 disabled:text-gray-500 caret-black"
+                                         style={{ caretColor: "black" }}
                                         disabled={emailOtpStatus === 'verified'}
                                         required
                                     />
@@ -372,7 +374,8 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
                                             value={emailOtp}
                                             onChange={(e) => setEmailOtp(e.target.value)}
                                             placeholder="Enter OTP (1234)"
-                                            className="w-32 px-4 py-2 rounded-lg border-2 border-dreamxec-navy/20 focus:border-dreamxec-orange focus:outline-none"
+                                            className="w-32 px-4 py-2 rounded-lg border-2 border-dreamxec-navy/20 focus:border-dreamxec-orange focus:outline-none caret-black"
+                                            style={{ caretColor: "black" }}
                                         />
                                         <button
                                             type="button"
@@ -394,7 +397,8 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
                                     value={officialEmail}
                                     onChange={(e) => setOfficialEmail(e.target.value)}
                                     placeholder="Faulty Coordinator or Admin Email"
-                                    className="w-full px-4 py-2 rounded-lg border-2 border-dreamxec-navy/20 focus:border-dreamxec-orange focus:outline-none"
+                                    className="w-full px-4 py-2 rounded-lg border-2 border-dreamxec-navy/20 focus:border-dreamxec-orange focus:outline-none caret-black"
+                                     style={{ caretColor: "black" }}
                                     required
                                 />
                             </div>
@@ -410,7 +414,8 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
                                         value={mobile}
                                         onChange={(e) => setMobile(e.target.value)}
                                         placeholder="Enter 10-digit mobile number"
-                                        className="flex-1 px-4 py-2 rounded-lg border-2 border-dreamxec-navy/20 focus:border-dreamxec-orange focus:outline-none disabled:bg-gray-100 disabled:text-gray-500"
+                                        className="flex-1 px-4 py-2 rounded-lg border-2 border-dreamxec-navy/20 focus:border-dreamxec-orange focus:outline-none disabled:bg-gray-100 disabled:text-gray-500 caret-black"
+                                         style={{ caretColor: "black" }}
                                         disabled={mobileOtpStatus === 'verified'}
                                         required
                                     />
@@ -437,7 +442,8 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
                                             value={mobileOtp}
                                             onChange={(e) => setMobileOtp(e.target.value)}
                                             placeholder="Enter OTP (5678)"
-                                            className="w-32 px-4 py-2 rounded-lg border-2 border-dreamxec-navy/20 focus:border-dreamxec-orange focus:outline-none"
+                                            className="w-32 px-4 py-2 rounded-lg border-2 border-dreamxec-navy/20 focus:border-dreamxec-orange focus:outline-none caret-black"
+                                             style={{ caretColor: "black" }}
                                         />
                                         <button
                                             type="button"

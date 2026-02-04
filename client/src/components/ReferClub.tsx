@@ -18,11 +18,12 @@ const Input = ({ label, error, ...props }: InputProps) => (
     </label>
     <input
       {...props}
+      style={{ caretColor: "black" }} 
       className={`
         w-full p-3 rounded-lg bg-white
         border-2
         ${error ? "border-red-500" : "border-dreamxec-navy"}
-        focus:outline-none focus:ring-2 focus:ring-dreamxec-orange
+        focus:outline-none focus:ring-2 focus:ring-dreamxec-orange caret-black 
       `}
     />
     {error && (
@@ -160,8 +161,8 @@ export default function ReferClub() {
               Club Information
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
-              <Input label="College Name" name="collegeName" value={form.collegeName} onChange={handleChange} required />
-              <Input label="Club Name" name="clubName" value={form.clubName} onChange={handleChange} required />
+              <Input label="College Name" name="collegeName" style={{ caretColor: "black" }} value={form.collegeName} onChange={handleChange} required />
+              <Input label="Club Name" name="clubName" style={{ caretColor: "black" }} value={form.clubName} onChange={handleChange} required />
             </div>
           </section>
 
@@ -171,9 +172,9 @@ export default function ReferClub() {
               Club President Details
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
-              <Input label="President Name" name="presidentName" value={form.presidentName} onChange={handleChange} required />
-              <Input label="President Phone" name="presidentPhone" value={form.presidentPhone} onChange={handleChange} required />
-              <Input label="President College Email" type="email" name="presidentEmail" value={form.presidentEmail} onChange={handleChange} required />
+              <Input label="President Name" name="presidentName" style={{ caretColor: "black" }} value={form.presidentName} onChange={handleChange} required />
+              <Input label="President Phone" name="presidentPhone" style={{ caretColor: "black" }} value={form.presidentPhone} onChange={handleChange} required />
+              <Input label="President College Email" type="email" name="presidentEmail" style={{ caretColor: "black" }} value={form.presidentEmail} onChange={handleChange} required />
             </div>
           </section>
 
@@ -183,9 +184,9 @@ export default function ReferClub() {
               Faculty In-Charge Details
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
-              <Input label="Faculty Name" name="ficName" value={form.ficName} onChange={handleChange} required />
-              <Input label="Faculty Phone" name="ficPhone" value={form.ficPhone} onChange={handleChange} required />
-              <Input label="Faculty Email" type="email" name="ficEmail" value={form.ficEmail} onChange={handleChange} required />
+              <Input label="Faculty Name" name="ficName" style={{ caretColor: "black" }} value={form.ficName} onChange={handleChange} required />
+              <Input label="Faculty Phone" name="ficPhone" style={{ caretColor: "black" }} value={form.ficPhone} onChange={handleChange} required />
+              <Input label="Faculty Email" type="email" name="ficEmail" style={{ caretColor: "black" }} value={form.ficEmail} onChange={handleChange} required />
             </div>
           </section>
 
@@ -195,9 +196,9 @@ export default function ReferClub() {
               Online Presence
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
-              <Input label="Instagram" name="instagram" value={form.instagram} onChange={handleChange} error={errors.instagram} required />
-              <Input label="LinkedIn" name="linkedIn" value={form.linkedIn} onChange={handleChange} error={errors.linkedIn} required />
-              <Input label="Portfolio / Website" name="portfolio" value={form.portfolio} onChange={handleChange} error={errors.portfolio} required />
+              <Input label="Instagram" name="instagram" style={{ caretColor: "black" }} value={form.instagram} onChange={handleChange} error={errors.instagram} required />
+              <Input label="LinkedIn" name="linkedIn" style={{ caretColor: "black" }} value={form.linkedIn} onChange={handleChange} error={errors.linkedIn} required />
+              <Input label="Portfolio / Website" name="portfolio" style={{ caretColor: "black" }} value={form.portfolio} onChange={handleChange} error={errors.portfolio} required />
             </div>
           </section>
 
@@ -209,6 +210,7 @@ export default function ReferClub() {
             <input
               type="file"
               accept="image/*,application/pdf"
+              style={{ caretColor: "black" }} 
               onChange={(e) => setDocumentFile(e.target.files?.[0] || null)}
               className="w-full p-3 bg-white border-2 border-dreamxec-navy rounded-lg"
             />

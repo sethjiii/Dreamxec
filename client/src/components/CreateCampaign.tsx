@@ -296,7 +296,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Enter a compelling campaign title"
                 required
-                className="w-full px-4 py-3 border-4 border-dreamxec-navy rounded-lg text-lg font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
+                className="w-full px-4 py-3 border-4 border-dreamxec-navy rounded-lg text-lg font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron caret-black"
               />
             </div>
 
@@ -311,7 +311,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
                 onChange={(e) => setClubName(e.target.value)}
                 placeholder="Enter your club or organization name"
                 required
-                className="w-full px-4 py-3 border-4 border-dreamxec-navy rounded-lg text-lg font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-green"
+                className="w-full px-4 py-3 border-4 border-dreamxec-navy rounded-lg text-lg font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-green focus:ring-2 focus:ring-dreamxec-green transition-all shadow-pastel-green caret-black"
               />
             </div>
 
@@ -332,7 +332,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
                   min="1"
                   step="0.01"
                   required
-                  className="w-full pl-10 pr-4 py-3 border-4 border-dreamxec-navy rounded-lg text-lg font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron"
+                  className="w-full pl-10 pr-4 py-3 border-4 border-dreamxec-navy rounded-lg text-lg font-sans text-dreamxec-navy bg-white focus:outline-none focus:border-dreamxec-orange focus:ring-2 focus:ring-dreamxec-orange transition-all shadow-pastel-saffron caret-black"
                 />
               </div>
               <p className="text-base text-dreamxec-navy opacity-70 mt-2 font-sans">
@@ -396,7 +396,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
                           updateMilestone(index, 'title', e.target.value)
                         }
                         required
-                        className="px-4 py-3 border-4 border-dreamxec-navy rounded-lg"
+                        className="px-4 py-3 border-4 border-dreamxec-navy rounded-lg caret-black"
                       />
 
                       {/* Timeline */}
@@ -408,7 +408,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
                           updateMilestone(index, 'timeline', e.target.value)
                         }
                         required
-                        className="px-4 py-3 border-4 border-dreamxec-navy rounded-lg"
+                        className="px-4 py-3 border-4 border-dreamxec-navy rounded-lg caret-black"
                       />
 
                       {/* Budget */}
@@ -425,7 +425,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
                             updateMilestone(index, 'budget', e.target.value)
                           }
                           required
-                          className="w-full pl-10 pr-4 py-3 border-4 border-dreamxec-navy rounded-lg"
+                          className="w-full pl-10 pr-4 py-3 border-4 border-dreamxec-navy rounded-lg caret-black"
                         />
                       </div>
 
@@ -557,7 +557,7 @@ export default function CreateCampaign({ onBack, onSubmit }: CreateCampaignProps
           w-full px-4 py-3 rounded-lg
           border-4 border-dreamxec-navy
           text-dreamxec-navy font-sans
-          focus:outline-none focus:border-dreamxec-orange
+          focus:outline-none focus:border-dreamxec-orange caret-black
         "
                   />
 

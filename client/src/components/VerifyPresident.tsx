@@ -318,6 +318,7 @@ export default function VerifyPresident() {
               name="collegeName"
               placeholder="College Name"
               className="w-full p-3 border rounded-lg"
+              style={{ caretColor: "black" }}
               onChange={handleChange}
               required
             />
@@ -327,6 +328,7 @@ export default function VerifyPresident() {
               name="studentEmail"
               placeholder="Your College Email"
               className="w-full p-3 border rounded-lg"
+              style={{ caretColor: "black" }}
               onChange={handleChange}
               required
             />
@@ -335,6 +337,7 @@ export default function VerifyPresident() {
               name="studentPhone"
               placeholder="Your Phone Number"
               className="w-full p-3 border rounded-lg"
+              style={{ caretColor: "black" }}
               onChange={handleChange}
               required
             />
@@ -343,6 +346,7 @@ export default function VerifyPresident() {
               name="presidentName"
               placeholder="President Name"
               className="w-full p-3 border rounded-lg"
+              style={{ caretColor: "black" }}
               onChange={handleChange}
               required
             />
@@ -351,6 +355,7 @@ export default function VerifyPresident() {
               name="ficName"
               placeholder="Faculty Incharge (FIC) Name"
               className="w-full p-3 border rounded-lg"
+              style={{ caretColor: "black" }}
               onChange={handleChange}
               required
             />
@@ -360,6 +365,7 @@ export default function VerifyPresident() {
               name="ficEmail"
               placeholder="FIC Email"
               className="w-full p-3 border rounded-lg"
+              style={{ caretColor: "black" }}
               onChange={handleChange}
               required
             />
@@ -368,6 +374,7 @@ export default function VerifyPresident() {
               name="ficPhone"
               placeholder="FIC Phone"
               className="w-full p-3 border rounded-lg"
+              style={{ caretColor: "black" }}
               onChange={handleChange}
               required
             />
@@ -392,6 +399,7 @@ export default function VerifyPresident() {
               name="clubName"
               placeholder="Club Name"
               className="w-full p-3 border rounded-lg"
+              style={{ caretColor: "black" }}
               onChange={handleClubChange}
               required
             />
@@ -409,6 +417,7 @@ export default function VerifyPresident() {
               name="clubInstagram"
               placeholder="Instagram URL"
               className="w-full p-3 border rounded-lg"
+              style={{ caretColor: "black" }}
               onChange={handleClubChange}
               required
             />
@@ -417,6 +426,7 @@ export default function VerifyPresident() {
               name="clubLinkedIn"
               placeholder="LinkedIn URL (optional)"
               className="w-full p-3 border rounded-lg"
+              style={{ caretColor: "black" }}
               onChange={handleClubChange}
             />
 
@@ -424,6 +434,7 @@ export default function VerifyPresident() {
               name="clubYouTube"
               placeholder="YouTube URL (optional)"
               className="w-full p-3 border rounded-lg"
+              style={{ caretColor: "black" }}
               onChange={handleClubChange}
             />
           </section>
@@ -440,6 +451,7 @@ export default function VerifyPresident() {
                   placeholder="Alumni Name"
                   value={a.name}
                   className="w-full p-3 border rounded-lg"
+                  style={{ caretColor: "black" }}
                   onChange={(e) =>
                     updateAlumni(i, "name", e.target.value)
                   }
@@ -450,6 +462,7 @@ export default function VerifyPresident() {
                   placeholder="Phone Number"
                   value={a.phone}
                   className="w-full p-3 border rounded-lg"
+                  style={{ caretColor: "black" }}
                   onChange={(e) =>
                     updateAlumni(i, "phone", e.target.value)
                   }
@@ -460,6 +473,7 @@ export default function VerifyPresident() {
                   placeholder="LinkedIn / Instagram (optional)"
                   value={a.socialProfile}
                   className="w-full p-3 border rounded-lg"
+                  style={{ caretColor: "black" }}
                   onChange={(e) =>
                     updateAlumni(i, "socialProfile", e.target.value)
                   }

@@ -30,49 +30,36 @@ export interface FAQ {
 
 export interface UserProject {
   id: string;
-
-  /* BASIC */
   title: string;
   description: string;
 
-  /** 
-   * Stored as companyName in DB
-   * Represents COLLEGE NAME in UI
-   */
-  companyName: string;
-
-  /** 🔑 Club ownership */
-  clubId: string;
-
-  skillsRequired: string[];
+  clubId: string | null;
+  club?: {
+    id: string;
+    name: string;
+    college: string;
+  };
 
   goalAmount: number;
   amountRaised: number;
 
-  /* MEDIA */
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  createdAt: string;
+
+  campaignType?: "INDIVIDUAL" | "TEAM";
+  teamMembers?: any[];
+  faqs?: any[];
+  youtubeUrl?: string;
+
   imageUrl?: string;
   campaignMedia?: string[];
   presentationDeckUrl?: string | null;
 
-  /* TYPE */
-  campaignType?: "INDIVIDUAL" | "TEAM";
-  teamMembers?: TeamMember[];
-  faqs?: FAQ[];
-  youtubeUrl?: string;
-
-  /* STATUS */
-  status: "PENDING" | "APPROVED" | "REJECTED";
   rejectionReason?: string;
 
-  /* OWNER */
-  userId: string;
-  bankAccountId?: string | null;
-
-  createdAt: string;
-  updatedAt: string;
-
-  milestones: Milestone[];
+  milestones?: any[];
 }
+
 
 /* =========================================================
    CREATE PAYLOAD

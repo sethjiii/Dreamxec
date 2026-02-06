@@ -86,45 +86,41 @@ export const mapFrontendStatus = (
 export const mapUserProjectToCampaign = (
   userProject: UserProject
 ): Campaign => {
-  const milestones: Milestone[] = userProject.milestones || [];
-
   return {
     id: userProject.id,
     title: userProject.title,
     description: userProject.description,
 
-    // ✅ CLUB (FINAL, CORRECT)
-    club: userProject.club? {
-      id: userProject.club.id,
-      name: userProject.club.name,
-      college: userProject.club.college,
-    }
-  : null,
+
+    clubId: userProject.clubId,
+    club: userProject.club
+      ? {
+          id: userProject.club.id,
+          name: userProject.club.name,
+          college: userProject.club.college,
+        }
+      : undefined,
 
     goalAmount: userProject.goalAmount,
     currentAmount: userProject.amountRaised || 0,
 
     status: mapBackendStatus(userProject.status),
-    createdBy: userProject.userId,
+    createdAt: new Date(userProject.createdAt),
+
+    campaignType: userProject.campaignType || "INDIVIDUAL",
+    teamMembers: userProject.teamMembers || [],
+    faqs: userProject.faqs || [],
+    youtubeUrl: userProject.youtubeUrl,
 
     imageUrl: userProject.imageUrl,
     campaignMedia: userProject.campaignMedia || [],
     presentationDeckUrl: userProject.presentationDeckUrl || null,
 
-    category: 'Technology',
-    createdAt: new Date(userProject.createdAt),
-
     rejectionReason: userProject.rejectionReason,
-
-    /* Campaign Extras */
-    campaignType: userProject.campaignType || 'INDIVIDUAL',
-    teamMembers: userProject.teamMembers || [],
-    faqs: userProject.faqs || [],
-    youtubeUrl: userProject.youtubeUrl || undefined,
-
-    milestones,
+    milestones: userProject.milestones || [],
   };
 };
+
 
 /* =========================================================
    DonorProject (Backend) → Project (Frontend)

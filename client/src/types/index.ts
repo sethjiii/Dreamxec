@@ -66,6 +66,7 @@ export interface User {
 export interface Campaign {
   id: string;
   title: string;
+  clubId: string | null;
   club: {
     id: string;
     name: string;

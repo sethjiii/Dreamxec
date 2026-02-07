@@ -14,7 +14,7 @@ function walk(dir) {
 
       const updated = content.replace(
         /import\s+\{\s*z\s*\}\s+from\s+["']zod["'];?/g,
-        'const { z } = await import("zod");'
+        'const zod = require("zod");'
       );
 
       if (updated !== content) {

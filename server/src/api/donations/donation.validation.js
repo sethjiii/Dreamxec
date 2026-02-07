@@ -1,12 +1,12 @@
-import { z, email } from "zod";
+const zod = require("zod");
 
 export const createOrderSchema = z.object({
   body: z.object({
-    amount: z.number().positive("Amount must be a positive number"),
-    email:z.email().required(),
-    projectId: z.string().min(1, "Project ID is required"),
-    guestEmail: z.string().email("Invalid email").optional(),
-    guestPAN: z.string()
+    amount: zod.number().positive("Amount must be a positive number"),
+    email:zod.string().email("Invalid email").required(),
+    projectId: zod.string().min(1, "Project ID is required"),
+    guestEmail: zod.string().email("Invalid email").optional(),
+    guestPAN: zod.string()
       .regex(/[A-Z]{5}[0-9]{4}[A-Z]{1}/, 'Invalid PAN format')
       .optional()
   }).refine(

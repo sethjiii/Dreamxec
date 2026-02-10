@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useContext, createContext } fr
 import axios from 'axios';
 import DonorAnalyticsChart from "./DonorAnalyticsChart";
 import DonationHeatmap from './CalendarHeatmap';
+import { ApiResponse } from '../services/api';
+
 
 
 // ─── API Setup ────────────────────────────────────────────────────────────────
@@ -86,8 +88,12 @@ interface DonorDashboardProps {
   getDonorApplications: () => Promise<{ status: string; data?: { applications: Application[] } }>;
   updateApplicationStatus: (
     id: string,
-    payload: { status: ApplicationStatus; rejectionReason?: string | null }
-  ) => Promise<{ status: string }>;
+    payload: {
+      status: ApplicationStatus;
+      rejectionReason?: string | null;
+    }
+  ) => Promise<ApiResponse<{ application: Application }>>;
+  getDonationSummary: () => Promise<any>; // ✅ ADD THIS
 }
 
 interface Toast {
@@ -872,7 +878,7 @@ const DonorDashboardInner: React.FC<DonorDashboardProps> = ({
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                   <div>
                     <h1 className="text-2xl font-bold text-blue-900">Welcome back, {donorName}! 👋</h1>
-                    <p className="text-blue-900/60 text-sm mt-1">Research Karega India, Tabhi Toh aage Badhega India</p>
+                    <p className="text-blue-900/60 text-sm mt-1">Research Karega India, Toh aage Badhega India</p>
                   </div>
                   <TierProgress totalDonated={totalDonated} />
                 </div>

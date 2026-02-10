@@ -29,6 +29,10 @@ import PresidentLayout from "./components/president/PresidentLayout";
 import AdminClubReferrals from './components/admin/AdminClubReferrals';
 import AdminClubVerifications from './components/admin/AdminClubVerifications';
 import AuthCallback from './components/AuthCallback';
+import {
+  getDonorApplications,
+  updateApplicationStatus
+} from "./services/applicationService";
 
 
 // Import API services
@@ -326,141 +330,141 @@ function AppContent() {
   // Circular spinner removed - LoadingAnimation component handles all loading states
 
   const handleCreateCampaign = async (data: {
-  title: string;
-  description: string;
-
-  /* RENAMED */
-  // collegeName: string;
-  clubId: string;
-
-  goalAmount: number;
-
-  bannerFile: File | null;
-  mediaFiles: File[];
-
-  presentationDeckUrl: string;
-
-  campaignType: "INDIVIDUAL" | "TEAM";
-
-  teamMembers?: {
-    name: string;
-    role: string;
-    image?: File | null;
-  }[];
-
-  faqs?: {
-    question: string;
-    answer: string;
-  }[];
-
-  youtubeUrl?: string;
-
-  milestones: {
     title: string;
-    timeline: string;
-    budget: string | number;
-    description?: string;
-  }[];
-}) => {
-  showLoader();
+    description: string;
 
-  try {
-    console.log("🚀 Creating Campaign...");
+    /* RENAMED */
+    // collegeName: string;
+    clubId: string;
 
-    const formData = new FormData();
+    goalAmount: number;
 
-    /* ---------------- BASIC ---------------- */
+    bannerFile: File | null;
+    mediaFiles: File[];
 
-    formData.append("title", data.title);
-    formData.append("description", data.description);
+    presentationDeckUrl: string;
 
-    // 🔑 companyName now stores COLLEGE NAME (legacy field)
-    // formData.append("companyName", data.collegeName);
+    campaignType: "INDIVIDUAL" | "TEAM";
 
-    // 🔑 IMPORTANT: club ownership
-    formData.append("clubId", data.clubId);
+    teamMembers?: {
+      name: string;
+      role: string;
+      image?: File | null;
+    }[];
 
-    formData.append("goalAmount", data.goalAmount.toString());
+    faqs?: {
+      question: string;
+      answer: string;
+    }[];
 
-    if (data.presentationDeckUrl) {
-      formData.append("presentationDeckUrl", data.presentationDeckUrl);
-    }
+    youtubeUrl?: string;
 
-    /* ---------------- TYPE ---------------- */
+    milestones: {
+      title: string;
+      timeline: string;
+      budget: string | number;
+      description?: string;
+    }[];
+  }) => {
+    showLoader();
 
-    formData.append("campaignType", data.campaignType);
+    try {
+      console.log("🚀 Creating Campaign...");
 
-    /* ---------------- YOUTUBE ---------------- */
+      const formData = new FormData();
 
-    if (data.youtubeUrl) {
-      formData.append("youtubeUrl", data.youtubeUrl);
-    }
+      /* ---------------- BASIC ---------------- */
 
-    /* ---------------- FAQS ---------------- */
+      formData.append("title", data.title);
+      formData.append("description", data.description);
 
-    if (data.faqs?.length) {
-      formData.append("faqs", JSON.stringify(data.faqs));
-    }
+      // 🔑 companyName now stores COLLEGE NAME (legacy field)
+      // formData.append("companyName", data.collegeName);
 
-    /* ---------------- MILESTONES ---------------- */
+      // 🔑 IMPORTANT: club ownership
+      formData.append("clubId", data.clubId);
 
-    const cleanMilestones = data.milestones.map(m => ({
-      ...m,
-      budget: Number(m.budget),
-    }));
+      formData.append("goalAmount", data.goalAmount.toString());
 
-    formData.append("milestones", JSON.stringify(cleanMilestones));
+      if (data.presentationDeckUrl) {
+        formData.append("presentationDeckUrl", data.presentationDeckUrl);
+      }
 
-    /* ---------------- TEAM ---------------- */
+      /* ---------------- TYPE ---------------- */
 
-    if (data.campaignType === "TEAM" && data.teamMembers?.length) {
-      const teamData = data.teamMembers.map(m => ({
-        name: m.name,
-        role: m.role,
+      formData.append("campaignType", data.campaignType);
+
+      /* ---------------- YOUTUBE ---------------- */
+
+      if (data.youtubeUrl) {
+        formData.append("youtubeUrl", data.youtubeUrl);
+      }
+
+      /* ---------------- FAQS ---------------- */
+
+      if (data.faqs?.length) {
+        formData.append("faqs", JSON.stringify(data.faqs));
+      }
+
+      /* ---------------- MILESTONES ---------------- */
+
+      const cleanMilestones = data.milestones.map(m => ({
+        ...m,
+        budget: Number(m.budget),
       }));
 
-      formData.append("teamMembers", JSON.stringify(teamData));
+      formData.append("milestones", JSON.stringify(cleanMilestones));
 
-      data.teamMembers.forEach(member => {
-        if (member.image) {
-          formData.append("teamImages", member.image);
-        }
-      });
+      /* ---------------- TEAM ---------------- */
+
+      if (data.campaignType === "TEAM" && data.teamMembers?.length) {
+        const teamData = data.teamMembers.map(m => ({
+          name: m.name,
+          role: m.role,
+        }));
+
+        formData.append("teamMembers", JSON.stringify(teamData));
+
+        data.teamMembers.forEach(member => {
+          if (member.image) {
+            formData.append("teamImages", member.image);
+          }
+        });
+      }
+
+      /* ---------------- FILES ---------------- */
+
+      if (data.bannerFile) {
+        formData.append("bannerFile", data.bannerFile);
+      }
+
+      if (data.mediaFiles?.length) {
+        data.mediaFiles.forEach(file => {
+          formData.append("mediaFiles", file);
+        });
+      }
+
+      /* ---------------- API CALL ---------------- */
+
+      const response = await createUserProject(formData);
+
+      if (response.data?.userProject) {
+        const newCampaign = mapUserProjectToCampaign(
+          response.data.userProject
+        );
+
+        setCampaigns(prev => [...prev, newCampaign]);
+        console.log("✅ Campaign created:", newCampaign);
+      } else {
+        throw new Error("Invalid response");
+      }
+    } catch (error) {
+      console.error("❌ Campaign creation failed:", error);
+      throw error;
+    } finally {
+      hideLoader();
     }
-
-    /* ---------------- FILES ---------------- */
-
-    if (data.bannerFile) {
-      formData.append("bannerFile", data.bannerFile);
-    }
-
-    if (data.mediaFiles?.length) {
-      data.mediaFiles.forEach(file => {
-        formData.append("mediaFiles", file);
-      });
-    }
-
-    /* ---------------- API CALL ---------------- */
-
-    const response = await createUserProject(formData);
-
-    if (response.data?.userProject) {
-      const newCampaign = mapUserProjectToCampaign(
-        response.data.userProject
-      );
-
-      setCampaigns(prev => [...prev, newCampaign]);
-      console.log("✅ Campaign created:", newCampaign);
-    } else {
-      throw new Error("Invalid response");
-    }
-  } catch (error) {
-    console.error("❌ Campaign creation failed:", error);
-    throw error;
-  } finally {
-    hideLoader();
-  }
-};
+  };
 
 
 
@@ -1230,8 +1234,8 @@ function AppContent() {
                                         projectsCount={donorProjects.length}
                                         onCreateProject={() => navigate('/donor/create')}
                                         onViewProjects={() => navigate('/donor/projects')}
-                                        getDonorApplications={async () => []}
-                                        updateApplicationStatus={async () => { }}
+                                        getDonorApplications={getDonorApplications}
+                                        updateApplicationStatus={updateApplicationStatus}
                                         getDonationSummary={async () => ({})}
                                       />
                                     </>
@@ -1290,6 +1294,7 @@ function AppContent() {
                                       />
                                       <DonorProjects
                                         projects={donorProjects}
+                                        onCreateProject={() => navigate('/donor/create')}
                                         onBack={() => navigate('/donor/dashboard')}
                                         onUpdateApplicationStatus={handleUpdateApplicationStatus}
                                       />
@@ -1380,7 +1385,7 @@ function AppContent() {
                               <Route path="/president/members" element={<PresidentLayout><PresidentMembers clubId={user?.clubIds?.[0] || ''} currentUserId={user?.id || ''} /></PresidentLayout>} />
                               <Route path="/president/campaigns" element={<PresidentLayout><PresidentCampaigns clubId={user?.clubIds?.[0] || ''} /></PresidentLayout>} />
                               <Route path="/president/upload-members" element={<PresidentLayout><UploadMembers /></PresidentLayout>} />
-                              <Route path="/president/add-member" element={<PresidentLayout><AddMemberManually clubId={user?.clubIds?.[0] || ''}  /></PresidentLayout>} />
+                              <Route path="/president/add-member" element={<PresidentLayout><AddMemberManually clubId={user?.clubIds?.[0] || ''} /></PresidentLayout>} />
                             </Routes>
 
                             {/* Footer Routes */}

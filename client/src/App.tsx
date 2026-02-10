@@ -7,6 +7,7 @@ import { Main } from './components/Main';
 import BrowseCampaigns from './components/BrowseCampaigns';
 import StudentDashboard from './components/StudentDashboard';
 import CreateCampaign from './components/CreateCampaign';
+import CreateCampaignDemo from './components/CreateCampaignDemo';
 import AdminDashboard from './components/AdminDashboard';
 import AuthPage from './components/AuthPage';
 import UserProfile from './components/UserProfile';
@@ -28,6 +29,7 @@ import PresidentLayout from "./components/president/PresidentLayout";
 import AdminClubReferrals from './components/admin/AdminClubReferrals';
 import AdminClubVerifications from './components/admin/AdminClubVerifications';
 import AuthCallback from './components/AuthCallback';
+
 
 // Import API services
 import { login, register, logout as apiLogout, getCurrentUser, initiateGoogleAuth, handleGoogleCallback, initiateLinkedInAuth, handleLinkedInCallback } from './services/authService';
@@ -304,6 +306,8 @@ function AppContent() {
     loadUserApplications();
   }, [user?.role, user?.id]);
 
+  console.log(campaigns)
+
   const approvedCampaigns = campaigns.filter((c) => c.status === 'approved');
   const pendingCampaigns = campaigns.filter((c) => c.status === 'pending');
   const userCampaigns = campaigns.filter((c) => c.createdBy === user?.id);
@@ -323,11 +327,14 @@ function AppContent() {
   // }
   // Circular spinner removed - LoadingAnimation component handles all loading states
 
- const handleCreateCampaign = async (data: {
+  const handleCreateCampaign = async (data: {
   title: string;
   description: string;
-  clubName: string;
-  // skillsRequired?: string[];
+
+  /* RENAMED */
+  // collegeName: string;
+  clubId: string;
+
   goalAmount: number;
 
   bannerFile: File | null;
@@ -335,13 +342,12 @@ function AppContent() {
 
   presentationDeckUrl: string;
 
-  /* NEW */
   campaignType: "INDIVIDUAL" | "TEAM";
 
   teamMembers?: {
     name: string;
     role: string;
-    image?: File | null; // FE image file
+    image?: File | null;
   }[];
 
   faqs?: {
@@ -358,7 +364,6 @@ function AppContent() {
     description?: string;
   }[];
 }) => {
-
   showLoader();
 
   try {
@@ -370,13 +375,18 @@ function AppContent() {
 
     formData.append("title", data.title);
     formData.append("description", data.description);
-    formData.append("companyName", data.clubName);
+
+    // 🔑 companyName now stores COLLEGE NAME (legacy field)
+    // formData.append("companyName", data.collegeName);
+
+    // 🔑 IMPORTANT: club ownership
+    formData.append("clubId", data.clubId);
+
     formData.append("goalAmount", data.goalAmount.toString());
 
-    formData.append(
-      "presentationDeckUrl",
-      data.presentationDeckUrl || ""
-    );
+    if (data.presentationDeckUrl) {
+      formData.append("presentationDeckUrl", data.presentationDeckUrl);
+    }
 
     /* ---------------- TYPE ---------------- */
 
@@ -401,29 +411,18 @@ function AppContent() {
       budget: Number(m.budget),
     }));
 
-    formData.append(
-      "milestones",
-      JSON.stringify(cleanMilestones)
-    );
+    formData.append("milestones", JSON.stringify(cleanMilestones));
 
     /* ---------------- TEAM ---------------- */
 
-    if (
-      data.campaignType === "TEAM" &&
-      data.teamMembers?.length
-    ) {
-      // Send team data WITHOUT images
+    if (data.campaignType === "TEAM" && data.teamMembers?.length) {
       const teamData = data.teamMembers.map(m => ({
         name: m.name,
         role: m.role,
       }));
 
-      formData.append(
-        "teamMembers",
-        JSON.stringify(teamData)
-      );
+      formData.append("teamMembers", JSON.stringify(teamData));
 
-      // Send images separately
       data.teamMembers.forEach(member => {
         if (member.image) {
           formData.append("teamImages", member.image);
@@ -453,12 +452,10 @@ function AppContent() {
       );
 
       setCampaigns(prev => [...prev, newCampaign]);
-
       console.log("✅ Campaign created:", newCampaign);
     } else {
       throw new Error("Invalid response");
     }
-
   } catch (error) {
     console.error("❌ Campaign creation failed:", error);
     throw error;
@@ -466,6 +463,7 @@ function AppContent() {
     hideLoader();
   }
 };
+
 
 
   const handleApproveCampaign = async (id: string) => {
@@ -738,7 +736,9 @@ function AppContent() {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
               },
               body: JSON.stringify({
-                ...response,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
                 projectId: campaignId,
               }),
             }
@@ -1068,6 +1068,22 @@ function AppContent() {
                                 }
                               />
 
+                              <Route
+                                path="/create-demo-campaign"
+                                element={
+                                  <>
+                                    <Header
+                                      currentUser={user}
+                                      onLogin={handleLoginClick}
+                                      onLogout={handleLogout}
+                                    />
+                                    <CreateCampaignDemo
+                                      onBack={() => navigate("/dashboard")}
+                                    />
+                                  </>
+                                }
+                              />
+
                               {/* Admin Dashboard */}
                               <Route
                                 path="/admin"
@@ -1363,10 +1379,10 @@ function AppContent() {
 
                               {/* President Dashboard */}
                               <Route path="/president" element={<PresidentLayout><PresidentDashboard /></PresidentLayout>} />
-                              <Route path="/president/members" element={<PresidentLayout><PresidentMembers /></PresidentLayout>} />
-                              <Route path="/president/campaigns" element={<PresidentLayout><PresidentCampaigns /></PresidentLayout>} />
+                              <Route path="/president/members" element={<PresidentLayout><PresidentMembers clubId={user?.clubIds?.[0] || ''} currentUserId={user?.id || ''} /></PresidentLayout>} />
+                              <Route path="/president/campaigns" element={<PresidentLayout><PresidentCampaigns clubId={user?.clubIds?.[0] || ''} /></PresidentLayout>} />
                               <Route path="/president/upload-members" element={<PresidentLayout><UploadMembers /></PresidentLayout>} />
-                              <Route path="/president/add-member" element={<PresidentLayout><AddMemberManually /></PresidentLayout>} />
+                              <Route path="/president/add-member" element={<PresidentLayout><AddMemberManually clubId={user?.clubIds?.[0] || ''}  /></PresidentLayout>} />
                             </Routes>
 
                             {/* Footer Routes */}

@@ -41,30 +41,8 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
   /* =============================
    CLUB VALIDATION
 ============================== */
-  let validatedClubId = null;
+  const validatedClubId = req.validatedClubId;
 
-  if (clubId) {
-    const club = await prisma.club.findUnique({
-      where: { id: clubId },
-      select: {
-        id: true,
-        userIds: true,
-      },
-    });
-
-    if (!club) {
-      return next(new AppError("Club not found", 404));
-    }
-
-    // User must belong to the club
-    if (!club.userIds.includes(req.user.id)) {
-      return next(
-        new AppError("You are not a member of this club", 403)
-      );
-    }
-
-    validatedClubId = club.id;
-  }
 
 
   /* =============================

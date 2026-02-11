@@ -56,6 +56,7 @@ import AboutUs from './components/AboutUs';
 import TermsAndConditions from './sections/Pages/legal/TermsAndConditions';
 import VerifyPresident from './components/VerifyPresident';
 import { LoaderProvider, useLoader } from './context/LoaderContext';
+import { AuthProvider } from './context/AuthContext';
 import LoadingAnimation from './components/LoadingAnimation';
 
 // Main App Content Component
@@ -1441,9 +1442,11 @@ function AppContent() {
 const App = () => {
   return (
     <Router>
-      <LoaderProvider>
-        <AppContent />
-      </LoaderProvider>
+      <AuthProvider>
+        <LoaderProvider>
+          <AppContent />
+        </LoaderProvider>
+      </AuthProvider>
     </Router>
   );
 };

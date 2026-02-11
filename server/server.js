@@ -12,6 +12,8 @@ const cleanupOtpRedisKeys = require("./src/utils/redisOTPCleanup");
 
 // Load environment variables
 dotenv.config();
+require("dotenv").config();
+
 
 const CLIENT_URL = process.env.CLIENT_URL;
 console.log("CLIENT_URL =", CLIENT_URL);

@@ -477,3 +477,27 @@ model StudentVerification {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+
+// -----------------------------
+// CampaignComment MODEL
+// -----------------------------
+
+
+model CampaignComment {
+  id         String   @id @default(uuid())
+  campaignId String
+  userId     String
+  content    String
+  parentId   String?
+  isDeleted  Boolean  @default(false)
+  isFlagged  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([campaignId])
+  @@index([userId])
+}

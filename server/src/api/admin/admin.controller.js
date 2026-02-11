@@ -5,42 +5,188 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const path = require('path');
 
+// All the admin stats required
+exports.getDashboardStats = catchAsync(async (req, res, next) => {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const [
+    userCount,
+    donorCount,
+    clubCount,
+    campaignStats,
+    donationStats,
+    pendingVerifications,
+    pendingDonorProjects,
+    slaBreaches,
+    frozenCampaigns
+  ] = await prisma.$transaction([
+    // 1. total users
+    prisma.user.count(),
+
+    //2. total donors
+    prisma.donor.count(),
+
+    //3. total clubs
+    prisma.club.count(),
+
+    //4. campaign stats (group by status)
+    prisma.userProject.groupBy({
+      by: ['status'],
+      _count: { status: true }
+    }),
+
+    //5. total donation sum
+    prisma.donation.aggregate({
+      _sum: { amount: true }
+    }),
+
+    //6. pending approval (verfications)
+    prisma.clubVerification.count({ where: { status: 'PENDING' } }),
+
+    //7. pending approvals (donor projects)
+    prisma.donorProject.count({ where: { status: 'PENDING' } }),
+
+    //8. attention: items pending beyond sla > 7 days
+    prisma.userProject.count({
+      where: {
+        status: 'PENDING',
+        createdAt: { lt: sevenDaysAgo }
+      }
+    }),
+
+    //9. Attention: frozen cammpaigns (approved but not updated in > 30days)
+    prisma.userProject.count({
+      where: {
+        status: 'APPROVED',
+        updatedAt: { lt: thirtyDaysAgo }
+      }
+    })
+  ]);
+
+  const campaigns = {
+    APPROVED: 0,
+    PENDING: 0,
+    REJECTED: 0,
+    total: 0
+  };
+
+  campaignStats.forEach(stat => {
+    campaigns[stat.status] = stat._count.status;
+    campaigns.total += stat._count.status;
+  })
+
+  const totalPendingActions =
+    campaigns.PENDING +
+    pendingVerifications +
+    pendingDonorProjects;
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      kpi: {
+        totalUsers: userCount,
+        totalDonors: donorCount,
+        totalClubs: clubCount,
+        totalDonations: donationStats._sum.amount || 0,
+        campaigns,
+        pendingApprovals: totalPendingActions,
+        openTickets: 0
+      },
+      attention: {
+        slaBreaches,
+        frozenCampaigns,
+        failedMilestones: 0
+      }
+    }
+  })
+})
+
+
+// ######################################
+// PROJECT MANAGEMENT
+// ######################################
+
 // ADMIN: Get all projects (both user and donor projects)
 exports.getAllProjects = catchAsync(async (req, res, next) => {
-  const userProjects = await prisma.userProject.findMany({
-    include: { 
-      user: { select: { id: true, name: true, email: true } },
-      donations: { select: { amount: true } }
-    },
-    orderBy: { createdAt: 'desc' }
-  });
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const status = req.query.status;
 
-  const donorProjects = await prisma.donorProject.findMany({
-    include: { 
-      donor: { select: { id: true, name: true, email: true, organizationName: true } }
-    },
-    orderBy: { createdAt: 'desc' }
-  });
+  const skip = (page - 1) * limit;
 
-  res.status(200).json({ 
-    status: 'success', 
-    data: { 
+  // FIlter objects
+
+  const userProjectFilter = status ? { status } : {};
+  const donorProjectFilter = status ? { status } : {};
+
+  // fetch data & counts in parallel
+
+  const [
+    userProjects,
+    totalUserProjects,
+    donorProjects,
+    totalDonorProjects
+  ] = await prisma.$transaction([
+    prisma.userProject.findMany({
+      where: userProjectFilter,
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        club: { select: { name: true, college: true } },
+        donations: { select: { amount: true } }
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    prisma.userProject.count({ where: userProjectFilter }),
+
+    prisma.donorProject.findMany({
+      where: donorProjectFilter,
+      include: {
+        donor: {
+          select: { id: true, name: true, email: true, organizationName: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    prisma.donorProject.count({ where: donorProjectFilter })
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
       userProjects: {
-        results: userProjects.length,
-        projects: userProjects
+        data: userProjects,
+        pagination: {
+          total: totalUserProjects,
+          page,
+          limit,
+          totalPages: Math.ceil(totalUserProjects / limit)
+        }
       },
       donorProjects: {
-        results: donorProjects.length,
-        projects: donorProjects
+        data: donorProjects,
+        pagination: {
+          total: totalDonorProjects,
+          page,
+          limit,
+          totalPages: Math.ceil(totalDonorProjects / limit)
+        }
       }
-    } 
-  });
+    }
+  })
 });
 
 // ADMIN: Approve or reject a user project
 exports.verifyUserProject = catchAsync(async (req, res, next) => {
   const { status, reason } = req.body;
-  
+
   if (!['APPROVED', 'REJECTED'].includes(status)) {
     return next(new AppError('Status must be either APPROVED or REJECTED', 400));
   }
@@ -67,37 +213,47 @@ exports.verifyUserProject = catchAsync(async (req, res, next) => {
     data: updateData
   });
 
-  // Send email notification to project owner
-  if (userProject.user && userProject.user.email) {
-    let rejectionDetails = 'Please review your project details and resubmit if needed.';
-    if (reason) {
-      rejectionDetails = `Reason: ${reason}\n\nPlease review the feedback, update your project, and resubmit.`;
+  // Log Audit
+  await prisma.auditlog.create({
+    data: {
+      action: `PROJECT_${status}`,
+      entityType: 'UserProject',
+      entityId: userProject.id,
+      performedby: req.user.id,
+      details: { reason }
     }
-    const approvalMessage = 'Congratulations! Your project is now live and accepting donations.';
-    
-    const message = `Dear ${userProject.user.name},\n\nYour project "${userProject.title}" has been ${status.toLowerCase()}.\n\n${status === 'APPROVED' ? approvalMessage : rejectionDetails}\n\nBest regards,\nThe Platform Team`;
-    
+  });
+
+  // Send email notification to project owner
+  // Send Email
+  if (userProject.user?.email) {
+    const messages = {
+      APPROVED: 'Congratulations! Your project is now live.',
+      REJECTED: `Your project was rejected. Reason: ${reason}`,
+      PAUSED: 'Your project has been paused by the admin team.'
+    };
+
     try {
       await sendEmail({
         email: userProject.user.email,
-        subject: `Your Project "${userProject.title}" has been ${status}`,
-        message
+        subject: `Project Update: ${userProject.title}`,
+        message: `Dear ${userProject.user.name},\n\n${messages[status]}\n\nBest,\nDreamXec Team`
       });
     } catch (err) {
-      console.error('Email sending error:', err);
+      console.error('Email error:', err);
     }
   }
 
-  res.status(200).json({ 
-    status: 'success', 
-    data: { userProject: updatedUserProject } 
+  res.status(200).json({
+    status: 'success',
+    data: { userProject: updatedUserProject }
   });
 });
 
 // ADMIN: Approve or reject a donor project
 exports.verifyDonorProject = catchAsync(async (req, res, next) => {
   const { status, reason } = req.body;
-  
+
   if (!['APPROVED', 'REJECTED'].includes(status)) {
     return next(new AppError('Status must be either APPROVED or REJECTED', 400));
   }
@@ -124,32 +280,39 @@ exports.verifyDonorProject = catchAsync(async (req, res, next) => {
     data: updateData
   });
 
-  // Send email notification to donor
-  if (donorProject.donor && donorProject.donor.email) {
-    let rejectionDetails = 'Please review your project details and resubmit if needed.';
-    if (reason) {
-      rejectionDetails = `Reason: ${reason}\n\nPlease review the feedback, update your project, and resubmit.`;
+  // log audit 
+  await prisma.auditlog.create({
+    data: {
+      action: `DONOR_PROJECT_${status}`,
+      entityType: 'DonorProject',
+      entityId: donorProject.id,
+      performedBy: req.user.id,
+      details: { reason }
     }
-    const approvalMessage = 'Congratulations! Your project is now live.';
-    
-    const message = `Dear ${donorProject.donor.name},\n\nYour project "${donorProject.title}" has been ${status.toLowerCase()}.\n\n${status === 'APPROVED' ? approvalMessage : rejectionDetails}\n\nBest regards,\nThe Platform Team`;
-    
+  });
+
+  // Send email notification to donor
+  if (donorProject.donor?.email) {
     try {
       await sendEmail({
         email: donorProject.donor.email,
-        subject: `Your Project "${donorProject.title}" has been ${status}`,
-        message
+        subject: `Project Update: ${donorProject.title}`,
+        message: `Your project has been ${status}. ${reason ? `Reason: ${reason}` : ''}`
       });
     } catch (err) {
-      console.error('Email sending error:', err);
+      console.error('Email error:', err);
     }
   }
 
-  res.status(200).json({ 
-    status: 'success', 
-    data: { donorProject: updatedDonorProject } 
+  res.status(200).json({
+    status: 'success',
+    data: { donorProject: updatedDonorProject }
   });
 });
+
+// ##################################################
+// USER & DONOR MANAGEMENT
+// ##################################################
 
 // ADMIN: Get all registered users
 exports.getAllUsers = catchAsync(async (req, res, next) => {
@@ -159,6 +322,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
       email: true,
       name: true,
       role: true,
+      accountStatus: true,
       createdAt: true,
       updatedAt: true,
       _count: {
@@ -185,6 +349,7 @@ exports.getAllDonors = catchAsync(async (req, res, next) => {
       email: true,
       name: true,
       organizationName: true,
+      accountStatus: true,
       verified: true,
       createdAt: true,
       updatedAt: true,
@@ -204,6 +369,90 @@ exports.getAllDonors = catchAsync(async (req, res, next) => {
     data: { donors }
   });
 });
+
+
+// ---------------------------------------------------
+// GOVERNANCE (BLOCK / SUSPEND)
+// ---------------------------------------------------
+
+// ADMIN: Change User Status (Block/Unblock)
+exports.manageUserStatus = catchAsync(async (req, res, next) => {
+  const { status } = req.body;
+  const validStatuses = ['ACTIVE', 'BLOCKED', 'SUSPENDED', 'UNDER_REVIEW'];
+
+  if (!validStatuses.includes(status)) {
+    return next(new AppError('Invalid status value', 400));
+  }
+
+  const user = await prisma.user.update({
+    where: { id: req.params.id },
+    data: { accountStatus: status }
+  });
+
+  // Log Audit
+  await prisma.auditLog.create({
+    data: {
+      action: `USER_STATUS_CHANGE`,
+      entityType: 'User',
+      entityId: user.id,
+      performedBy: req.user.id,
+      details: { newStatus: status }
+    }
+  });
+
+  res.status(200).json({ status: 'success', data: { user } });
+});
+
+// ADMIN: Get All Clubs (Active + Suspended)
+exports.getAllClubs = catchAsync(async (req, res, next) => {
+  const clubs = await prisma.club.findMany({
+    include: {
+      presidentUser: { select: { name: true, email: true } },
+      _count: {
+        select: { members: true, campaigns: true }
+      }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: clubs.length,
+    data: { clubs }
+  });
+});
+
+// ADMIN: Change Club Status (Suspend/Activate)
+exports.manageClubStatus = catchAsync(async (req, res, next) => {
+  const { status } = req.body;
+  const validStatuses = ['ACTIVE', 'BLOCKED', 'SUSPENDED', 'UNDER_REVIEW'];
+
+  if (!validStatuses.includes(status)) {
+    return next(new AppError('Invalid status value', 400));
+  }
+
+  const club = await prisma.club.update({
+    where: { id: req.params.id },
+    data: { status } // accountStatus field in Club model
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      action: `CLUB_STATUS_CHANGE`,
+      entityType: 'Club',
+      entityId: club.id,
+      performedBy: req.user.id,
+      details: { newStatus: status }
+    }
+  });
+
+  res.status(200).json({ status: 'success', data: { club } });
+});
+
+// ##################################################
+// CLUB VERIFICATION & Management
+// ##################################################
+
 
 // ADMIN: Get all club verification requests
 exports.getPendingClubVerifications = catchAsync(async (req, res, next) => {
@@ -276,51 +525,57 @@ exports.verifyClub = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: 'success', data: { updated } });
 });
 
-// ADMIN: Upload CSV of club members
-exports.uploadClubMembers = catchAsync(async (req, res, next) => {
-  if (!req.file) return next(new AppError('CSV file is required', 400));
 
-  const csv = require('csv-parser');
-  const fs = require('fs');
+// Append to server/src/api/admin/admin.controller.js
 
-  const members = [];
+// 1. Manage User Status (Block/Unblock)
+exports.manageUserStatus = catchAsync(async (req, res, next) => {
+  const { status } = req.body;
+  // Basic validation
+  if (!['ACTIVE', 'BLOCKED', 'SUSPENDED'].includes(status)) {
+    return next(new AppError('Invalid status', 400));
+  }
 
-  fs.createReadStream(req.file.path)
-    .pipe(csv())
-    .on('data', (row) => {
-      members.push({
-        name: row.name,
-        email: row.email,
-        phone: row.phone,
-        clubId: req.body.clubId
-      });
-    })
-    .on('end', async () => {
-      await prisma.clubMembership.createMany({ data: members });
-      fs.unlinkSync(req.file.path); // delete file
-      res.status(201).json({
-        status: 'success',
-        count: members.length
-      });
-    });
+  const user = await prisma.user.update({
+    where: { id: req.params.id },
+    data: { accountStatus: status } // Ensure your Prisma schema has this field!
+  });
+
+  res.status(200).json({ status: 'success', data: { user } });
 });
 
-// ADMIN: Get all members of a club
-exports.getClubMembers = catchAsync(async (req, res, next) => {
-  const members = await prisma.clubMembership.findMany({
-    where: { clubId: req.params.clubId },
+// 2. Get All Clubs
+exports.getAllClubs = catchAsync(async (req, res, next) => {
+  const clubs = await prisma.club.findMany({
+    include: {
+      presidentUser: { select: { name: true, email: true } },
+      _count: { select: { members: true, campaigns: true } }
+    },
     orderBy: { createdAt: 'desc' }
   });
 
   res.status(200).json({
     status: 'success',
-    results: members.length,
-    data: { members }
+    results: clubs.length,
+    data: { clubs }
   });
 });
 
+// 3. Manage Club Status
+exports.manageClubStatus = catchAsync(async (req, res, next) => {
+  const { status } = req.body;
+  
+  const club = await prisma.club.update({
+    where: { id: req.params.id },
+    data: { status } // Ensure Club model has 'status' field in Prisma
+  });
 
+  res.status(200).json({ status: 'success', data: { club } });
+});
 
+// ---------------------------------------------------
+// CSV UPLOAD
+// ---------------------------------------------------
 
 /**
  * Expected CSV columns: name,email,phone,role
@@ -329,9 +584,9 @@ exports.getClubMembers = catchAsync(async (req, res, next) => {
 exports.uploadClubMembers = catchAsync(async (req, res, next) => {
   if (!req.file) return next(new AppError('CSV file is required', 400));
   const clubId = req.body.clubId;
+  
   if (!clubId) {
-    // remove file
-    fs.unlinkSync(req.file.path);
+    try { fs.unlinkSync(req.file.path); } catch (e) {}
     return next(new AppError('clubId is required in form body', 400));
   }
 
@@ -363,7 +618,6 @@ exports.uploadClubMembers = catchAsync(async (req, res, next) => {
   const created = [];
   for (const r of rows) {
     try {
-      // Check if user exists
       const existingUser = await prisma.user.findUnique({ where: { email: r.email } });
 
       if (existingUser) {
@@ -375,36 +629,30 @@ exports.uploadClubMembers = catchAsync(async (req, res, next) => {
             name: r.name,
             email: r.email,
             phone: r.phone || null,
-            role: r.role || 'member',
           },
         });
 
         // mark user properties
         await prisma.user.update({
           where: { id: existingUser.id },
-          data: {
-            isClubMember: true,
-            clubId,
-            // do not set clubVerified from CSV — admin must verify
-          },
+          data: { isClubMember: true, clubIds: { push: clubId } },
         });
       } else {
-        // create membership entry (no user) — invite later
+        // create membership entry (no user)
         await prisma.clubMembership.create({
           data: {
             clubId,
             name: r.name,
             email: r.email,
             phone: r.phone || null,
-            role: r.role || 'member',
           },
         });
       }
 
       created.push(r.email);
     } catch (err) {
-      console.error('Row import error for', r.email, err);
-      errors.push({ row: r, message: err.message });
+      // Duplicate entry usually
+      errors.push({ email: r.email, message: 'Already exists or error' });
     }
   }
 
@@ -415,5 +663,19 @@ exports.uploadClubMembers = catchAsync(async (req, res, next) => {
     status: 'success',
     imported: created.length,
     errors,
+  });
+});
+
+// ADMIN: Get all members of a club
+exports.getClubMembers = catchAsync(async (req, res, next) => {
+  const members = await prisma.clubMembership.findMany({
+    where: { clubId: req.params.clubId },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: members.length,
+    data: { members }
   });
 });

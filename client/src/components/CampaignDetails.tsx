@@ -14,7 +14,7 @@ import YouTube from "react-youtube";
 import {
   createRazorpayOrderAuthenticated,
   createRazorpayOrderGuest,
-  verifyPayment,
+  verifyPayment,  
 } from "../services/donationService";
 
 
@@ -145,7 +145,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
   const [showDonateModal, setShowDonateModal] = useState(false);
   type CampaignTab = 'about' | 'video' | 'media' | 'presentation' | 'faqs';
   const [activeTab, setActiveTab] = useState<CampaignTab>('about');
-  const showMobileCTA = campaign?.status === 'approved';
+  const showMobileCTA = campaign?.status === 'APPROVED';
   
   const refreshCampaign = async () => {
     const res = await getUserProject(id!);
@@ -195,7 +195,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
         const res = await getUserProject(id!);
         const mapped = mapUserProjectToCampaign(res.data.userProject);
 
-        if (mapped.status !== 'approved') {
+        if (mapped.status !== 'APPROVED') {
           setError('This campaign is not available');
           return;
         }
@@ -323,8 +323,8 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
     );
   }
 
-  const progressPercentage = Math.min((campaign.currentAmount / campaign.goalAmount) * 100, 100);
-  const remainingAmount = campaign.goalAmount - campaign.currentAmount;
+  const progressPercentage = Math.min((campaign.amountRaised / campaign.goalAmount) * 100, 100);
+  const remainingAmount = campaign.goalAmount - campaign.amountRaised;
 
   const handleDonate = () => {
     setShowDonateModal(true);
@@ -481,9 +481,9 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
                     )}
 
                     <span
-                      className={`px-1.5 sm:px-2 md:px-3 py-0.5 sm:py-1 md:py-1.5 rounded sm:rounded-md md:rounded-lg font-bold text-[10px] sm:text-xs ${campaign.status === 'approved'
+                      className={`px-1.5 sm:px-2 md:px-3 py-0.5 sm:py-1 md:py-1.5 rounded sm:rounded-md md:rounded-lg font-bold text-[10px] sm:text-xs ${campaign.status === 'APPROVED'
                         ? 'bg-green-100 text-green-700 border-2 border-green-300'
-                        : campaign.status === 'pending'
+                        : campaign.status === 'PENDING'
                           ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300'
                           : 'bg-red-100 text-red-700 border-2 border-red-300'
                         }`}
@@ -511,7 +511,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
 
                   <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
                     <span className="text-sm sm:text-base md:text-lg">🏷️</span>
-                    <span className="font-medium">{campaign.category}</span>
+                    <span className="font-medium">{campaign.campaignType || 'INDIVIDUAL'}</span>
                   </div>
                 </div>
               </div>
@@ -812,7 +812,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
               {/* Funding Amount */}
               <div className="mt-1.5 sm:mt-2 md:mt-4 mb-3 sm:mb-4 md:mb-6">
                 <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-dreamxec-navy mb-1 sm:mb-1.5 md:mb-2 font-display">
-                  ₹{campaign.currentAmount.toLocaleString()}
+                  ₹{campaign.amountRaised.toLocaleString()}
                 </p>
                 <p className="text-sm sm:text-base md:text-lg lg:text-xl text-dreamxec-navy opacity-70 font-sans">
                   raised of ₹{campaign.goalAmount.toLocaleString()} goal
@@ -844,7 +844,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
               </div>
 
               {/* Donate Button */}
-              {campaign.status === 'approved' && (
+              {campaign.status === 'APPROVED' && (
                 <button
                   onClick={handleDonate}
                   className="w-full px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 bg-dreamxec-green text-white rounded-md sm:rounded-lg border-2 sm:border-3 md:border-4 border-dreamxec-navy font-bold font-display text-sm sm:text-base md:text-lg lg:text-xl hover:scale-105 transition-transform shadow-pastel-green flex items-center justify-center gap-2"
@@ -1063,7 +1063,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
       <MobileDonateCTA
         visible={showMobileCTA}
         onDonateClick={handleDonate}
-        currentAmount={campaign.currentAmount}
+        currentAmount={campaign.amountRaised}
         goalAmount={campaign.goalAmount}
       />
       <FooterContent />

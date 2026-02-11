@@ -1,30 +1,57 @@
 import apiRequest, { type ApiResponse } from './api';
 import type { UserProject } from './userProjectService';
 import type { DonorProject } from './donorProjectService';
-import type { User } from './authService';
+import type  {
+  Campaign,
+  Project,
+  User,
+  DashboardStats,
+  ProjectStatus,
+  AccountStatus,
+  PaginatedResponse
+} from "../types"
 
 export interface AllProjectsResponse {
-  userProjects: {
-    results: number;
-    projects: UserProject[];
-  };
-  donorProjects: {
-    results: number;
-    projects: DonorProject[];
-  };
+  userProjects: PaginatedResponse<Campaign>
+  donorProjects: PaginatedResponse<Project>;
 }
 
+
 export interface VerifyProjectData {
-  status: 'APPROVED' | 'REJECTED';
+  status: ProjectStatus;
   reason?: string;
 }
 
-// Get all projects (admin)
-export const getAllProjects = async (): Promise<ApiResponse<AllProjectsResponse>> => {
-  return apiRequest('/admin/projects', {
+// get dashboard stats
+export const getDashboardStats = async (): Promise<ApiResponse<DashboardStats>> => {
+  return apiRequest('/admin/stats', {
     method: 'GET',
   });
 };
+
+
+
+// PROJECT MANAGEMENT
+
+interface ProjectQueryParams {
+  page? : number;
+  limit? : number;
+  status? : ProjectStatus | '';
+}
+
+// Get all projects (admin)
+export const getAllProjects = async (
+  params: ProjectQueryParams = {}
+): Promise<ApiResponse<AllProjectsResponse>> =>{
+  const query = new URLSearchParams();
+  if (params.page) query.append('page', params.page.toString());
+  if (params.limit) query.append('limit', params.limit.toString());
+  if (params.status) query.append('status', params.status);
+
+  return apiRequest(`/admin/projects?${query.toString()}`, {
+    method: 'GET',
+  })
+}
 
 // Verify user project
 export const verifyUserProject = async (
@@ -48,6 +75,10 @@ export const verifyDonorProject = async (
   });
 };
 
+/* =========================================================
+   User & Donor Governance
+========================================================= */
+
 // Get all users
 export const getAllUsers = async (): Promise<ApiResponse<{ users: User[] }>> => {
   return apiRequest('/admin/users', {
@@ -61,6 +92,41 @@ export const getAllDonors = async (): Promise<ApiResponse<{ donors: User[] }>> =
     method: 'GET',
   });
 };
+
+export const manageUserStatus = async(
+  userId: string,
+  status: AccountStatus
+): Promise<ApiResponse<{ user: User}>> => {
+  return apiRequest(`/admin/users/${userId}/status`,{
+    method: 'PATCH',
+    body: JSON.stringify({ status })
+  })
+}
+
+
+// --- CLUB MANAGEMENT ---
+
+// Add this function
+export const getAllClubs = async (): Promise<ApiResponse<{ clubs: any[] }>> => {
+  return apiRequest('/admin/clubs', {
+    method: 'GET',
+  });
+};
+
+// Add this function
+export const manageClubStatus = async (
+  clubId: string, 
+  status: 'ACTIVE' | 'SUSPENDED'
+): Promise<ApiResponse<any>> => {
+  return apiRequest(`/admin/clubs/${clubId}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+};  
+
+/* =========================================================
+   Club Verification & Management
+========================================================= */
 
 export const getClubVerifications = async (): Promise<ApiResponse<any[]>> => {
   return apiRequest('/admin/club-verifications/verifications', {
@@ -80,6 +146,11 @@ export const rejectClubVerification = async (id: string, reason: string): Promis
     body: JSON.stringify({ reason }),
   });
 };
+
+
+/* =========================================================
+   File Uploads
+========================================================= */
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 

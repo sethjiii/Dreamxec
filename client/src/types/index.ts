@@ -2,6 +2,23 @@
 
 import type { Milestone } from "../components/CampaignDetails";
 
+export type UserRole = "student" | "admin" | "DONOR" | "donor" | "STUDENT_PRESIDENT";
+
+export type AccountStatus = "ACTIVE" | "BLOCKED" | "SUSPENDED" | "UNDER_REVIEW";
+
+export type ProjectStatus = "PENDING" | "APPROVED" | "REJECTED" | "COMPLETED" | "PAUSED" | "FROZEN";
+
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[],
+  pagination: PaginationMeta;
+}
 
 /* =========================================================
    Club Types
@@ -14,37 +31,18 @@ export interface Club {
   verified: boolean;
 }
 
-/* =========================================================
-   Campaign Sub-Types
-========================================================= */
-
-export interface TeamMember {
-  name: string;
-  role: string;
-  image?: string; // Cloudinary URL
-}
-
-export interface FAQ {
-  question: string;
-  answer: string;
-}
 
 /* =========================================================
    User & Roles
 ========================================================= */
-
-export type UserRole =
-  | "student"
-  | "admin"
-  | "donor"
-  | "DONOR"
-  | "STUDENT_PRESIDENT";
 
 export interface User {
   id: string;
   email: string;
   name: string;
   role: UserRole;
+
+  accountStatus: AccountStatus;
 
   emailVerified: boolean;
   studentVerified: boolean;
@@ -62,43 +60,57 @@ export interface User {
 /* =========================================================
    Campaign Types (User Projects)
 ========================================================= */
+/* =========================================================
+   Campaign Sub-Types
+========================================================= */
+
+export interface TeamMember {
+  name: string;
+  role: string;
+  image?: string; // Cloudinary URL
+}
+
+export interface FAQ {
+  question: string;
+  answer: string;
+}
 
 export interface Campaign {
   id: string;
   title: string;
+  description: string;
+
+  // Relations
   clubId: string | null;
-  club: {
+  club?: {
     id: string;
     name: string;
     college: string;
   };
-  description: string;
+
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 
   goalAmount: number;
-  currentAmount: number;
+  amountRaised: number; // Changed from currentAmount to match DB
 
-  status: "approved" | "pending" | "rejected";
-  createdAt: Date;
+  // STATUS UPDATE
+  status: ProjectStatus;
+  rejectionReason?: string;
 
-  /* ✅ NEW BACKEND FIELDS */
+  createdAt: string; // Date string from JSON
+  updatedAt: string;
 
   campaignType?: "INDIVIDUAL" | "TEAM";
-
   teamMembers?: TeamMember[];
-
   faqs?: FAQ[];
-
   youtubeUrl?: string;
-
-  category?: string;
   imageUrl?: string;
   campaignMedia?: string[];
   presentationDeckUrl?: string | null;
-
-  createdBy?: string;
-  userId?: string;
-
-  rejectionReason?: string;
 
   // ✅ Milestone-based timeline
   milestones?: Milestone[];
@@ -111,23 +123,27 @@ export interface Campaign {
 export interface Project {
   id: string;
   title: string;
-  companyName: string;
   description: string;
+  organization?: string; // mapped from organizationName
 
-  skillsRequired: string[];
-
-  timeline: {
-    startDate: Date;
-    endDate: Date;
+  donor?: {
+    id: string;
+    name: string;
+    email: string;
+    organizationName: string;
   };
 
-  createdBy: string;
-  createdAt: Date;
+  skillsRequired: string[];
+  timeline: string | null; // DB is string, not object
 
-  interestedUsers: ProjectApplication[];
+  totalBudget: number;
+  allocatedFunds: number;
 
-  status: "approved" | "pending" | "rejected";
+  status: ProjectStatus;
   rejectionReason?: string;
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ProjectApplication {
@@ -157,4 +173,43 @@ export interface Student {
   email: string;
   university: string;
   avatar?: string;
+}
+
+
+/* =========================================================
+   Admin Specific Types
+========================================================= */
+
+export interface DashboardStats{
+  kpi: {
+    totalUsers: number;
+    totalDonors: number;
+    totalClubs: number;
+    totalDonations: number;
+    campaigns:{
+      APPROVED: number;
+      PENDING: number;
+      REJECTED: number;
+      PAUSED: number;
+      FROZEN: number;
+      total: number;
+    };
+    pendingApprovals: number;
+    openTickets: number;
+  };
+  attention:{
+    slaBreaches: number;
+    frozenCampaigns: number;
+    failedMilstones: number;
+  }
+}
+
+export interface AuditLog {
+  id: string,
+  action: string,
+  entityType: string,
+  entityId: string,
+  performedBy: string,
+  details?: any;
+  createdAt: string;
 }

@@ -679,3 +679,350 @@ exports.getClubMembers = catchAsync(async (req, res, next) => {
     data: { members }
   });
 });
+
+// ---------------------------------------------------
+// FINANCIAL MANAGEMENT
+// ---------------------------------------------------
+
+// ADMIN: Get all donations (Paginated)
+exports.getAllDonations = catchAsync(async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 20;
+  const skip = (page - 1) * limit;
+
+  const [donations, total] = await prisma.$transaction([
+    prisma.donation.findMany({
+      include: {
+        user: { select: { name: true, email: true } },
+        donor: { select: { name: true, organizationName: true } },
+        userProject: { select: { title: true } }
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    prisma.donation.count()
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      donations,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    }
+  });
+});
+
+// ADMIN: Get pending withdrawal requests
+exports.getWithdrawals = catchAsync(async (req, res, next) => {
+  const status = req.query.status || 'pending'; // 'pending', 'approved', 'rejected'
+
+  const withdrawals = await prisma.withdrawal.findMany({
+    where: { status },
+    include: {
+      userProject: {
+        select: {
+          title: true,
+          amountRaised: true,
+          user: { select: { name: true, email: true } },
+          bankAccount: true
+        }
+      }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: withdrawals.length,
+    data: { withdrawals }
+  });
+});
+
+// ADMIN: Approve or Reject Withdrawal
+exports.manageWithdrawal = catchAsync(async (req, res, next) => {
+  const { status, note } = req.body;
+  
+  if (!['approved', 'rejected'].includes(status)) {
+    return next(new AppError('Invalid status', 400));
+  }
+
+  const withdrawal = await prisma.withdrawal.findUnique({
+    where: { id: req.params.id },
+    include: { userProject: true }
+  });
+
+  if (!withdrawal) return next(new AppError('Withdrawal not found', 404));
+
+  // Update Withdrawal Status
+  const updated = await prisma.withdrawal.update({
+    where: { id: req.params.id },
+    data: { status }
+  });
+
+  // Log Audit
+  await prisma.auditLog.create({
+    data: {
+      action: `WITHDRAWAL_${status.toUpperCase()}`,
+      entityType: 'Withdrawal',
+      entityId: withdrawal.id,
+      performedBy: req.user.id,
+      details: { amount: withdrawal.amount, note }
+    }
+  });
+
+  // Send Email Notification (Mock)
+  // sendEmail(withdrawal.userProject.userId, ...)
+
+  res.status(200).json({ status: 'success', data: { withdrawal: updated } });
+});
+
+// ---------------------------------------------------
+// MILESTONE VERIFICATION
+// ---------------------------------------------------
+
+// ADMIN: Get all pending milestones (Submitted for review)
+exports.getPendingMilestones = catchAsync(async (req, res, next) => {
+  const milestones = await prisma.milestone.findMany({
+    where: { status: 'SUBMITTED' }, // Only show milestones waiting for approval
+    include: {
+      project: {
+        select: {
+          title: true,
+          user: { select: { name: true, email: true } }
+        }
+      }
+    },
+    orderBy: { updatedAt: 'desc' }
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: milestones.length,
+    data: { milestones }
+  });
+});
+
+// ADMIN: Verify Milestone (Approve/Reject)
+exports.verifyMilestone = catchAsync(async (req, res, next) => {
+  const { status, feedback } = req.body;
+
+  if (!['APPROVED', 'REJECTED'].includes(status)) {
+    return next(new AppError('Invalid status', 400));
+  }
+
+  const milestone = await prisma.milestone.findUnique({
+    where: { id: req.params.id },
+    include: { project: true }
+  });
+
+  if (!milestone) return next(new AppError('Milestone not found', 404));
+
+  const updateData = {
+    status,
+    adminFeedback: feedback || null,
+    approvedAt: status === 'APPROVED' ? new Date() : null
+  };
+
+  const updatedMilestone = await prisma.milestone.update({
+    where: { id: req.params.id },
+    data: updateData
+  });
+
+  // Log Audit
+  await prisma.auditLog.create({
+    data: {
+      action: `MILESTONE_${status}`,
+      entityType: 'Milestone',
+      entityId: milestone.id,
+      performedBy: req.user.id,
+      details: { project: milestone.project.title, feedback }
+    }
+  });
+
+  // Notify User (Mock)
+  // sendEmail(milestone.project.userId, `Milestone ${status}`, ...)
+
+  res.status(200).json({ status: 'success', data: { milestone: updatedMilestone } });
+});
+
+// ---------------------------------------------------
+// MILESTONE VERIFICATION
+// ---------------------------------------------------
+
+// ADMIN: Get all submitted milestones pending review
+exports.getPendingMilestones = catchAsync(async (req, res, next) => {
+  const milestones = await prisma.milestone.findMany({
+    where: { status: 'SUBMITTED' }, 
+    include: {
+      project: {
+        select: {
+          title: true,
+          user: { select: { name: true, email: true } }
+        }
+      }
+    },
+    orderBy: { updatedAt: 'desc' }
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: milestones.length,
+    data: { milestones }
+  });
+});
+
+// ADMIN: Approve or Reject a Milestone
+exports.verifyMilestone = catchAsync(async (req, res, next) => {
+  const { status, feedback } = req.body;
+
+  if (!['APPROVED', 'REJECTED'].includes(status)) {
+    return next(new AppError('Invalid status. Must be APPROVED or REJECTED', 400));
+  }
+
+  const milestone = await prisma.milestone.findUnique({
+    where: { id: req.params.id },
+    include: { project: true }
+  });
+
+  if (!milestone) return next(new AppError('Milestone not found', 404));
+
+  const updateData = {
+    status,
+    adminFeedback: feedback || null,
+    approvedAt: status === 'APPROVED' ? new Date() : null
+  };
+
+  const updatedMilestone = await prisma.milestone.update({
+    where: { id: req.params.id },
+    data: updateData
+  });
+
+  // Log to Audit Trail
+  await prisma.auditLog.create({
+    data: {
+      action: `MILESTONE_${status}`,
+      entityType: 'Milestone',
+      entityId: milestone.id,
+      performedBy: req.user.id,
+      details: { project: milestone.project.title, feedback }
+    }
+  });
+
+  // TODO: Send email notification to user about milestone status
+
+  res.status(200).json({ status: 'success', data: { milestone: updatedMilestone } });
+});
+
+
+// ---------------------------------------------------
+// AUDIT LOGS & SYSTEM ACTIVITY
+// ---------------------------------------------------
+
+// ADMIN: Get System Audit Logs
+exports.getAuditLogs = catchAsync(async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 20;
+  const skip = (page - 1) * limit;
+  
+  const { type, search } = req.query;
+
+  const where = {};
+  
+  // Filter by Entity Type (User, Project, Withdrawal, etc.)
+  if (type && type !== 'ALL') {
+    where.entityType = type;
+  }
+
+  // Search by Action Name or Entity ID
+  if (search) {
+    where.OR = [
+      { action: { contains: search, mode: 'insensitive' } },
+      { entityId: { contains: search, mode: 'insensitive' } }
+    ];
+  }
+
+  const [logs, total] = await prisma.$transaction([
+    prisma.auditLog.findMany({
+      where,
+      include: {
+        admin: { select: { name: true, email: true } } // Who performed the action
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    prisma.auditLog.count({ where })
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      logs,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    }
+  });
+});
+
+
+// ---------------------------------------------------
+// DONOR MANAGEMENT
+// ---------------------------------------------------
+
+// ADMIN: Toggle Donor Verification (Organization Verified Badge)
+exports.verifyDonor = catchAsync(async (req, res, next) => {
+  const { verified } = req.body; // true or false
+
+  const donor = await prisma.donor.update({
+    where: { id: req.params.id },
+    data: { verified }
+  });
+
+  // Log Audit
+  await prisma.auditLog.create({
+    data: {
+      action: `DONOR_${verified ? 'VERIFIED' : 'UNVERIFIED'}`,
+      entityType: 'Donor',
+      entityId: donor.id,
+      performedBy: req.user.id,
+      details: { organization: donor.organizationName }
+    }
+  });
+
+  res.status(200).json({ status: 'success', data: { donor } });
+});
+
+// ADMIN: Manage Donor Account Status (Block/Suspend)
+exports.manageDonorStatus = catchAsync(async (req, res, next) => {
+  const { status } = req.body;
+  if (!['ACTIVE', 'BLOCKED', 'SUSPENDED'].includes(status)) {
+    return next(new AppError('Invalid status', 400));
+  }
+
+  const donor = await prisma.donor.update({
+    where: { id: req.params.id },
+    data: { accountStatus: status } // Ensure 'accountStatus' exists on Donor model
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      action: `DONOR_STATUS_CHANGE`,
+      entityType: 'Donor',
+      entityId: donor.id,
+      performedBy: req.user.id,
+      details: { newStatus: status }
+    }
+  });
+
+  res.status(200).json({ status: 'success', data: { donor } });
+});

@@ -60,6 +60,11 @@ import LoadingAnimation from './components/LoadingAnimation';
 // Add these imports with the others
 import AdminUsers from './components/AdminUser';
 import AdminClubs from './components/AdminClubs';
+import AdminFinancials from './components/AdminFinancials';
+import AdminMilestones from './components/Adminmilestone';
+import AdminStudentVerifications from './components/AdminStudentVerification';
+import AdminAuditLogs from './components/AdminAuditLogs';
+import AdminDonors from './components/AdminDonors';
 
 // Main App Content Component
 function AppContent() {
@@ -1110,6 +1115,55 @@ function AppContent() {
 
                               <Route path="/admin/verifications" element={<AdminClubVerifications />} />
                               <Route path="/admin/club-verifications" element={<AdminClubVerifications />} />
+                              <Route path="/admin/financials" element={<AdminFinancials />} />
+                              <Route path="/admin/milestones" element={
+                                user?.role === 'admin' ? (
+                                  <>
+                                    <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
+                                    <AdminMilestones />
+                                  </>
+                                ) : (
+                                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                    <p className="text-dreamxec-navy text-xl font-bold">Access Restricted</p>
+                                  </div>
+                                )
+                              } />
+                              <Route path="/admin/student-verifications" element={
+                                user?.role === 'admin' ? (
+                                  <>
+                                    <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
+                                    <AdminStudentVerifications />
+                                  </>
+                                ) : (
+                                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                    <p className="text-dreamxec-navy text-xl font-bold">Access Restricted</p>
+                                  </div>
+                                )
+                              } />
+                              <Route path="/admin/audit-logs" element={
+                                user?.role === 'admin' ? (
+                                  <>
+                                    <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
+                                    <AdminAuditLogs />
+                                  </>
+                                ) : (
+                                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                    <p className="text-dreamxec-navy text-xl font-bold">Access Restricted</p>
+                                  </div>
+                                )
+                              } />
+                              <Route path="/admin/donors" element={
+                                user?.role === 'admin' ? (
+                                  <>
+                                    <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
+                                    <AdminDonors />
+                                  </>
+                                ) : (
+                                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                    <p className="text-dreamxec-navy text-xl font-bold">Access Restricted</p>
+                                  </div>
+                                )
+                              } />
 
                               {/* --- Admin User Management --- */}
                               <Route

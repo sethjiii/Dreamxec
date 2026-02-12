@@ -33,4 +33,35 @@ router.get('/club-verifications/verifications', adminController.getPendingClubVe
 router.post('/club-verifications/verifications/:id/approve', adminController.verifyClub);
 router.post('/club-verifications/verifications/:id/reject', adminController.verifyClub);
 
+// --------------------
+// FINANCIALS
+// --------------------
+router.get('/financials/donations', adminController.getAllDonations);
+router.get('/financials/withdrawals', adminController.getWithdrawals);
+router.patch('/financials/withdrawals/:id', adminController.manageWithdrawal);
+
+
+// --------------------
+// MILESTONES
+// --------------------
+router.get('/milestones/pending', adminController.getPendingMilestones);
+router.patch('/milestones/:id/verify', adminController.verifyMilestone);
+
+// --------------------
+// STUDENT VERIFICATION
+// --------------------
+router.get('/student-verifications', studentVerificationController.getAllStudentVerifications);
+router.patch('/student-verifications/:id/approve', studentVerificationController.approveStudentVerification);
+router.patch('/student-verifications/:id/reject', studentVerificationController.rejectStudentVerification);
+
+
+// --------------------
+// AUDIT LOGS
+// --------------------
+router.get('/audit-logs', adminController.getAuditLogs);
+
+// getAllDonors is already there, but add these:
+router.patch('/donors/:id/verify', adminController.verifyDonor);
+router.patch('/donors/:id/status', adminController.manageDonorStatus);
+
 module.exports = router;

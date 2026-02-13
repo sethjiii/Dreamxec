@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import toast, { Toast, Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import FloatingDoodles from './components/FloatingDoodles';
 import { Header } from './sections/Header';
@@ -57,10 +57,21 @@ import TermsAndConditions from './sections/Pages/legal/TermsAndConditions';
 import VerifyPresident from './components/VerifyPresident';
 import { LoaderProvider, useLoader } from './context/LoaderContext';
 import LoadingAnimation from './components/LoadingAnimation';
+import apiRequest from './services/api';
 
+
+type UserProjectsResponse = {
+  status: string;
+  data: {
+    projects: Campaign[];
+  };
+};
 // Main App Content Component
 function AppContent() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [userCampaigns, setUserCampaigns] = useState<Campaign[]>([]);
+  const [loadingCampaigns, setLoadingCampaigns] = useState(false);
+
   const [user, setUser] = useState<User | null>(null);
   const [_isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -304,14 +315,77 @@ function AppContent() {
     loadUserApplications();
   }, [user?.role, user?.id]);
 
-  console.log(campaigns)
+  // ✅ Campaign filters (STATUS SAFE + CREATEDBY SAFE)
 
-  const approvedCampaigns = campaigns.filter((c) => c.status === 'approved');
-  const pendingCampaigns = campaigns.filter((c) => c.status === 'pending');
-  const userCampaigns = campaigns.filter((c) => c.createdBy === user?.id);
-  const donorProjects = projects.filter((p) => p.createdBy === user?.id);
-  const approvedProjects = projects.filter((p) => p.status === 'approved');
-  const pendingProjects = projects.filter((p) => p.status === 'pending');
+  const approvedCampaigns = campaigns.filter(
+    (c) => c.status?.toLowerCase() === "approved"
+  );
+
+  const pendingCampaigns = campaigns.filter(
+    (c) => c.status?.toLowerCase() === "pending"
+  );
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchUserCampaigns = async () => {
+      try {
+        setLoadingCampaigns(true);
+
+        const res = await apiRequest<UserProjectsResponse>(
+          "/user-projects/my",
+          { method: "GET" }
+        );
+
+        const projects = res?.data?.data?.projects;
+
+        if (!Array.isArray(projects)) {
+          console.error(
+            "Invalid /user-projects response shape:",
+            res?.data
+          );
+          setUserCampaigns([]);
+          return;
+        }
+
+        setUserCampaigns(projects);
+      } catch (error) {
+        console.error("Failed to fetch user campaigns", error);
+        setUserCampaigns([]);
+      } finally {
+        setLoadingCampaigns(false);
+      }
+    };
+
+    fetchUserCampaigns();
+  }, [user?.id]);
+
+
+  // ✅ Project filters (same fixes applied)
+
+  const donorProjects = projects.filter((p) => {
+    if (!p.createdBy || !user?.id) return false;
+
+    if (typeof p.createdBy === "string") {
+      return p.createdBy === user.id;
+    }
+
+    if (typeof p.createdBy === "object" && "id" in p.createdBy) {
+      return p.createdBy.id === user.id;
+    }
+
+    return false;
+  });
+
+  const approvedProjects = projects.filter(
+    (p) => p.status?.toLowerCase() === "approved"
+  );
+
+  const pendingProjects = projects.filter(
+    (p) => p.status?.toLowerCase() === "pending"
+  );
+
+
 
   // if (loading) {
   //   return (
@@ -326,141 +400,141 @@ function AppContent() {
   // Circular spinner removed - LoadingAnimation component handles all loading states
 
   const handleCreateCampaign = async (data: {
-  title: string;
-  description: string;
-
-  /* RENAMED */
-  // collegeName: string;
-  clubId: string;
-
-  goalAmount: number;
-
-  bannerFile: File | null;
-  mediaFiles: File[];
-
-  presentationDeckUrl: string;
-
-  campaignType: "INDIVIDUAL" | "TEAM";
-
-  teamMembers?: {
-    name: string;
-    role: string;
-    image?: File | null;
-  }[];
-
-  faqs?: {
-    question: string;
-    answer: string;
-  }[];
-
-  youtubeUrl?: string;
-
-  milestones: {
     title: string;
-    timeline: string;
-    budget: string | number;
-    description?: string;
-  }[];
-}) => {
-  showLoader();
+    description: string;
 
-  try {
-    console.log("🚀 Creating Campaign...");
+    /* RENAMED */
+    // collegeName: string;
+    clubId: string;
 
-    const formData = new FormData();
+    goalAmount: number;
 
-    /* ---------------- BASIC ---------------- */
+    bannerFile: File | null;
+    mediaFiles: File[];
 
-    formData.append("title", data.title);
-    formData.append("description", data.description);
+    presentationDeckUrl: string;
 
-    // 🔑 companyName now stores COLLEGE NAME (legacy field)
-    // formData.append("companyName", data.collegeName);
+    campaignType: "INDIVIDUAL" | "TEAM";
 
-    // 🔑 IMPORTANT: club ownership
-    formData.append("clubId", data.clubId);
+    teamMembers?: {
+      name: string;
+      role: string;
+      image?: File | null;
+    }[];
 
-    formData.append("goalAmount", data.goalAmount.toString());
+    faqs?: {
+      question: string;
+      answer: string;
+    }[];
 
-    if (data.presentationDeckUrl) {
-      formData.append("presentationDeckUrl", data.presentationDeckUrl);
-    }
+    youtubeUrl?: string;
 
-    /* ---------------- TYPE ---------------- */
+    milestones: {
+      title: string;
+      timeline: string;
+      budget: string | number;
+      description?: string;
+    }[];
+  }) => {
+    showLoader();
 
-    formData.append("campaignType", data.campaignType);
+    try {
+      console.log("🚀 Creating Campaign...");
 
-    /* ---------------- YOUTUBE ---------------- */
+      const formData = new FormData();
 
-    if (data.youtubeUrl) {
-      formData.append("youtubeUrl", data.youtubeUrl);
-    }
+      /* ---------------- BASIC ---------------- */
 
-    /* ---------------- FAQS ---------------- */
+      formData.append("title", data.title);
+      formData.append("description", data.description);
 
-    if (data.faqs?.length) {
-      formData.append("faqs", JSON.stringify(data.faqs));
-    }
+      // 🔑 companyName now stores COLLEGE NAME (legacy field)
+      // formData.append("companyName", data.collegeName);
 
-    /* ---------------- MILESTONES ---------------- */
+      // 🔑 IMPORTANT: club ownership
+      formData.append("clubId", data.clubId);
 
-    const cleanMilestones = data.milestones.map(m => ({
-      ...m,
-      budget: Number(m.budget),
-    }));
+      formData.append("goalAmount", data.goalAmount.toString());
 
-    formData.append("milestones", JSON.stringify(cleanMilestones));
+      if (data.presentationDeckUrl) {
+        formData.append("presentationDeckUrl", data.presentationDeckUrl);
+      }
 
-    /* ---------------- TEAM ---------------- */
+      /* ---------------- TYPE ---------------- */
 
-    if (data.campaignType === "TEAM" && data.teamMembers?.length) {
-      const teamData = data.teamMembers.map(m => ({
-        name: m.name,
-        role: m.role,
+      formData.append("campaignType", data.campaignType);
+
+      /* ---------------- YOUTUBE ---------------- */
+
+      if (data.youtubeUrl) {
+        formData.append("youtubeUrl", data.youtubeUrl);
+      }
+
+      /* ---------------- FAQS ---------------- */
+
+      if (data.faqs?.length) {
+        formData.append("faqs", JSON.stringify(data.faqs));
+      }
+
+      /* ---------------- MILESTONES ---------------- */
+
+      const cleanMilestones = data.milestones.map(m => ({
+        ...m,
+        budget: Number(m.budget),
       }));
 
-      formData.append("teamMembers", JSON.stringify(teamData));
+      formData.append("milestones", JSON.stringify(cleanMilestones));
 
-      data.teamMembers.forEach(member => {
-        if (member.image) {
-          formData.append("teamImages", member.image);
-        }
-      });
+      /* ---------------- TEAM ---------------- */
+
+      if (data.campaignType === "TEAM" && data.teamMembers?.length) {
+        const teamData = data.teamMembers.map(m => ({
+          name: m.name,
+          role: m.role,
+        }));
+
+        formData.append("teamMembers", JSON.stringify(teamData));
+
+        data.teamMembers.forEach(member => {
+          if (member.image) {
+            formData.append("teamImages", member.image);
+          }
+        });
+      }
+
+      /* ---------------- FILES ---------------- */
+
+      if (data.bannerFile) {
+        formData.append("bannerFile", data.bannerFile);
+      }
+
+      if (data.mediaFiles?.length) {
+        data.mediaFiles.forEach(file => {
+          formData.append("mediaFiles", file);
+        });
+      }
+
+      /* ---------------- API CALL ---------------- */
+
+      const response = await createUserProject(formData);
+
+      if (response.data?.userProject) {
+        const newCampaign = mapUserProjectToCampaign(
+          response.data.userProject
+        );
+
+        setCampaigns(prev => [...prev, newCampaign]);
+        console.log("✅ Campaign created:", newCampaign);
+      } else {
+        throw new Error("Invalid response");
+      }
+    } catch (error) {
+      console.error("❌ Campaign creation failed:", error);
+      throw error;
+    } finally {
+      hideLoader();
     }
-
-    /* ---------------- FILES ---------------- */
-
-    if (data.bannerFile) {
-      formData.append("bannerFile", data.bannerFile);
-    }
-
-    if (data.mediaFiles?.length) {
-      data.mediaFiles.forEach(file => {
-        formData.append("mediaFiles", file);
-      });
-    }
-
-    /* ---------------- API CALL ---------------- */
-
-    const response = await createUserProject(formData);
-
-    if (response.data?.userProject) {
-      const newCampaign = mapUserProjectToCampaign(
-        response.data.userProject
-      );
-
-      setCampaigns(prev => [...prev, newCampaign]);
-      console.log("✅ Campaign created:", newCampaign);
-    } else {
-      throw new Error("Invalid response");
-    }
-  } catch (error) {
-    console.error("❌ Campaign creation failed:", error);
-    throw error;
-  } finally {
-    hideLoader();
-  }
-};
+  };
 
 
 
@@ -476,8 +550,9 @@ function AppContent() {
       console.log('✅ Campaign approved successfully');
     } catch (error) {
       console.error('Failed to approve campaign:', error);
-      hideLoader()
       alert('Failed to approve campaign. Please try again.');
+    } finally {
+      hideLoader();
     }
   };
 
@@ -493,8 +568,9 @@ function AppContent() {
       console.log('❌ Campaign rejected successfully');
     } catch (error) {
       console.error('Failed to reject campaign:', error);
-      hideLoader();
       alert('Failed to reject campaign. Please try again.');
+    } finally {
+      hideLoader();
     }
   };
 
@@ -510,8 +586,9 @@ function AppContent() {
       console.log('✅ Donor project approved successfully');
     } catch (error) {
       console.error('Failed to approve donor project:', error);
-      hideLoader();
       alert('Failed to approve donor project. Please try again.');
+    } finally {
+      hideLoader();
     }
   };
 
@@ -527,8 +604,9 @@ function AppContent() {
       console.log('❌ Donor project rejected successfully');
     } catch (error) {
       console.error('Failed to reject donor project:', error);
-      hideLoader();
       alert('Failed to reject donor project. Please try again.');
+    } finally {
+      hideLoader();
     }
   };
 
@@ -567,9 +645,9 @@ function AppContent() {
       }
     } catch (error) {
       console.error('Login failed:', error);
-      hideLoader();
       throw error;
     } finally {
+      hideLoader();
       setIsSubmitting(false);
     }
   };
@@ -625,9 +703,9 @@ function AppContent() {
       }
     } catch (error) {
       console.error('Signup failed:', error);
-      hideLoader();
       throw error;
     } finally {
+      hideLoader();
       setIsSubmitting(false);
     }
   };
@@ -741,7 +819,7 @@ function AppContent() {
               }),
             }
           );
-
+          hideLoader();
           toast.success("🎉 Donation successful!");
         },
         theme: { color: "#0B9C2C" },
@@ -933,6 +1011,11 @@ function AppContent() {
                                 path="/campaign/:id"
                                 element={
                                   <>
+                                  <Header
+                                      currentUser={user}
+                                      onLogin={handleLoginClick}
+                                      onLogout={handleLogout}
+                                    />
 
                                     <CampaignDetails
                                       currentUser={user}
@@ -1026,7 +1109,7 @@ function AppContent() {
                                           <button
                                             onClick={() => navigate("/auth")}
                                             className="mt-8 px-8 py-3 bg-dreamxec-orange text-white font-bold rounded-xl
-                     hover:bg-dreamxec-saffron transition-colors shadow-lg"
+                                              hover:bg-dreamxec-saffron transition-colors shadow-lg"
                                           >
                                             Log in
                                           </button>
@@ -1312,7 +1395,7 @@ function AppContent() {
                               <Route
                                 path="/projects"
                                 element={
-                                  user?.role === 'student' ? (
+                                  user?.role === 'student' || user?.role === 'STUDENT_PRESIDENT' ? (
                                     <>
                                       <Header
                                         currentUser={user}
@@ -1380,14 +1463,11 @@ function AppContent() {
                               <Route path="/president/members" element={<PresidentLayout><PresidentMembers clubId={user?.clubIds?.[0] || ''} currentUserId={user?.id || ''} /></PresidentLayout>} />
                               <Route path="/president/campaigns" element={<PresidentLayout><PresidentCampaigns clubId={user?.clubIds?.[0] || ''} /></PresidentLayout>} />
                               <Route path="/president/upload-members" element={<PresidentLayout><UploadMembers /></PresidentLayout>} />
-                              <Route path="/president/add-member" element={<PresidentLayout><AddMemberManually clubId={user?.clubIds?.[0] || ''}  /></PresidentLayout>} />
+                              <Route path="/president/add-member" element={<PresidentLayout><AddMemberManually clubId={user?.clubIds?.[0] || ''} /></PresidentLayout>} />
                             </Routes>
 
-                            {/* Footer Routes */}
+                            {/* Footer / content page routes */}
                             <Routes>
-                              <Route path="/start-project" element={<StartAProject />} />
-
-
                               <Route path="/start-project" element={<StartAProject />} />
                               <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
                               <Route path="/eligibility" element={<ProjectEligibility />} />
@@ -1403,26 +1483,7 @@ function AppContent() {
                               <Route path="/contact" element={<ContactUs />} />
                               <Route path="/faq" element={<FAQ />} />
                               <Route path="/terms-And-Conditions" element={<TermsAndConditions />} />
-                              {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                               */}
-                              <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
-                              <Route path="/eligibility" element={<ProjectEligibility />} />
-                              <Route path="/resources" element={<ResourceCenter />} />
-
-
-
-                              <Route path="/fund-innovation" element={<FundInnovation />} />
-                              <Route path="/how-it-works/donors" element={<HowItWorksDonors />} />
-                              <Route path="/why-donate" element={<WhyDonate />} />
-                              <Route path="/corporate-partnerships" element={<CorporateCSRPartnerships />} />
-                              <Route path="/alumni-giving" element={<AlumniGivingPrograms />} />
-                              <Route path="/become-mentor" element={<BecomeMentor />} />
-                              <Route path="/perfect-storm" element={<PerfectStorm />} />
-                              <Route path="/careers" element={<Careers />} />
-                              <Route path="/contact" element={<ContactUs />} />
-                              <Route path="/faq" element={<FAQ />} />
-
-                            </Routes >
+                            </Routes>
                           </div >
                         </div >
                       </div >

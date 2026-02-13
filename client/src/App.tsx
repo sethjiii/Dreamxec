@@ -29,6 +29,10 @@ import PresidentLayout from "./components/president/PresidentLayout";
 import AdminClubReferrals from './components/admin/AdminClubReferrals';
 import AdminClubVerifications from './components/admin/AdminClubVerifications';
 import AuthCallback from './components/AuthCallback';
+import {
+  getDonorApplications,
+  updateApplicationStatus
+} from "./services/applicationService";
 
 
 // Import API services
@@ -42,6 +46,7 @@ import StartAProject from './sections/Pages/innovators/StartAProject';
 import HowItWorksStudents from './sections/Pages/innovators/HowItWorks';
 import ProjectEligibility from './sections/Pages/innovators/ProjectEligibility';
 import ResourceCenter from './sections/Pages/innovators/Resources';
+import SuccessStories from './sections/Pages/innovators/SuccessStories';
 import FundInnovation from './sections/Pages/supporters/FundInnovation';
 import HowItWorksDonors from './sections/Pages/supporters/HowItWorksD';
 import WhyDonate from './sections/Pages/supporters/WhyDonate';
@@ -52,6 +57,7 @@ import PerfectStorm from './sections/Pages/company/PerfectStorm';
 import Careers from './sections/Pages/company/Careers';
 import ContactUs from './sections/Pages/company/ContactUs';
 import FAQ from './sections/Pages/company/FAQ';
+import PressMedia from './sections/Pages/company/PressMedia';
 import AboutUs from './components/AboutUs';
 import TermsAndConditions from './sections/Pages/legal/TermsAndConditions';
 import VerifyPresident from './components/VerifyPresident';
@@ -718,21 +724,25 @@ function AppContent() {
       initiateGoogleAuth(backendRole);
     } catch (error) {
       console.error('Google auth error:', error);
-      hideLoader()
-      setIsSubmitting(false);
       throw new Error('Google authentication failed');
+    } finally {
+      hideLoader();
+      setIsSubmitting(false);
     }
   };
 
   const handleLinkedInAuth = async (role: 'student' | 'donor') => {
     showLoader();
+    setIsSubmitting(true);
     try {
       const backendRole = role === 'student' ? 'USER' : 'DONOR';
       initiateLinkedInAuth(backendRole);
     } catch (error) {
       console.error('LinkedIn auth error:', error);
-      hideLoader();
       throw new Error('LinkedIn authentication failed');
+    } finally {
+      hideLoader();
+      setIsSubmitting(false);
     }
   };
 
@@ -1313,8 +1323,8 @@ function AppContent() {
                                         projectsCount={donorProjects.length}
                                         onCreateProject={() => navigate('/donor/create')}
                                         onViewProjects={() => navigate('/donor/projects')}
-                                        getDonorApplications={async () => []}
-                                        updateApplicationStatus={async () => { }}
+                                        getDonorApplications={getDonorApplications}
+                                        updateApplicationStatus={updateApplicationStatus}
                                         getDonationSummary={async () => ({})}
                                       />
                                     </>
@@ -1373,6 +1383,7 @@ function AppContent() {
                                       />
                                       <DonorProjects
                                         projects={donorProjects}
+                                        onCreateProject={() => navigate('/donor/create')}
                                         onBack={() => navigate('/donor/dashboard')}
                                         onUpdateApplicationStatus={handleUpdateApplicationStatus}
                                       />
@@ -1482,8 +1493,31 @@ function AppContent() {
                               <Route path="/careers" element={<Careers />} />
                               <Route path="/contact" element={<ContactUs />} />
                               <Route path="/faq" element={<FAQ />} />
+                              <Route path="/success-stories" element={<SuccessStories />} />
+                              <Route path="/press" element={<PressMedia />} />
                               <Route path="/terms-And-Conditions" element={<TermsAndConditions />} />
-                            </Routes>
+                              {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                               */}
+                              <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
+                              <Route path="/eligibility" element={<ProjectEligibility />} />
+                              <Route path="/resources" element={<ResourceCenter />} />
+
+
+
+                              <Route path="/fund-innovation" element={<FundInnovation />} />
+                              <Route path="/how-it-works/donors" element={<HowItWorksDonors />} />
+                              <Route path="/why-donate" element={<WhyDonate />} />
+                              <Route path="/corporate-partnerships" element={<CorporateCSRPartnerships />} />
+                              <Route path="/alumni-giving" element={<AlumniGivingPrograms />} />
+                              <Route path="/become-mentor" element={<BecomeMentor />} />
+                              <Route path="/perfect-storm" element={<PerfectStorm />} />
+                              <Route path="/careers" element={<Careers />} />
+                              <Route path="/contact" element={<ContactUs />} />
+                              <Route path="/faq" element={<FAQ />} />
+                              <Route path="/success-stories" element={<SuccessStories />} />
+                              <Route path="/press" element={<PressMedia />} />
+
+                            </Routes >
                           </div >
                         </div >
                       </div >

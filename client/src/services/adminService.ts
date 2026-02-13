@@ -294,3 +294,62 @@ export const manageDonorStatus = async (
     body: JSON.stringify({ status }),
   });
 };
+
+
+/* =========================================================
+   Admin Notes & Details
+========================================================= */
+
+export const getEntityNotes = async (type: string, id: string): Promise<ApiResponse<any>> => {
+  return apiRequest(`/admin/notes/${type}/${id}`, {
+    method: 'GET',
+  });
+};
+
+export const createEntityNote = async (type: string, id: string, content: string): Promise<ApiResponse<any>> => {
+  return apiRequest(`/admin/notes/${type}/${id}`, {
+    method: 'POST',
+    body: JSON.stringify({ content }),
+  });
+};
+
+export const getUserFullDetails = async (id: string): Promise<ApiResponse<any>> => {
+  return apiRequest(`/admin/users/${id}/details`, {
+    method: 'GET',
+  });
+};
+
+/* =========================================================
+   Applications (Admin Override)
+========================================================= */
+
+export const getAdminApplications = async (): Promise<ApiResponse<any>> => {
+  return apiRequest('/admin/applications', {
+    method: 'GET',
+  });
+};
+
+export const overrideApplicationStatus = async (
+  id: string, 
+  status: 'ACCEPTED' | 'REJECTED' | 'PENDING',
+  reason?: string
+): Promise<ApiResponse<any>> => {
+  return apiRequest(`/admin/applications/${id}/override`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status, reason }),
+  });
+};
+
+
+/* =========================================================
+   Advanced Campaign Details
+========================================================= */
+
+export const getProjectFullDetails = async (
+  type: 'user' | 'donor', 
+  id: string
+): Promise<ApiResponse<any>> => {
+  return apiRequest(`/admin/projects/${type}/${id}/details`, {
+    method: 'GET',
+  });
+};

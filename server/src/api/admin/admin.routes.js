@@ -2,6 +2,7 @@ const express = require('express');
 const adminController = require('./admin.controller');
 const { protect, restrictTo } = require('../../middleware/auth.middleware');
 const upload = require('../../middleware/upload.middleware');
+const studentVerificationController = require('../../api/studentVerification/studentverfication.controller')
 
 const router = express.Router();
 
@@ -63,5 +64,13 @@ router.get('/audit-logs', adminController.getAuditLogs);
 // getAllDonors is already there, but add these:
 router.patch('/donors/:id/verify', adminController.verifyDonor);
 router.patch('/donors/:id/status', adminController.manageDonorStatus);
+
+// --------------------
+// DONOR APPLICATIONS
+// --------------------
+router.get('/applications', adminController.getAllApplications);
+router.patch('/applications/:id/override', adminController.overrideApplicationStatus);
+
+router.get('/projects/:type/:id/details', adminController.getProjectFullDetails);
 
 module.exports = router;

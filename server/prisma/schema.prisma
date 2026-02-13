@@ -111,6 +111,7 @@ model User {
   adminNotes AdminNote[] @relation("AdminNoteAuthor")
   auditLogs  AuditLog[]  @relation("AuditLogPerformer")
 
+  notesReceived AdminNote[] @relation("UserNotes")
   @@index([googleId])
   @@index([linkedinId])
   @@index([accountStatus])
@@ -148,6 +149,7 @@ model Donor {
   donations     Donation[]
   donorProjects DonorProject[]
   wishlist      Wishlist[]
+  adminNotes    AdminNote[]
 
   @@index([googleId])
   @@index([linkedinId])
@@ -185,8 +187,8 @@ model UserProject {
 
   youtubeUrl String?
   // Relation to user (creator)
-  userId     String?  @db.ObjectId
-  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String? @db.ObjectId
+  user       User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   clubId String? @db.ObjectId
   club   Club?   @relation(fields: [clubId], references: [id], onDelete: Cascade)
@@ -386,6 +388,7 @@ model Club {
   campaigns       UserProject[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+  adminNotes      AdminNote[]
 
   @@index([presidentEmail])
 }
@@ -571,20 +574,27 @@ model AuditLog {
 
 //internal noting for admin (invisible to users)
 model AdminNote {
-  id      String @id @default(auto()) @map("_id") @db.ObjectId
-  content String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  createdAt DateTime @default(now())
 
+  // Author
+  authorId String @db.ObjectId
+  author   User   @relation("AdminNoteAuthor", fields: [authorId], references: [id])
+
+  // Relations (Target Entities)
   userProject   UserProject? @relation(fields: [userProjectId], references: [id])
   userProjectId String?      @db.ObjectId
 
   donorProject   DonorProject? @relation(fields: [donorProjectId], references: [id])
   donorProjectId String?       @db.ObjectId
 
-  authorId String @db.ObjectId
-  author   User   @relation("AdminNoteAuthor", fields: [authorId], references: [id])
+  targetUser   User?   @relation("UserNotes", fields: [targetUserId], references: [id])
+  targetUserId String? @db.ObjectId
 
-  createdAt DateTime @default(now())
+  targetClub   Club?   @relation(fields: [targetClubId], references: [id])
+  targetClubId String? @db.ObjectId
+
+  targetDonor   Donor?  @relation(fields: [targetDonorId], references: [id])
+  targetDonorId String? @db.ObjectId
 }
-
-
-

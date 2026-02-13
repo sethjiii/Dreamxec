@@ -34,13 +34,16 @@ const Icons = {
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" /></svg>
   ),
   Identity: ({ className }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /><rect x="3" y="3" width="18" height="18" rx="2" ry="2" opacity="0.1"/></svg>
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /><rect x="3" y="3" width="18" height="18" rx="2" ry="2" opacity="0.1" /></svg>
   ),
   Activity: ({ className }: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
   ),
   Briefcase: ({ className }: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
+  ),
+  FileText: ({ className }: { className?: string }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
   ),
 };
 
@@ -49,18 +52,19 @@ export default function AdminSidebar() {
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-const menuItems = [
-  { label: 'Command Center', path: '/admin/dashboard', icon: <Icons.Dashboard /> },
-  { label: 'User Management', path: '/admin/users', icon: <Icons.Users /> },
-  { label: 'Donor Management', path: '/admin/donors', icon: <Icons.Briefcase /> }, // <--- NEW
-  { label: 'Club Management', path: '/admin/clubs', icon: <Icons.Clubs /> },
-  { label: 'Financials', path: '/admin/financials', icon: <Icons.Wallet /> },
-  { label: 'Student Verify', path: '/admin/student-verifications', icon: <Icons.Identity /> },
-  { label: 'Milestones', path: '/admin/milestones', icon: <Icons.Flag /> },
-  { label: 'Club Requests', path: '/admin/verifications', icon: <Icons.Verify /> },
-  { label: 'Referrals', path: '/admin/referrals', icon: <Icons.Referrals /> },
-  { label: 'System Logs', path: '/admin/audit-logs', icon: <Icons.Activity /> },
-];
+  const menuItems = [
+    { label: 'Command Center', path: '/admin', icon: <Icons.Dashboard /> },
+    { label: 'User Management', path: '/admin/users', icon: <Icons.Users /> },
+    { label: 'Donor Management', path: '/admin/donors', icon: <Icons.Briefcase /> },
+    { label: 'Club Management', path: '/admin/clubs', icon: <Icons.Clubs /> },
+    { label: 'Applications', path: '/admin/applications', icon: <Icons.FileText /> }, // <--- NEW
+    { label: 'Financials', path: '/admin/financials', icon: <Icons.Wallet /> },
+    { label: 'Student Verify', path: '/admin/student-verifications', icon: <Icons.Identity /> },
+    { label: 'Milestones', path: '/admin/milestones', icon: <Icons.Flag /> },
+    { label: 'Club Requests', path: '/admin/verifications', icon: <Icons.Verify /> },
+    { label: 'Referrals', path: '/admin/referrals', icon: <Icons.Referrals /> },
+    { label: 'System Logs', path: '/admin/audit-logs', icon: <Icons.Activity /> },
+  ];
 
   const isActive = (path: string) => location.pathname === path;
 

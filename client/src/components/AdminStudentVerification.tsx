@@ -51,120 +51,128 @@ export default function AdminStudentVerifications() {
     <div className="flex min-h-screen bg-transparent relative">
       <AdminSidebar />
       
-      <div className="flex-1 relative min-h-screen p-8 ml-64">
-        {/* Decor */}
-        <div className="absolute top-12 left-12 opacity-10 pointer-events-none"><StarDecoration className="w-32 h-32" color="#0B9C2C" /></div>
-
-        <div className="mb-8 flex justify-between items-end">
-          <div>
-            <h1 className="text-4xl font-bold text-dreamxec-navy font-display flex items-center gap-3">
-              Student Verifications <StarDecoration className="w-8 h-8" color="#FF7F00" />
-            </h1>
-            <p className="text-dreamxec-navy/70 mt-2">Review student IDs and verification payments.</p>
-          </div>
-          
-          {/* Filter Toggle */}
-          <div className="flex bg-white rounded-lg p-1 border-2 border-dreamxec-navy/10">
-            {['VERIFIED', 'PENDING', 'REJECTED', 'ALL'].map((status) => (
-              <button
-                key={status}
-                onClick={() => setFilter(status)}
-                className={`px-4 py-2 rounded-md font-bold text-xs transition-all ${
-                  filter === status 
-                    ? 'bg-dreamxec-navy text-white shadow-md' 
-                    : 'text-gray-500 hover:bg-gray-100'
-                }`}
-              >
-                {status}
-              </button>
-            ))}
-          </div>
+      {/* Main Content Area - Fluid full width layout */}
+      <div className="flex-1 relative min-h-screen w-full px-6 lg:px-10 py-8">
+        
+        {/* Decorative Background Elements */}
+        <div className="absolute top-12 left-12 z-0 opacity-10 pointer-events-none">
+          <StarDecoration className="w-32 h-32" color="#0B9C2C" />
         </div>
 
-        <div className="bg-white rounded-xl border-4 border-dreamxec-navy shadow-pastel-card overflow-hidden">
-          {loading ? (
-            <div className="p-12 text-center text-gray-500 animate-pulse font-bold">Loading data...</div>
-          ) : verifications.length === 0 ? (
-            <div className="p-12 text-center">
-              <div className="text-6xl mb-4">🎓</div>
-              <h3 className="text-2xl font-bold text-dreamxec-navy font-display">No Records Found</h3>
-              <p className="text-gray-500">No student verifications match this filter.</p>
+        {/* Content Wrapper */}
+        <div className="relative z-10 w-full">
+          
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+              <h1 className="text-4xl font-bold text-dreamxec-navy font-display flex items-center gap-3">
+                Student Verifications <StarDecoration className="w-8 h-8 hidden sm:block" color="#FF7F00" />
+              </h1>
+              <p className="text-gray-600 mt-2 font-sans text-lg">Review student IDs and verification payments.</p>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-dreamxec-navy text-white">
-                  <tr>
-                    <th className="p-4 font-display tracking-wider uppercase text-sm">Student</th>
-                    <th className="p-4 font-display tracking-wider uppercase text-sm">Contact</th>
-                    <th className="p-4 font-display tracking-wider uppercase text-sm">Document</th>
-                    <th className="p-4 font-display tracking-wider uppercase text-sm">Payment</th>
-                    <th className="p-4 font-display tracking-wider uppercase text-sm">Status</th>
-                    <th className="p-4 text-right font-display tracking-wider uppercase text-sm">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {verifications.map((v: any) => (
-                    <tr key={v.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="p-4">
-                        <div className="font-bold text-dreamxec-navy">{v.fullName}</div>
-                        <div className="text-xs text-gray-500">{v.studentEmail}</div>
-                        <div className="text-xs text-blue-600 font-mono">{v.officialEmail}</div>
-                      </td>
-                      <td className="p-4 text-sm font-mono">
-                        <div className="flex items-center gap-1">
-                          <Icons.WhatsApp /> {v.mobileNumber}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <a 
-                          href={v.documentUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-3 py-1 bg-dreamxec-cream border border-dreamxec-orange rounded-full text-xs font-bold text-dreamxec-orange hover:bg-dreamxec-orange hover:text-white transition-colors"
-                        >
-                          <Icons.Doc /> {v.docType}
-                        </a>
-                      </td>
-                      <td className="p-4">
-                        <div className="text-xs font-mono text-gray-500">ID: {v.razorpayPaymentId}</div>
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">PAID</span>
-                      </td>
-                      <td className="p-4">
-                        <span className={`px-2 py-1 rounded text-xs font-bold border ${
-                          v.status === 'VERIFIED' ? 'bg-green-100 text-green-700 border-green-200' :
-                          v.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
-                          'bg-red-100 text-red-700 border-red-200'
-                        }`}>
-                          {v.status}
-                        </span>
-                      </td>
-                      <td className="p-4 text-right">
-                        {v.status === 'PENDING' && (
-                          <div className="flex justify-end gap-2">
-                            <button 
-                              onClick={() => handleAction(v.id, 'approve')}
-                              className="p-2 bg-green-100 text-green-700 rounded-lg border-2 border-green-300 hover:bg-green-200"
-                              title="Approve"
-                            >
-                              <Icons.Check />
-                            </button>
-                            <button 
-                              onClick={() => handleAction(v.id, 'reject')}
-                              className="p-2 bg-red-100 text-red-700 rounded-lg border-2 border-red-300 hover:bg-red-200"
-                              title="Reject"
-                            >
-                              <Icons.X />
-                            </button>
-                          </div>
-                        )}
-                      </td>
+            
+            {/* Filter Toggle */}
+            <div className="flex bg-white rounded-xl p-1.5 border-2 border-dreamxec-navy/20 shadow-sm w-full md:w-auto overflow-x-auto">
+              {['VERIFIED', 'PENDING', 'REJECTED', 'ALL'].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setFilter(status)}
+                  className={`px-5 py-2.5 rounded-lg font-bold text-xs tracking-wide transition-all whitespace-nowrap ${
+                    filter === status 
+                      ? 'bg-dreamxec-navy text-white shadow-md scale-105' 
+                      : 'text-gray-500 hover:bg-dreamxec-navy/5 hover:text-dreamxec-navy'
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl border-4 border-dreamxec-navy shadow-pastel-card overflow-hidden">
+            {loading ? (
+              <div className="p-12 text-center text-gray-500 animate-pulse font-bold font-display text-xl">Loading data...</div>
+            ) : verifications.length === 0 ? (
+              <div className="p-12 text-center">
+                <div className="text-6xl mb-4">🎓</div>
+                <h3 className="text-2xl font-bold text-dreamxec-navy font-display">No Records Found</h3>
+                <p className="text-gray-500 font-sans mt-2">No student verifications match this filter.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-dreamxec-cream border-b-2 border-dreamxec-navy/20">
+                    <tr>
+                      <th className="p-5 font-bold tracking-wider font-display uppercase text-sm text-dreamxec-navy">Student</th>
+                      <th className="p-5 font-bold tracking-wider font-display uppercase text-sm text-dreamxec-navy">Contact</th>
+                      <th className="p-5 font-bold tracking-wider font-display uppercase text-sm text-dreamxec-navy">Document</th>
+                      <th className="p-5 font-bold tracking-wider font-display uppercase text-sm text-dreamxec-navy">Payment</th>
+                      <th className="p-5 font-bold tracking-wider font-display uppercase text-sm text-dreamxec-navy">Status</th>
+                      <th className="p-5 text-right font-bold tracking-wider font-display uppercase text-sm text-dreamxec-navy">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {verifications.map((v: any) => (
+                      <tr key={v.id} className="hover:bg-dreamxec-cream/50 transition-colors">
+                        <td className="p-5">
+                          <div className="font-bold text-dreamxec-navy text-lg font-display">{v.fullName}</div>
+                          <div className="text-sm text-gray-500 font-mono mt-1">{v.studentEmail}</div>
+                          <div className="text-sm text-blue-600 font-mono mt-0.5">{v.officialEmail}</div>
+                        </td>
+                        <td className="p-5 text-sm font-mono text-gray-600">
+                          <div className="flex items-center gap-1.5">
+                            <Icons.WhatsApp /> {v.mobileNumber}
+                          </div>
+                        </td>
+                        <td className="p-5">
+                          <a 
+                            href={v.documentUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border-2 border-dreamxec-orange rounded-full text-xs font-bold text-dreamxec-orange shadow-sm hover:bg-dreamxec-orange hover:text-white transition-colors"
+                          >
+                            <Icons.Doc /> {v.docType}
+                          </a>
+                        </td>
+                        <td className="p-5">
+                          <div className="text-sm font-mono text-gray-500 mb-1">ID: {v.razorpayPaymentId}</div>
+                          <span className="text-xs bg-green-50 border border-green-200 text-green-700 font-bold px-3 py-1 rounded-md shadow-sm">PAID</span>
+                        </td>
+                        <td className="p-5">
+                          <span className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase border-2 shadow-sm ${
+                            v.status === 'VERIFIED' ? 'bg-green-50 text-green-700 border-green-200' :
+                            v.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                            'bg-red-50 text-red-700 border-red-200'
+                          }`}>
+                            {v.status}
+                          </span>
+                        </td>
+                        <td className="p-5 text-right">
+                          {v.status === 'PENDING' && (
+                            <div className="flex justify-end gap-3 items-center">
+                              <button 
+                                onClick={() => handleAction(v.id, 'approve')}
+                                className="p-2.5 bg-green-50 text-green-700 rounded-lg border-2 border-green-200 shadow-sm hover:bg-green-100 transition-colors"
+                                title="Approve"
+                              >
+                                <Icons.Check />
+                              </button>
+                              <button 
+                                onClick={() => handleAction(v.id, 'reject')}
+                                className="p-2.5 bg-red-50 text-red-700 rounded-lg border-2 border-red-200 shadow-sm hover:bg-red-100 transition-colors"
+                                title="Reject"
+                              >
+                                <Icons.X />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -71,6 +71,7 @@ import AdminMilestones from './components/AdminMilestone';
 import AdminStudentVerifications from './components/AdminStudentVerification';
 import AdminAuditLogs from './components/AdminAuditLogs';
 import AdminDonors from './components/AdminDonors';
+import AdminApplications from './components/AdminApplications';
 
 // Main App Content Component
 function AppContent() {
@@ -1163,6 +1164,18 @@ function AppContent() {
                                   <>
                                     <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
                                     <AdminDonors />
+                                  </>
+                                ) : (
+                                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                    <p className="text-dreamxec-navy text-xl font-bold">Access Restricted</p>
+                                  </div>
+                                )
+                              } />
+                              <Route path="/admin/applications" element={
+                                user?.role === 'admin' ? (
+                                  <>
+                                    <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
+                                    <AdminApplications />
                                   </>
                                 ) : (
                                   <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">

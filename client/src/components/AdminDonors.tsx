@@ -62,107 +62,123 @@ export default function AdminDonors() {
     <div className="flex min-h-screen bg-transparent relative">
       <AdminSidebar />
       
-      <div className="flex-1 relative min-h-screen p-8 ml-64">
-        {/* Decor */}
-        <div className="absolute top-10 right-10 opacity-10 pointer-events-none"><StarDecoration className="w-24 h-24" color="#8B5CF6" /></div>
-
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-4xl font-bold text-dreamxec-navy font-display flex items-center gap-3">
-              Donor Management <StarDecoration className="w-8 h-8" color="#FF7F00" />
-            </h1>
-            <p className="text-dreamxec-navy/70 mt-2">Manage donor accounts and organization verification.</p>
-          </div>
-          
-          <input 
-            type="text" 
-            placeholder="Search donors..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-4 pr-10 py-3 rounded-lg border-2 border-dreamxec-navy w-64 bg-white focus:ring-2 focus:ring-dreamxec-orange"
-          />
+      {/* Main Content Area - Fluid full width layout */}
+      <div className="flex-1 relative min-h-screen w-full px-6 lg:px-10 py-8">
+        
+        {/* Decorative Background Elements */}
+        <div className="absolute top-20 right-20 z-0 opacity-20 pointer-events-none">
+          <StarDecoration className="w-24 h-24" color="#8B5CF6" />
         </div>
 
-        <div className="bg-white rounded-xl border-4 border-dreamxec-navy shadow-pastel-card overflow-hidden">
-          {loading ? (
-            <div className="p-12 text-center text-gray-500 animate-pulse font-bold">Loading donors...</div>
-          ) : filtered.length === 0 ? (
-            <div className="p-12 text-center text-gray-500">No donors found.</div>
-          ) : (
+        {/* Content Wrapper */}
+        <div className="relative z-10 w-full">
+          
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+              <h1 className="text-4xl font-bold text-dreamxec-navy font-display flex items-center gap-3">
+                Donor Management <StarDecoration className="w-8 h-8 hidden sm:block" color="#FF7F00" />
+              </h1>
+              <p className="text-gray-600 mt-2 font-sans text-lg">Manage donor accounts and organization verification.</p>
+            </div>
+            
+            <div className="relative w-full md:w-auto">
+              <input 
+                type="text" 
+                placeholder="Search donors..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-4 pr-10 py-3 rounded-xl border-2 border-dreamxec-navy w-full md:w-80 focus:ring-2 focus:ring-dreamxec-orange bg-white shadow-sm font-sans"
+              />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl border-4 border-dreamxec-navy shadow-pastel-card overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-dreamxec-navy text-white">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-dreamxec-cream border-b-2 border-dreamxec-navy/20">
                   <tr>
-                    <th className="p-4 font-display tracking-wider uppercase text-sm">Organization / Name</th>
-                    <th className="p-4 font-display tracking-wider uppercase text-sm">Contact</th>
-                    <th className="p-4 text-center font-display tracking-wider uppercase text-sm">Impact</th>
-                    <th className="p-4 font-display tracking-wider uppercase text-sm">Status</th>
-                    <th className="p-4 text-right font-display tracking-wider uppercase text-sm">Actions</th>
+                    <th className="p-5 font-bold tracking-wider font-display uppercase text-sm text-dreamxec-navy">Organization / Name</th>
+                    <th className="p-5 font-bold tracking-wider font-display uppercase text-sm text-dreamxec-navy">Contact</th>
+                    <th className="p-5 text-center font-bold tracking-wider font-display uppercase text-sm text-dreamxec-navy">Impact</th>
+                    <th className="p-5 font-bold tracking-wider font-display uppercase text-sm text-dreamxec-navy">Status</th>
+                    <th className="p-5 text-right font-bold tracking-wider font-display uppercase text-sm text-dreamxec-navy">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {filtered.map((d: any) => (
-                    <tr key={d.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-dreamxec-navy text-lg">{d.organizationName || d.name}</span>
-                          {d.verified && <Icons.CheckBadge />}
-                        </div>
-                        {d.organizationName && <div className="text-xs text-gray-500">Rep: {d.name}</div>}
-                      </td>
-                      <td className="p-4 text-sm font-mono text-gray-600">{d.email}</td>
-                      <td className="p-4 text-center">
-                        <div className="flex justify-center gap-4 text-sm font-mono text-gray-600">
-                          <span title="Donations Made">💸 {d._count.donations}</span>
-                          <span title="Projects Funded">🚀 {d._count.donorProjects}</span>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase border-2 ${
-                          d.accountStatus === 'ACTIVE' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'
-                        }`}>
-                          {d.accountStatus || 'ACTIVE'}
-                        </span>
-                      </td>
-                      <td className="p-4 text-right flex justify-end gap-2">
-                        {/* Verify Toggle */}
-                        <button 
-                          onClick={() => handleVerify(d.id, d.verified)}
-                          className={`p-2 rounded-lg border-2 transition-colors ${
-                            d.verified 
-                              ? 'bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200' 
-                              : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
-                          }`}
-                          title={d.verified ? "Unverify Organization" : "Verify Organization"}
-                        >
-                          <Icons.CheckBadge />
-                        </button>
-
-                        {/* Block/Unblock */}
-                        {d.accountStatus === 'ACTIVE' || !d.accountStatus ? (
-                          <button 
-                            onClick={() => handleStatusChange(d.id, 'BLOCKED')}
-                            className="p-2 bg-red-100 text-red-700 rounded-lg border-2 border-red-300 hover:bg-red-200"
-                            title="Block Account"
-                          >
-                            <Icons.Block />
-                          </button>
-                        ) : (
-                          <button 
-                            onClick={() => handleStatusChange(d.id, 'ACTIVE')}
-                            className="p-2 bg-green-100 text-green-700 rounded-lg border-2 border-green-300 hover:bg-green-200"
-                            title="Unblock Account"
-                          >
-                            <Icons.Check />
-                          </button>
-                        )}
-                      </td>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={5} className="p-12 text-center text-gray-500 font-bold font-display text-xl animate-pulse">Loading donors...</td>
                     </tr>
-                  ))}
+                  ) : filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="p-12 text-center text-gray-500 font-display text-lg">No donors match your search.</td>
+                    </tr>
+                  ) : (
+                    filtered.map((d: any) => (
+                      <tr key={d.id} className="hover:bg-dreamxec-cream/50 transition-colors">
+                        <td className="p-5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-dreamxec-navy text-lg font-display">{d.organizationName || d.name}</span>
+                            {d.verified && <Icons.CheckBadge />}
+                          </div>
+                          {d.organizationName && <div className="text-sm text-gray-500 font-sans mt-1">Rep: {d.name}</div>}
+                        </td>
+                        <td className="p-5 text-sm font-mono text-gray-600">{d.email}</td>
+                        <td className="p-5 text-center">
+                          <div className="flex justify-center gap-4 text-sm font-mono text-gray-600">
+                            <span title="Donations Made">💸 {d._count?.donations || 0}</span>
+                            <span title="Projects Funded">🚀 {d._count?.donorProjects || 0}</span>
+                          </div>
+                        </td>
+                        <td className="p-5">
+                          <span className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase border-2 shadow-sm ${
+                            d.accountStatus === 'ACTIVE' || !d.accountStatus ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'
+                          }`}>
+                            {d.accountStatus || 'ACTIVE'}
+                          </span>
+                        </td>
+                        <td className="p-5 text-right">
+                          <div className="flex justify-end gap-3 items-center">
+                            {/* Verify Toggle */}
+                            <button 
+                              onClick={() => handleVerify(d.id, d.verified)}
+                              className={`p-2 rounded-lg border-2 shadow-sm transition-colors ${
+                                d.verified 
+                                  ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' 
+                                  : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                              }`}
+                              title={d.verified ? "Unverify Organization" : "Verify Organization"}
+                            >
+                              <Icons.CheckBadge />
+                            </button>
+
+                            {/* Block/Unblock */}
+                            {d.accountStatus === 'ACTIVE' || !d.accountStatus ? (
+                              <button 
+                                onClick={() => handleStatusChange(d.id, 'BLOCKED')}
+                                className="p-2 bg-red-50 text-red-700 rounded-lg border-2 border-red-200 shadow-sm hover:bg-red-100 transition-colors"
+                                title="Block Account"
+                              >
+                                <Icons.Block />
+                              </button>
+                            ) : (
+                              <button 
+                                onClick={() => handleStatusChange(d.id, 'ACTIVE')}
+                                className="p-2 bg-green-50 text-green-700 rounded-lg border-2 border-green-200 shadow-sm hover:bg-green-100 transition-colors"
+                                title="Unblock Account"
+                              >
+                                <Icons.Check />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

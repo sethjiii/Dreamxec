@@ -1012,3 +1012,183 @@ exports.manageDonorStatus = catchAsync(async (req, res, next) => {
 
   res.status(200).json({ status: 'success', data: { donor } });
 });
+
+// ---------------------------------------------------
+// ADMIN NOTES
+// ---------------------------------------------------
+
+// ADMIN: Get Notes for an Entity
+exports.getNotes = catchAsync(async (req, res, next) => {
+  const { type, id } = req.params; // type: 'user', 'club', 'project', 'donor'
+
+  const where = {};
+  if (type === 'user') where.targetUserId = id;
+  else if (type === 'club') where.targetClubId = id;
+  else if (type === 'donor') where.targetDonorId = id;
+  else if (type === 'project') where.userProjectId = id; // Default to UserProject
+  else if (type === 'donor_project') where.donorProjectId = id;
+
+  const notes = await prisma.adminNote.findMany({
+    where,
+    include: {
+      author: { select: { name: true, email: true } }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  res.status(200).json({ status: 'success', data: { notes } });
+});
+
+// ADMIN: Create Note
+exports.createNote = catchAsync(async (req, res, next) => {
+  const { type, id } = req.params;
+  const { content } = req.body;
+
+  if (!content) return next(new AppError('Note content is required', 400));
+
+  const data = {
+    content,
+    authorId: req.user.id
+  };
+
+  // Assign to correct relation
+  if (type === 'user') data.targetUserId = id;
+  else if (type === 'club') data.targetClubId = id;
+  else if (type === 'donor') data.targetDonorId = id;
+  else if (type === 'project') data.userProjectId = id;
+  else if (type === 'donor_project') data.donorProjectId = id;
+
+  const note = await prisma.adminNote.create({
+    data,
+    include: {
+      author: { select: { name: true, email: true } }
+    }
+  });
+
+  res.status(201).json({ status: 'success', data: { note } });
+});
+
+// ADMIN: Get Full User Details (Profile + Activity)
+exports.getUserDetails = catchAsync(async (req, res, next) => {
+  const user = await prisma.user.findUnique({
+    where: { id: req.params.id },
+    include: {
+      userProjects: { select: { id: true, title: true, status: true, amountRaised: true } },
+      donations: { select: { id: true, amount: true, createdAt: true } },
+      clubsPresided: { select: { id: true, name: true } },
+      notesReceived: { 
+        include: { author: { select: { name: true } } },
+        orderBy: { createdAt: 'desc' }
+      }
+    }
+  });
+
+  if (!user) return next(new AppError('User not found', 404));
+
+  res.status(200).json({ status: 'success', data: { user } });
+});
+
+// ---------------------------------------------------
+// APPLICATIONS (DONOR PROJECTS)
+// ---------------------------------------------------
+
+// ADMIN: Get all applications across all donor projects
+exports.getAllApplications = catchAsync(async (req, res, next) => {
+  const applications = await prisma.application.findMany({
+    include: {
+      user: { select: { name: true, email: true } },
+      donorProject: { select: { title: true, organization: true } }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  res.status(200).json({ status: 'success', data: { applications } });
+});
+
+// ADMIN: Override Application Status (Force Accept/Reject)
+exports.overrideApplicationStatus = catchAsync(async (req, res, next) => {
+  const { status, reason } = req.body;
+
+  if (!['ACCEPTED', 'REJECTED', 'PENDING'].includes(status)) {
+    return next(new AppError('Invalid status', 400));
+  }
+
+  const application = await prisma.application.update({
+    where: { id: req.params.id },
+    data: { 
+      status, 
+      rejectionReason: status === 'REJECTED' ? reason : null 
+    },
+    include: {
+      user: { select: { name: true } },
+      donorProject: { select: { title: true } }
+    }
+  });
+
+  // Log Audit Trail
+  await prisma.auditLog.create({
+    data: {
+      action: `APP_OVERRIDE_${status}`,
+      entityType: 'Application',
+      entityId: application.id,
+      performedBy: req.user.id,
+      details: { project: application.donorProject.title, student: application.user.name, reason }
+    }
+  });
+
+  res.status(200).json({ status: 'success', data: { application } });
+});
+
+
+// ---------------------------------------------------
+// ADVANCED CAMPAIGN DETAILS
+// ---------------------------------------------------
+
+// ADMIN: Get Full Project/Campaign Details
+exports.getProjectFullDetails = catchAsync(async (req, res, next) => {
+  const { type, id } = req.params; // type: 'user' or 'donor'
+
+  let project;
+
+  if (type === 'user') {
+    project = await prisma.userProject.findUnique({
+      where: { id },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        club: { select: { id: true, name: true, college: true } },
+        bankAccount: true,
+        donations: { 
+          include: { donor: { select: { name: true } } },
+          orderBy: { createdAt: 'desc' } 
+        },
+        withdrawals: { orderBy: { createdAt: 'desc' } },
+        milestones: { orderBy: { createdAt: 'asc' } },
+        adminNotes: { 
+          include: { author: { select: { name: true } } }, 
+          orderBy: { createdAt: 'desc' } 
+        }
+      }
+    });
+  } else if (type === 'donor') {
+    project = await prisma.donorProject.findUnique({
+      where: { id },
+      include: {
+        donor: { select: { id: true, name: true, email: true, organizationName: true } },
+        applications: { 
+          include: { user: { select: { name: true, email: true } } },
+          orderBy: { createdAt: 'desc' }
+        },
+        adminNotes: { 
+          include: { author: { select: { name: true } } }, 
+          orderBy: { createdAt: 'desc' } 
+        }
+      }
+    });
+  } else {
+    return next(new AppError('Invalid project type', 400));
+  }
+
+  if (!project) return next(new AppError('Project not found', 404));
+
+  res.status(200).json({ status: 'success', data: { project } });
+});

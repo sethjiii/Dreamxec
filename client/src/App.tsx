@@ -321,12 +321,12 @@ function AppContent() {
 
   console.log(campaigns)
 
-  const approvedCampaigns = campaigns.filter((c) => c.status === 'APPROVED');
-  const pendingCampaigns = campaigns.filter((c) => c.status === 'PENDING');
+  const approvedCampaigns = campaigns.filter((c) => c.status === 'APPROVED' || c.status === 'approved');
+  const pendingCampaigns = campaigns.filter((c) => c.status === 'PENDING' || c.status === 'pending');
   const userCampaigns = campaigns.filter((c) => c.user?.id === user?.id);
   const donorProjects = projects.filter((p) => p.donor?.id === user?.id);
-  const approvedProjects = projects.filter((p) => p.status === 'APPROVED');
-  const pendingProjects = projects.filter((p) => p.status === 'PENDING');
+  const approvedProjects = projects.filter((p) => p.status === 'APPROVED' || p.status === 'approved');
+  const pendingProjects = projects.filter((p) => p.status === 'PENDING' || p.status === 'pending');
 
   // if (loading) {
   //   return (

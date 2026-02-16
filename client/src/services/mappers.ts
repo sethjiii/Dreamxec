@@ -91,6 +91,8 @@ export const mapUserProjectToCampaign = (
     title: userProject.title,
     description: userProject.description,
 
+    ownerId: userProject.userId,
+    user: userProject.user,
 
     clubId: userProject.clubId,
     club: userProject.club

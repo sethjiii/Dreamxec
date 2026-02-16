@@ -353,3 +353,31 @@ export const getProjectFullDetails = async (
     method: 'GET',
   });
 };
+
+
+/* =========================================================
+   Club Referrals
+========================================================= */
+
+/**
+ * Fetch all club referrals (pending, approved, rejected)
+ */
+export const getClubReferrals = async (): Promise<ApiResponse<any>> => {
+  return apiRequest('/admin/referrals', {
+    method: 'GET',
+  });
+};
+
+/**
+ * Update the status of a club referral (Approve or Reject)
+ */
+export const updateReferralStatus = async (
+  id: string,
+  status: 'APPROVED' | 'REJECTED',
+  notes?: string
+): Promise<ApiResponse<any>> => {
+  return apiRequest(`/admin/referrals/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status, notes }),
+  });
+};  

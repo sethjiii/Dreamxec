@@ -8,13 +8,14 @@ const Icons = {
   Doc: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>,
   Check: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>,
   X: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>,
+  Undo: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>,
   WhatsApp: () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c1.067.592 2.074.938 2.8.938 3.183 0 5.768-2.586 5.769-5.766.001-3.181-2.585-5.767-5.773-5.767zm6.265 8.632c-.373.917-1.796 1.774-2.803 1.774-1.008 0-2.095-.517-3.413-1.832-1.318-1.318-1.833-2.406-1.833-3.413 0-1.007.857-2.43 1.774-2.803 1.155-.47 2.372-.642 3.473-.642 1.101 0 2.318.172 3.473.642.917.373 1.774 1.796 1.774 2.803 0 1.007-.517 2.095-1.833 3.413-1.318 1.318-2.406 1.833-3.413 1.833-.628 0-1.258-.236-1.832-.642-.574.406-1.204.642-1.832.642z"/></svg>,
 };
 
 export default function AdminStudentVerifications() {
   const [verifications, setVerifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('VERIFIED'); // Default to showing history or pending? Let's show ALL or pending
+  const [filter, setFilter] = useState('PENDING'); // Default to PENDING to show actionable items first
 
   useEffect(() => {
     loadData();
@@ -34,7 +35,8 @@ export default function AdminStudentVerifications() {
   };
 
   const handleAction = async (id: string, action: 'approve' | 'reject') => {
-    if (!window.confirm(`Are you sure you want to ${action} this student?`)) return;
+    const actionText = action === 'approve' ? 'verify' : 'unverify/reject';
+    if (!window.confirm(`Are you sure you want to ${actionText} this student?`)) return;
     try {
       if (action === 'approve') {
         await approveStudentVerification(id);
@@ -72,7 +74,7 @@ export default function AdminStudentVerifications() {
             
             {/* Filter Toggle */}
             <div className="flex bg-white rounded-xl p-1.5 border-2 border-dreamxec-navy/20 shadow-sm w-full md:w-auto overflow-x-auto">
-              {['VERIFIED', 'PENDING', 'REJECTED', 'ALL'].map((status) => (
+              {['PENDING', 'VERIFIED', 'REJECTED', 'ALL'].map((status) => (
                 <button
                   key={status}
                   onClick={() => setFilter(status)}
@@ -162,6 +164,28 @@ export default function AdminStudentVerifications() {
                                 title="Reject"
                               >
                                 <Icons.X />
+                              </button>
+                            </div>
+                          )}
+                          {v.status === 'VERIFIED' && (
+                            <div className="flex justify-end gap-3 items-center">
+                              <button 
+                                onClick={() => handleAction(v.id, 'reject')}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 rounded-lg border-2 border-amber-200 shadow-sm hover:bg-amber-100 transition-colors text-sm font-bold"
+                                title="Revoke Verification"
+                              >
+                                <Icons.Undo /> Unverify
+                              </button>
+                            </div>
+                          )}
+                          {v.status === 'REJECTED' && (
+                            <div className="flex justify-end gap-3 items-center">
+                              <button 
+                                onClick={() => handleAction(v.id, 'approve')}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-lg border-2 border-green-200 shadow-sm hover:bg-green-100 transition-colors text-sm font-bold"
+                                title="Re-verify Student"
+                              >
+                                <Icons.Check /> Verify
                               </button>
                             </div>
                           )}

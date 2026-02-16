@@ -145,7 +145,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
   const [showDonateModal, setShowDonateModal] = useState(false);
   type CampaignTab = 'about' | 'video' | 'media' | 'presentation' | 'faqs';
   const [activeTab, setActiveTab] = useState<CampaignTab>('about');
-  const showMobileCTA = campaign?.status === 'APPROVED';
+  const showMobileCTA = campaign?.status === 'APPROVED' || campaign?.status === 'approved';
   
   const refreshCampaign = async () => {
     const res = await getUserProject(id!);
@@ -195,7 +195,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
         const res = await getUserProject(id!);
         const mapped = mapUserProjectToCampaign(res.data.userProject);
 
-        if (mapped.status !== 'APPROVED') {
+        if (mapped.status !== 'approved' && mapped.status !== 'APPROVED') {
           setError('This campaign is not available');
           return;
         }
@@ -844,7 +844,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
               </div>
 
               {/* Donate Button */}
-              {campaign.status === 'APPROVED' && (
+              {(campaign.status === 'APPROVED' || campaign.status === 'approved') && (
                 <button
                   onClick={handleDonate}
                   className="w-full px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 bg-dreamxec-green text-white rounded-md sm:rounded-lg border-3 sm:border-4 border-dreamxec-navy font-bold font-display text-sm sm:text-base md:text-lg lg:text-xl hover:scale-105 transition-transform shadow-pastel-green flex items-center justify-center gap-1.5 sm:gap-2"

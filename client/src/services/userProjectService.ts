@@ -33,6 +33,12 @@ export interface UserProject {
   title: string;
   description: string;
 
+  userId?: string;
+  user?: {
+    id: string;
+    name: string;
+  };
+
   clubId: string | null;
   club?: {
     id: string;

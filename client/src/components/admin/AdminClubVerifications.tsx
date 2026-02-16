@@ -41,8 +41,11 @@ export default function AdminClubVerifications() {
     setLoading(true);
     try {
       const res = await getClubVerifications();
-      // Handle response structure (either { data: [...] } or [...])
-      setItems(res.data || (Array.isArray(res) ? res : []));
+      console.log("🔍 Club Verifications API Response:", res);
+      // Handle response structure: { data: { requests: [...] } } or { data: [...] }
+      const responseData = res.data as any;
+      const data = (responseData?.requests) || responseData || [];
+      setItems(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error("Failed to load verifications:", e);
     } finally {

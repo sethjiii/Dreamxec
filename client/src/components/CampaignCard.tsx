@@ -7,10 +7,12 @@ interface CampaignCardProps {
 }
 
 export default function CampaignCard({ campaign, href }: CampaignCardProps) {
-  const progressPercentage = Math.min(
-    (campaign.currentAmount / campaign.goalAmount) * 100,
+  const currentAmount = campaign.currentAmount ?? campaign.amountRaised ?? 0;
+  const goalAmount = campaign.goalAmount ?? 0;
+  const progressPercentage = goalAmount > 0 ? Math.min(
+    (currentAmount / goalAmount) * 100,
     100
-  );
+  ) : 0;
 
   return (
     <a href={href} className="block focus:outline-none focus:ring-4 focus:ring-dreamxec-orange/50 rounded-xl h-full">
@@ -47,10 +49,10 @@ export default function CampaignCard({ campaign, href }: CampaignCardProps) {
           <div className="mt-auto space-y-4">
             <div className="flex justify-between items-baseline mb-3">
               <span className="text-2xl font-bold text-dreamxec-navy">
-                ₹{campaign.currentAmount.toLocaleString()}
+                ₹{currentAmount.toLocaleString()}
               </span>
               <span className="text-sm text-dreamxec-navy/60">
-                of ₹{campaign.goalAmount.toLocaleString()}
+                of ₹{goalAmount.toLocaleString()}
               </span>
             </div>
 

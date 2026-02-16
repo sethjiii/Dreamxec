@@ -2,12 +2,17 @@ const prisma = require('../../config/prisma');
 const catchAsync = require('../../utils/catchAsync');
 const AppError = require('../../utils/AppError');
 const uploadToCloudinary = require('../../utils/uploadToCloudinary');
+const { publishEvent } = require('../../services/eventPublisher.service');
+const EVENTS = require('../../config/events');
+
 
 /* ======================================================
    CREATE USER PROJECT (WITH MILESTONES)
 ====================================================== */
 exports.createUserProject = catchAsync(async (req, res, next) => {
 
+
+  
   /* =============================
      AUTH CHECK
   ============================== */
@@ -32,7 +37,15 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
     goalAmount,
     presentationDeckUrl,
     milestones,
+    clubId,
   } = req.body;
+
+  /* =============================
+   CLUB VALIDATION
+============================== */
+  const validatedClubId = req.validatedClubId;
+
+
 
   /* =============================
      PARSE TEAM MEMBERS
@@ -209,7 +222,7 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
 
         imageUrl: uploads.imageUrl || null,
         campaignMedia: uploads.campaignMedia || [],
-
+        clubId: req.validatedClubId,
         userId: req.user.id,
         status: "PENDING",
       },
@@ -231,6 +244,14 @@ exports.createUserProject = catchAsync(async (req, res, next) => {
   res.status(201).json({
     status: "success",
     data: { userProject: project },
+  });
+
+  // Publish Event
+  await publishEvent(EVENTS.CAMPAIGN_CREATED, {
+    email: req.user.email,
+    name: req.user.name,
+    campaignTitle: project.title,
+    campaignUrl: `${process.env.CLIENT_URL}/projects/${project.id}` // Assuming URL structure
   });
 });
 
@@ -254,6 +275,18 @@ exports.updateUserProject = catchAsync(async (req, res, next) => {
     return next(
       new AppError('Only PENDING or REJECTED projects can be updated', 400)
     );
+
+  if (userProject.status === 'REJECTED') {
+    const currentCount = userProject.reapprovalCount || 0;
+    if (currentCount >= 3) {
+      return next(new AppError('Maximum reapproval attempts (3) reached. Please contact support.', 403));
+    }
+    
+    // Auto-increment and reset status
+    req.body.reapprovalCount = currentCount + 1;
+    req.body.status = 'PENDING';
+    req.body.rejectionReason = null; // Clear previous rejection reason
+  }
 
   const updateData = { ...req.body };
 
@@ -328,6 +361,7 @@ exports.getUserProject = catchAsync(async (req, res, next) => {
   const userProject = await prisma.userProject.findUnique({
     where: { id: req.params.id },
     include: {
+      club: { select: { id: true, name: true, college: true } },
       milestones: true,
       user: { select: { id: true, name: true } },
       donations: {
@@ -354,6 +388,7 @@ exports.getPublicUserProjects = catchAsync(async (req, res) => {
   const userProjects = await prisma.userProject.findMany({
     where: { status: 'APPROVED' },
     include: {
+      club: { select: { id: true, name: true, college: true } },
       milestones: true,
       user: { select: { id: true, name: true } },
       donations: { select: { amount: true } },
@@ -372,6 +407,7 @@ exports.getMyUserProjects = catchAsync(async (req, res) => {
   const userProjects = await prisma.userProject.findMany({
     where: { userId: req.user.id },
     include: {
+      club: { select: { id: true, name: true, college: true } },
       milestones: true,
       user: { select: { id: true, name: true } },
       donations: { select: { amount: true } },
@@ -383,5 +419,45 @@ exports.getMyUserProjects = catchAsync(async (req, res) => {
     status: 'success',
     results: userProjects.length,
     data: { userProjects },
+  });
+});
+
+/* ======================================================
+   GET STUDENT ANALYTICS
+====================================================== */
+exports.getStudentAnalytics = catchAsync(async (req, res, next) => {
+  const projects = await prisma.userProject.findMany({
+    where: { userId: req.user.id },
+    select: {
+      status: true,
+      currentAmount: true,
+      donations: { select: { amount: true } }
+    }
+  });
+
+  const analytics = {
+    total: projects.length,
+    approvedCount: 0,
+    pendingCount: 0,
+    rejectedCount: 0,
+    totalRaised: 0
+  };
+
+  projects.forEach(p => {
+    // Status counting (case-insensitive safety)
+    const status = p.status ? p.status.toUpperCase() : 'PENDING';
+    if (status === 'APPROVED') analytics.approvedCount++;
+    else if (status === 'PENDING') analytics.pendingCount++;
+    else if (status === 'REJECTED') analytics.rejectedCount++;
+
+    // Calculate funds raised
+    // Use currentAmount or calculate from donations
+    const raised = p.currentAmount || p.donations?.reduce((sum, d) => sum + d.amount, 0) || 0;
+    analytics.totalRaised += raised;
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: { analytics }
   });
 });

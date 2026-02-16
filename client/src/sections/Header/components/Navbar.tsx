@@ -481,6 +481,12 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
                       DASHBOARD
                     </a>
                     <a
+                      href="/projects"
+                      className="text-left px-4 py-3 text-dreamxec-navy hover:bg-dreamxec-cream hover:text-dreamxec-orange font-bold transition-colors rounded-lg font-display border-2 border-transparent hover:border-dreamxec-navy"
+                    >
+                      OPPORTUNITIES
+                    </a>
+                    <a
                       href="/campaigns"
                       className="text-left px-4 py-3 text-dreamxec-navy hover:bg-dreamxec-cream hover:text-dreamxec-orange font-bold transition-colors rounded-lg font-display border-2 border-transparent hover:border-dreamxec-navy"
                     >

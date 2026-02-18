@@ -789,7 +789,7 @@ exports.manageWithdrawal = catchAsync(async (req, res, next) => {
 
 // ADMIN: Get ALL milestones (with optional status filter)
 exports.getAllMilestones = catchAsync(async (req, res, next) => {
-  const statusFilter = req.query.status; // optional: PENDING, SUBMITTED, APPROVED, REJECTED
+  const statusFilter = req.query.status;
   const where = statusFilter ? { status: statusFilter } : {};
 
   const [milestones, statusCounts] = await prisma.$transaction([
@@ -798,6 +798,7 @@ exports.getAllMilestones = catchAsync(async (req, res, next) => {
       include: {
         project: {
           select: {
+            id: true,
             title: true,
             status: true,
             user: { select: { name: true, email: true } }
@@ -812,8 +813,8 @@ exports.getAllMilestones = catchAsync(async (req, res, next) => {
     })
   ]);
 
-  // Build counts object
   const counts = { PENDING: 0, SUBMITTED: 0, APPROVED: 0, REJECTED: 0, total: 0 };
+
   statusCounts.forEach(s => {
     counts[s.status] = s._count.status;
     counts.total += s._count.status;
@@ -826,6 +827,8 @@ exports.getAllMilestones = catchAsync(async (req, res, next) => {
   });
 });
 
+
+
 // ADMIN: Get all pending milestones (Submitted for review)
 exports.getPendingMilestones = catchAsync(async (req, res, next) => {
   const milestones = await prisma.milestone.findMany({
@@ -833,6 +836,7 @@ exports.getPendingMilestones = catchAsync(async (req, res, next) => {
     include: {
       project: {
         select: {
+          id: true,
           title: true,
           user: { select: { name: true, email: true } }
         }

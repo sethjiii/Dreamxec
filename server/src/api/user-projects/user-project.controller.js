@@ -13,8 +13,6 @@ const generateUniqueSlug = require("../../utils/generateSlug");
 ====================================================== */
 exports.createUserProject = catchAsync(async (req, res, next) => {
 
-
-
   /* =============================
      AUTH CHECK
   ============================== */

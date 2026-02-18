@@ -12,6 +12,7 @@ exports.listVerifications = async (req, res) => {
     skip: Number(skip),
     take: Number(take),
   });
+  console.log("📋 Club Verifications fetched:", list.length, "records");
   res.json({ success: true, data: list });
 };
 

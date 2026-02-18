@@ -67,6 +67,15 @@ import VerifyPresident from './components/VerifyPresident';
 import { LoaderProvider, useLoader } from './context/LoaderContext';
 import { AuthProvider } from './context/AuthContext';
 import LoadingAnimation from './components/LoadingAnimation';
+// Add these imports with the others
+import AdminUsers from './components/AdminUser';
+import AdminClubs from './components/AdminClubs';
+import AdminFinancials from './components/AdminFinancials';
+import AdminMilestones from './components/AdminMilestone';
+import AdminStudentVerifications from './components/AdminStudentVerification';
+import AdminAuditLogs from './components/AdminAuditLogs';
+import AdminDonors from './components/AdminDonors';
+import AdminApplications from './components/AdminApplications';
 import apiRequest from './services/api';
 
 
@@ -151,12 +160,13 @@ function AppContent() {
               emailVerified: response.data.user.emailVerified || false,
               clubIds: response.data.user?.clubIds || [],
               createdAt: response.data.user.createdAt || new Date().toISOString(),
-              updatedAt: response.data.user.updatedAt || new Date().toISOString(), // Ensure 'updatedAt' is part of the User type
+              updatedAt: response.data.user.updatedAt || new Date().toISOString(),
               isClubPresident: response.data.user?.isClubPresident || false,
               isClubMember: response.data.user?.isClubMember || false,
               clubVerified: response.data.user?.clubVerified || false,
               name: response.data.user.name,
               studentVerified: response.data.user?.studentVerified,
+              accountStatus: response.data.user?.accountStatus || 'ACTIVE',
             };
 
             setUser(userData);
@@ -209,12 +219,13 @@ function AppContent() {
             emailVerified: response.data.user.emailVerified || false,
             clubIds: response.data.user?.clubIds || [],
             createdAt: response.data.user.createdAt || new Date().toISOString(),
-            updatedAt: response.data.user.updatedAt || new Date().toISOString(), // Ensure 'updatedAt' is part of the User type
+            updatedAt: response.data.user.updatedAt || new Date().toISOString(),
             isClubPresident: response.data.user?.isClubPresident || false,
             isClubMember: response.data.user?.isClubMember || false,
             clubVerified: response.data.user?.clubVerified || false,
             name: response.data.user.name,
             studentVerified: response.data.user?.studentVerified,
+            accountStatus: response.data.user?.accountStatus || 'ACTIVE',
           };
           setUser(userData);
         }
@@ -264,14 +275,12 @@ function AppContent() {
           const response = await getAllProjects();
           console.log('📦 Admin projects response:', response);
 
-          if (response.data?.userProjects?.projects) {
-            const mappedCampaigns = response.data.userProjects.projects.map(mapUserProjectToCampaign);
-            setCampaigns(mappedCampaigns);
+          if (response.data?.userProjects?.data) {
+            setCampaigns(response.data.userProjects.data);
           }
 
-          if (response.data?.donorProjects?.projects) {
-            const mappedProjects = response.data.donorProjects.projects.map(mapDonorProjectToProject);
-            setProjects(mappedProjects);
+          if (response.data?.donorProjects?.data) {
+            setProjects(response.data.donorProjects.data);
           }
         } catch (error) {
           console.error('Failed to load admin data:', error);
@@ -375,27 +384,18 @@ function AppContent() {
 
   // ✅ Project filters (same fixes applied)
 
-  const donorProjects = projects.filter((p) => {
-    if (!p.createdBy || !user?.id) return false;
+  const donorProjects = projects.filter(
+  (p) => p.createdBy === user?.id
+);
 
-    if (typeof p.createdBy === "string") {
-      return p.createdBy === user.id;
-    }
+const approvedProjects = projects.filter(
+  (p) => p.status?.toLowerCase() === "approved"
+);
 
-    if (typeof p.createdBy === "object" && "id" in p.createdBy) {
-      return p.createdBy.id === user.id;
-    }
+const pendingProjects = projects.filter(
+  (p) => p.status?.toLowerCase() === "pending"
+);
 
-    return false;
-  });
-
-  const approvedProjects = projects.filter(
-    (p) => p.status?.toLowerCase() === "approved"
-  );
-
-  const pendingProjects = projects.filter(
-    (p) => p.status?.toLowerCase() === "pending"
-  );
 
 
 
@@ -593,7 +593,7 @@ function AppContent() {
       await verifyDonorProject(id, { status: 'APPROVED' });
 
       setProjects(
-        projects.map((p) => (p.id === id ? { ...p, status: 'approved' as const } : p))
+        projects.map((p) => (p.id === id ? { ...p, status: 'APPROVED' as const } : p))
       );
       console.log('✅ Donor project approved successfully');
     } catch (error) {
@@ -611,7 +611,7 @@ function AppContent() {
       await verifyDonorProject(id, { status: 'REJECTED', reason });
 
       setProjects(
-        projects.map((p) => (p.id === id ? { ...p, status: 'rejected' as const, rejectionReason: reason } : p))
+        projects.map((p) => (p.id === id ? { ...p, status: 'REJECTED' as const, rejectionReason: reason } : p))
       );
       console.log('❌ Donor project rejected successfully');
     } catch (error) {
@@ -637,12 +637,13 @@ function AppContent() {
           emailVerified: response.data.user?.emailVerified || false,
           clubIds: response.data.user?.clubIds || [],
           createdAt: response.data.user.createdAt || new Date().toISOString(),
-          updatedAt: response.data.user.updatedAt || new Date().toISOString(), // Ensure 'updatedAt' is part of the User type
+          updatedAt: response.data.user.updatedAt || new Date().toISOString(),
           isClubPresident: response.data.user?.isClubPresident || false,
           isClubMember: response.data.user?.isClubMember || false,
           clubVerified: response.data.user?.clubVerified || false,
           name: response.data.user.name,
           studentVerified: response.data.user?.studentVerified,
+          accountStatus: response.data.user?.accountStatus || 'ACTIVE',
         };
 
         setUser(userData);
@@ -695,12 +696,13 @@ function AppContent() {
           emailVerified: response.data.user.emailVerified || false,
           clubIds: response.data.user?.clubIds || [],
           createdAt: response.data.user.createdAt || new Date().toISOString(),
-          updatedAt: response.data.user.updatedAt || new Date().toISOString(), // Ensure 'updatedAt' is part of the User type
+          updatedAt: response.data.user.updatedAt || new Date().toISOString(),
           isClubPresident: response.data.user?.isClubPresident || false,
           isClubMember: response.data.user?.isClubMember || false,
           clubVerified: response.data.user?.clubVerified || false,
           name: response.data.user.name,
           studentVerified: response.data.user?.studentVerified,
+          accountStatus: response.data.user?.accountStatus || 'ACTIVE',
         };
 
         setUser(userData);
@@ -771,12 +773,13 @@ function AppContent() {
       emailVerified: backendUser.emailVerified || false,
       clubIds: backendUser?.clubIds || [],
       createdAt: backendUser.createdAt || new Date().toISOString(),
-      updatedAt: backendUser.updatedAt || new Date().toISOString(), // Ensure 'updatedAt' is part of the User type
+      updatedAt: backendUser.updatedAt || new Date().toISOString(),
       isClubPresident: backendUser?.isClubPresident || false,
       isClubMember: backendUser?.isClubMember || false,
       clubVerified: backendUser?.clubVerified || false,
       name: backendUser.name,
       studentVerified: backendUser?.studentVerified,
+      accountStatus: backendUser?.accountStatus || 'ACTIVE',
     };
     setUser(userData);
   };
@@ -910,23 +913,14 @@ function AppContent() {
   };
 
   const handleUpdateApplicationStatus = (
-    projectId: string,
-    applicationId: string,
-    status: 'accepted' | 'rejected'
+    _projectId: string,
+    _applicationId: string,
+    _status: 'accepted' | 'rejected'
   ) => {
-    setProjects(
-      projects.map((project) => {
-        if (project.id === projectId) {
-          return {
-            ...project,
-            interestedUsers: project.interestedUsers.map((app) =>
-              app.id === applicationId ? { ...app, status } : app
-            ),
-          };
-        }
-        return project;
-      })
-    );
+    // Note: This function is kept for API compatibility but the actual
+    // application status update is handled by the DonorProjects component
+    // which fetches its own data
+    console.log('Application status update triggered - handled by component');
   };
 
   const handleUpdateBankDetails = async (bankDetails: any) => {
@@ -1195,17 +1189,7 @@ function AppContent() {
                                         onLogin={handleLoginClick}
                                         onLogout={handleLogout}
                                       />
-                                      <AdminDashboard
-                                        pendingCampaigns={pendingCampaigns}
-                                        allCampaigns={campaigns}
-                                        pendingProjects={pendingProjects}
-                                        allProjects={projects}
-
-                                        onApprove={handleApproveCampaign}
-                                        onReject={handleRejectCampaign}
-                                        onApproveProject={handleApproveProject}
-                                        onRejectProject={handleRejectProject}
-                                      />
+                                      <AdminDashboard />
                                     </>
                                   ) : (
                                     <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
@@ -1226,6 +1210,101 @@ function AppContent() {
 
                               <Route path="/admin/verifications" element={<AdminClubVerifications />} />
                               <Route path="/admin/club-verifications" element={<AdminClubVerifications />} />
+                              <Route path="/admin/financials" element={<AdminFinancials />} />
+                              <Route path="/admin/milestones" element={
+                                user?.role === 'admin' ? (
+                                  <>
+                                    <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
+                                    <AdminMilestones />
+                                  </>
+                                ) : (
+                                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                    <p className="text-dreamxec-navy text-xl font-bold">Access Restricted</p>
+                                  </div>
+                                )
+                              } />
+                              <Route path="/admin/student-verifications" element={
+                                user?.role === 'admin' ? (
+                                  <>
+                                    <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
+                                    <AdminStudentVerifications />
+                                  </>
+                                ) : (
+                                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                    <p className="text-dreamxec-navy text-xl font-bold">Access Restricted</p>
+                                  </div>
+                                )
+                              } />
+                              <Route path="/admin/audit-logs" element={
+                                user?.role === 'admin' ? (
+                                  <>
+                                    <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
+                                    <AdminAuditLogs />
+                                  </>
+                                ) : (
+                                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                    <p className="text-dreamxec-navy text-xl font-bold">Access Restricted</p>
+                                  </div>
+                                )
+                              } />
+                              <Route path="/admin/donors" element={
+                                user?.role === 'admin' ? (
+                                  <>
+                                    <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
+                                    <AdminDonors />
+                                  </>
+                                ) : (
+                                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                    <p className="text-dreamxec-navy text-xl font-bold">Access Restricted</p>
+                                  </div>
+                                )
+                              } />
+                              <Route path="/admin/applications" element={
+                                user?.role === 'admin' ? (
+                                  <>
+                                    <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
+                                    <AdminApplications />
+                                  </>
+                                ) : (
+                                  <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                    <p className="text-dreamxec-navy text-xl font-bold">Access Restricted</p>
+                                  </div>
+                                )
+                              } />
+
+                              {/* --- Admin User Management --- */}
+                              <Route
+                                path="/admin/users"
+                                element={
+                                  user?.role === 'admin' ? (
+                                    <>
+                                      <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
+                                      <AdminUsers />
+                                    </>
+                                  ) : (
+                                    <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                      <p className="text-dreamxec-navy text-xl font-bold">Access Restricted</p>
+                                    </div>
+                                  )
+                                }
+                              />
+
+                              {/* --- Admin Club Management --- */}
+                              <Route
+                                path="/admin/clubs"
+                                element={
+                                  user?.role === 'admin' ? (
+                                    <>
+                                      <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
+                                      <AdminClubs />
+                                    </>
+                                  ) : (
+                                    <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
+                                      <p className="text-dreamxec-navy text-xl font-bold">Access Restricted</p>
+                                    </div>
+                                  )
+                                }
+                              />
 
                               {/* Auth Page - Login/Signup */}
                               <Route

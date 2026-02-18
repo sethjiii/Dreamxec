@@ -1,4 +1,4 @@
-const { clubVerification, $transaction } = require("../../config/prisma");
+const prisma = require("../../config/prisma");
 const uploadToCloudinary = require("../../utils/uploadToCloudinary");
 const { publishEvent } = require('../../services/eventPublisher.service');
 const EVENTS = require('../../config/events');
@@ -41,7 +41,7 @@ async function submitClubVerification(req, res) {
         .json({ success: false, message: "Invalid Alumni Data" });
     }
 
-    const verification = await clubVerification.create({
+    const verification = await prisma.clubVerification.create({
       data: {
         collegeName,
         studentEmail,
@@ -94,7 +94,7 @@ async function submitClubVerification(req, res) {
 // ADMIN LIST
 async function listVeridications(req, res) {  // Fixed param order
   try {
-    const items = await clubVerification.findMany({
+    const items = await prisma.clubVerification.findMany({
       orderBy: { createdAt: "desc" },
     });
 
@@ -108,7 +108,7 @@ async function approveVerification(req, res) {
   const id = req.params.id;
 
   try {
-    const result = await $transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const verification = await tx.clubVerification.findUnique({
         where: { id },
       });
@@ -177,7 +177,7 @@ async function rejectVerification(req, res) {
   const id = req.params.id;
   const { reason } = req.body;
 
-  await clubVerification.update({
+  await prisma.clubVerification.update({
     where: { id },
     data: {
       status: "REJECTED",

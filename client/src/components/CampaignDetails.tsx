@@ -15,7 +15,7 @@ import YouTube from "react-youtube";
 import {
   createRazorpayOrderAuthenticated,
   createRazorpayOrderGuest,
-  verifyPayment,
+  verifyPayment,  
 } from "../services/donationService";
 import CommentSection from "./comments/CommentSection";
 import { Resizable } from "re-resizable";
@@ -57,7 +57,7 @@ const FAQItem = ({
 
       {open && (
         <div className="px-3 sm:px-4 md:px-5 pb-2.5 sm:pb-3 md:pb-4">
-          <p className="text-dreamxec-navy/80 text-xs sm:text-sm md:text-base break-words">{faq.answer}</p>
+          <p className="text-dreamxec-navy/80 text-xs sm:text-sm md:text-base leading-relaxed">{faq.answer}</p>
         </div>
       )}
     </div>
@@ -97,8 +97,8 @@ function CleanDescription({ description }: CleanDescriptionProps) {
         <p
           key={index}
           className="text-dreamxec-navy/95 font-sans text-sm sm:text-base md:text-lg leading-relaxed mb-3 sm:mb-4 md:mb-6 first:mb-4 sm:first:mb-6 md:first:mb-8 last:mb-0 
-                   w-full text-balance hyphens-auto indent-0 sm:indent-6 first:indent-0 
-                   bg-gradient-to-r from-transparent via-white to-transparent p-2 sm:p-3 md:p-4 -mx-2 sm:-mx-3 md:-mx-4 rounded-lg sm:rounded-xl break-words"
+                   max-w-4xl text-balance hyphens-auto indent-0 sm:indent-6 first:indent-0 
+                   bg-gradient-to-r from-transparent via-white to-transparent p-2 sm:p-3 md:p-4 -mx-2 sm:-mx-3 md:-mx-4 lg:-mx-6 rounded-md sm:rounded-lg md:rounded-xl"
         >
           {paragraph}
         </p>
@@ -119,7 +119,7 @@ function NoDescription() {
           <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332-.477-4.5-1.253" />
         </svg>
       </div>
-      <h3 className="text-base sm:text-lg md:text-xl font-bold text-dreamxec-navy/70 mb-2 font-display">No description available</h3>
+      <h3 className="text-base sm:text-lg md:text-xl font-bold text-dreamxec-navy/70 mb-1.5 sm:mb-2 font-display">No description available</h3>
       <p className="text-xs sm:text-sm md:text-base text-dreamxec-navy/50 max-w-md mx-auto">Campaign details will be updated soon.</p>
     </div>
   );
@@ -201,6 +201,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
         setLoading(true);
         const res = await getUserProject(id!);
         const mapped = mapUserProjectToCampaign(res.data.userProject);
+
         if (mapped.status !== 'approved') {
           setError('This campaign is not available');
           return;
@@ -797,7 +798,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
               </div>
 
               {/* Donate Button */}
-             {campaign.status === 'approved' && (
+              {(campaign.status === 'approved') && (
                 <button
                   onClick={handleDonate}
                   className="relative w-full overflow-hidden px-3 sm:px-4 md:px-6 py-3 sm:py-3.5 md:py-4 rounded-md sm:rounded-lg border-3 sm:border-2 border-dreamxec-navy font-bold font-display text-sm sm:text-base md:text-lg lg:text-xl transition-all duration-300 hover:scale-[1.03] hover:shadow-xl active:scale-95 flex items-center justify-center gap-2 group"
@@ -929,5 +930,6 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
       />
       <FooterContent />
     </div>
+  
   );
 }

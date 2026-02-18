@@ -92,7 +92,7 @@ exports.createOrder = catchAsync(async (req, res) => {
   });
 });
 
-// STEP 2: VERIFY PAYMENT (unchanged)
+// STEP 2: VERIFY PAYMENT - Now also updates donation and project
 exports.verifyPayment = async (req, res, next) => {
   try {
     const {
@@ -111,9 +111,38 @@ exports.verifyPayment = async (req, res, next) => {
       return next(new AppError("Invalid payment signature", 400));
     }
 
+    // Update donation status and project amountRaised
+    const donation = await prisma.donation.findUnique({
+      where: { razorpayOrderId: razorpay_order_id },
+    });
+
+    if (donation && donation.paymentStatus !== "completed") {
+      await prisma.$transaction(async (tx) => {
+        // Update donation status
+        await tx.donation.update({
+          where: { id: donation.id },
+          data: {
+            paymentStatus: "completed",
+            razorpayPaymentId: razorpay_payment_id,
+          },
+        });
+
+        // Update project amountRaised
+        if (donation.userProjectId) {
+          await tx.userProject.update({
+            where: { id: donation.userProjectId },
+            data: {
+              amountRaised: { increment: donation.amount },
+            },
+          });
+          console.log("✅ Project amountRaised updated via verifyPayment");
+        }
+      });
+    }
+
     res.status(200).json({
       success: true,
-      message: "Payment verified. Awaiting confirmation.",
+      message: "Payment verified and recorded.",
     });
   } catch (err) {
     console.error("Verify Error:", err);

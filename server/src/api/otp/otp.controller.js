@@ -1,9 +1,8 @@
 const otpGenerator = require("otp-generator");
 const crypto = require("crypto");
 const { sendWhatsAppMessage } = require("../../services/whatsapp.service");
+const sendEmail = require("../../services/email.service");
 const redis = require("../../services/redis.service");
-const { publishEvent } = require("../../services/eventPublisher.service");
-const events = require("../../config/events");
 
 /* ───────────────── CONSTANTS ───────────────── */
 const OTP_EXPIRY = 300;              // 5 minutes
@@ -119,10 +118,11 @@ const generateOtp = async (req, res) => {
     /* 📧 EMAIL OTP */
     if (email) {
       const otp = await generateAndStoreOtp("email", email);
-      await publishEvent(events.EMAIL_OTP_REQUEST,{
-        email:email,
-        otp:otp
-      })
+      await sendEmail({
+        email,
+        subject: "DreamXec - Your Verification OTP",
+        message: `Your DreamXec OTP is ${otp}. Valid for 5 minutes.`,
+      });
     }
 
     /* 📱 WHATSAPP OTP */

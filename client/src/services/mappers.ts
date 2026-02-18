@@ -21,6 +21,21 @@ export type Milestone = {
    Role Mapping
 ========================================================= */
 
+export const CAMPAIGN_STATUS = {
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+} as const;
+
+export const PROJECT_STATUS = {
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  COMPLETED: 'completed',
+  PAUSED: 'paused',
+  FROZEN: 'frozen',
+} as const;
+
 // Backend → Frontend
 export const mapBackendRole = (
   backendRole: 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'
@@ -69,6 +84,7 @@ export const mapBackendStatus = (
     | 'rejected';
 };
 
+
 export const mapFrontendStatus = (
   frontendStatus: 'pending' | 'approved' | 'rejected'
 ): 'PENDING' | 'APPROVED' | 'REJECTED' => {
@@ -91,6 +107,7 @@ export const mapUserProjectToCampaign = (
     title: userProject.title,
     description: userProject.description,
 
+    // user: userProject.user,
 
     clubId: userProject.clubId,
     club: userProject.club
@@ -107,6 +124,7 @@ export const mapUserProjectToCampaign = (
     userId: userProject.userId,
     status: mapBackendStatus(userProject.status),
     createdAt: new Date(userProject.createdAt),
+
 
     campaignType: userProject.campaignType || "INDIVIDUAL",
     teamMembers: userProject.teamMembers || [],
@@ -134,10 +152,11 @@ export const mapDonorProjectToProject = (
     id: donorProject.id,
     title: donorProject.title,
     companyName: donorProject.organization,
+    organization: donorProject.organization,
     description: donorProject.description,
     skillsRequired: donorProject.skillsRequired,
     createdBy: donorProject.donorId,
-    createdAt: new Date(donorProject.createdAt),
+    createdAt: donorProject.createdAt,
     interestedUsers: [],
     status: mapBackendStatus(donorProject.status),
     rejectionReason: donorProject.rejectionReason,

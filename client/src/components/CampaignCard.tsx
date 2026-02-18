@@ -7,15 +7,17 @@ interface CampaignCardProps {
 }
 
 export default function CampaignCard({ campaign, href }: CampaignCardProps) {
-  const progressPercentage = Math.min(
-    (campaign.currentAmount / campaign.goalAmount) * 100,
+  const currentAmount = campaign.currentAmount ?? 0;
+  const goalAmount = campaign.goalAmount ?? 0;
+  const progressPercentage = goalAmount > 0 ? Math.min(
+    (currentAmount / goalAmount) * 100,
     100
-  );
+  ) : 0;
 
   return (
     <a href={href} className="block focus:outline-none focus:ring-2 focus:ring-dreamxec-orange/50 rounded-xl h-full">
       <div className="card-pastel-offwhite rounded-xl border-2 border-dreamxec-navy shadow-pastel-card overflow-hidden group hover:shadow-xl hover:border-dreamxec-orange/70 transition-all duration-300 h-full flex flex-col">
-        
+
         {/* <div className="card-tricolor-tag"></div> */}
 
         {/* Image */}
@@ -35,7 +37,7 @@ export default function CampaignCard({ campaign, href }: CampaignCardProps) {
             <h3 className="text-xl sm:text-2xl font-bold text-dreamxec-navy mb-3 line-clamp-2 leading-tight font-display">
               {campaign.title}
             </h3>
-            
+
             <div className="flex flex-col sm:flex-row gap-2 text-sm text-dreamxec-navy/70 font-medium">
               <span>{campaign.club?.college || 'DreamXec Academy'}</span>
               <span className="text-dreamxec-orange">•</span>
@@ -47,10 +49,10 @@ export default function CampaignCard({ campaign, href }: CampaignCardProps) {
           <div className="mt-auto space-y-4">
             <div className="flex justify-between items-baseline mb-3">
               <span className="text-2xl font-bold text-dreamxec-navy">
-                ₹{campaign.currentAmount.toLocaleString()}
+                ₹{currentAmount.toLocaleString()}
               </span>
               <span className="text-sm text-dreamxec-navy/60">
-                of ₹{campaign.goalAmount.toLocaleString()}
+                of ₹{goalAmount.toLocaleString()}
               </span>
             </div>
 

@@ -22,6 +22,8 @@ enum ProjectStatus {
   APPROVED
   REJECTED
   COMPLETED
+  PAUSED
+  FROZEN
 }
 
 enum BankAccountStatus {
@@ -33,6 +35,21 @@ enum BankAccountStatus {
 enum ApplicationStatus {
   PENDING
   ACCEPTED
+  REJECTED
+}
+
+//Account related statuses
+enum AccountStatus {
+  ACTIVE
+  BLOCKED
+  SUSPENDED
+  UNDER_REVIEW
+}
+
+enum MilstoneStatus {
+  PENDING
+  SUBMITTED
+  APPROVED
   REJECTED
 }
 
@@ -48,6 +65,9 @@ model User {
   googleId   String?
   linkedinId String?
 
+  //account status
+  accountStatus AccountStatus @default(ACTIVE)
+
   // Email verification
   emailVerified           Boolean   @default(false)
   verificationToken       String?
@@ -59,15 +79,15 @@ model User {
   clubVerifications   ClubVerification[] @relation("UserClubVerifications")
 
   // Campaign / club related flags
-  canCreateCampaign    Boolean @default(false) // toggled when president is approved
-  isClubMember         Boolean @default(false) // true when matched with ClubMember
-  clubIds              String[]  @db.ObjectId 
-  clubs                Club[]    @relation("UserClubRelation", fields: [clubIds], references: [id]) 
-  hasPaid              Boolean @default(false) // payment status for campaign permission
-  isClubPresident      Boolean @default(false)
-  isExternallyVerified Boolean @default(false) // KYC / 3rd-party verification status
-  clubVerified         Boolean @default(false)
-  studentVerified      Boolean @default(false)
+  canCreateCampaign    Boolean    @default(false) // toggled when president is approved
+  isClubMember         Boolean    @default(false) // true when matched with ClubMember
+  clubIds              String[]   @db.ObjectId
+  clubs                Club[]     @relation("UserClubRelation", fields: [clubIds], references: [id])
+  hasPaid              Boolean    @default(false) // payment status for campaign permission
+  isClubPresident      Boolean    @default(false)
+  isExternallyVerified Boolean    @default(false) // KYC / 3rd-party verification status
+  clubVerified         Boolean    @default(false)
+  studentVerified      Boolean    @default(false)
   donations            Donation[]
   comments CampaignComment[] @relation("UserComments")
 
@@ -79,17 +99,23 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  userProjects  UserProject[]
-  bankAccounts  BankAccount[]
-  applications  Application[] // Applications to donor projects
-  clubsPresided Club[]        @relation("ClubPresident")
+  userProjects        UserProject[]
+  bankAccounts        BankAccount[]
+  applications        Application[] // Applications to donor projects
+  clubsPresided       Club[]               @relation("ClubPresident")
   studentVerification StudentVerification?
 
   // reverse relation (ClubMember.user)
   clubMembers ClubMember[] // optional helper
 
+  //admin feature
+  adminNotes AdminNote[] @relation("AdminNoteAuthor")
+  auditLogs  AuditLog[]  @relation("AuditLogPerformer")
+
+  notesReceived AdminNote[] @relation("UserNotes")
   @@index([googleId])
   @@index([linkedinId])
+  @@index([accountStatus])
 }
 
 // -----------------------------
@@ -104,6 +130,9 @@ model Donor {
   verified         Boolean @default(false)
   googleId         String?
   linkedinId       String?
+
+  //account status
+  accountStatus AccountStatus @default(ACTIVE)
 
   // Email verification
   emailVerified           Boolean   @default(false)
@@ -121,6 +150,7 @@ model Donor {
   donations     Donation[]
   donorProjects DonorProject[]
   wishlist      Wishlist[]
+  adminNotes    AdminNote[]
   comments CampaignComment[] @relation("DonorComments")
 
 
@@ -152,13 +182,13 @@ model UserProject {
   rejectionReason     String? // Admin's reason for rejection
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
-  campaignType String @default("INDIVIDUAL") 
+  campaignType        String        @default("INDIVIDUAL")
   // "INDIVIDUAL" | "TEAM"
 
-  teamMembers Json? 
+  teamMembers Json?
   // [{ name, role, image }]
 
-  faqs Json? 
+  faqs Json?
   // [{ question, answer }]
 
   youtubeUrl String?
@@ -172,7 +202,6 @@ model UserProject {
   clubId String? @db.ObjectId
   club   Club?   @relation(fields: [clubId], references: [id], onDelete: Cascade)
 
-
   // Bank account for payout
   bankAccountId String?      @db.ObjectId
   bankAccount   BankAccount? @relation(fields: [bankAccountId], references: [id])
@@ -181,8 +210,10 @@ model UserProject {
   donations    Donation[]
   withdrawals  Withdrawal[]
   wishlistedBy Wishlist[]
+  milestones   Milestone[]
 
-  milestones Milestone[]
+  //admin notes
+  adminNotes AdminNote[]
 
   @@index([userId])
   @@index([status])
@@ -199,6 +230,12 @@ model Milestone {
   timeline    String
   budget      Float
   description String?
+
+  //Verification fields
+  status        MilstoneStatus @default(PENDING)
+  proofUrl      String?
+  adminFeedback String?
+  approvedAt    DateTime?
 
   // Relation
   projectId String      @db.ObjectId
@@ -236,6 +273,9 @@ model DonorProject {
   // Applications from students
   applications Application[]
 
+  //adminNotes
+  adminNotes AdminNote[]
+
   @@index([donorId])
   @@index([status])
 }
@@ -255,10 +295,10 @@ model Application {
   updatedAt       DateTime          @updatedAt
 
   // ✅ Make relations SAFE for Studio
-  userId         String  @db.ObjectId
-  user           User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  donorProjectId String  @db.ObjectId
+  userId String @db.ObjectId
+  user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  donorProjectId String        @db.ObjectId
   donorProject   DonorProject? @relation(fields: [donorProjectId], references: [id], onDelete: Cascade)
 
   @@unique([userId, donorProjectId])
@@ -266,7 +306,6 @@ model Application {
   @@index([donorProjectId])
   @@index([status])
 }
-
 
 // -----------------------------
 // DONATION MODEL
@@ -295,9 +334,9 @@ model Donation {
   userProject   UserProject @relation(fields: [userProjectId], references: [id], onDelete: Cascade)
 
   // 💳 Payment
-  paymentStatus       String @default("created")
-  razorpayOrderId     String? @unique
-  razorpayPaymentId   String?
+  paymentStatus     String  @default("created")
+  razorpayOrderId   String? @unique
+  razorpayPaymentId String?
 
   createdAt DateTime @default(now())
 
@@ -305,7 +344,6 @@ model Donation {
   @@index([donorId])
   @@index([userProjectId])
 }
-
 
 // -----------------------------
 // BANK ACCOUNT MODEL
@@ -356,8 +394,9 @@ model Club {
   userIds         String[] @db.ObjectId
   members         ClubMember[]
   campaigns       UserProject[]
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  adminNotes      AdminNote[]
 
   @@index([presidentEmail])
   @@index([college])
@@ -452,7 +491,6 @@ model ClubVerification {
   clubYouTube     String?
   alumni          Json?
 
-
   userId String? @db.ObjectId
   user   User?   @relation("UserClubVerifications", fields: [userId], references: [id])
 
@@ -531,24 +569,74 @@ model CampaignComment {
 // STUDENT VERIFICATION MODEL
 // -----------------------------
 model StudentVerification {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  fullName        String
-  studentEmail    String
-  officialEmail   String
-  mobileNumber    String
-  docType         String
-  documentUrl     String   // Cloudinary URL
-  
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  fullName      String
+  studentEmail  String
+  officialEmail String
+  mobileNumber  String
+  docType       String
+  documentUrl   String // Cloudinary URL
+
   // Payment Details
   razorpayPaymentId String?
   razorpayOrderId   String?
   razorpaySignature String?
 
-  status          String   @default("PENDING") // PENDING, VERIFIED, REJECTED
-  
-  userId          String   @unique @db.ObjectId
-  user            User     @relation(fields: [userId], references: [id])
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  status String @default("PENDING") // PENDING, VERIFIED, REJECTED
+
+  userId String @unique @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//-------------------------
+// AUDIT LOGS & ADMIN NOTES
+//-------------------------
+
+//records every action taken by an admin
+model AuditLog {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  action   String
+  entity   String
+  entityId String
+
+  performedBy String @db.ObjectId
+  admin       User   @relation("AuditLogPerformer", fields: [performedBy], references: [id])
+
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([entityId])
+  @@index([action])
+  @@index([performedBy])
+}
+
+//internal noting for admin (invisible to users)
+model AdminNote {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  createdAt DateTime @default(now())
+
+  // Author
+  authorId String @db.ObjectId
+  author   User   @relation("AdminNoteAuthor", fields: [authorId], references: [id])
+
+  // Relations (Target Entities)
+  userProject   UserProject? @relation(fields: [userProjectId], references: [id])
+  userProjectId String?      @db.ObjectId
+
+  donorProject   DonorProject? @relation(fields: [donorProjectId], references: [id])
+  donorProjectId String?       @db.ObjectId
+
+  targetUser   User?   @relation("UserNotes", fields: [targetUserId], references: [id])
+  targetUserId String? @db.ObjectId
+
+  targetClub   Club?   @relation(fields: [targetClubId], references: [id])
+  targetClubId String? @db.ObjectId
+
+  targetDonor   Donor?  @relation(fields: [targetDonorId], references: [id])
+  targetDonorId String? @db.ObjectId
 }

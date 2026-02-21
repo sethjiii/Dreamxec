@@ -128,10 +128,10 @@ export const CampaignCarousel = () => {
         ref={containerRef}
         onScroll={checkScroll}
         className="
-          flex gap-4 sm:gap-6 px-4
+          flex gap-3 xs:gap-4 sm:gap-5 md:gap-6 px-4
           overflow-x-auto overflow-y-hidden
           scrollbar-hide
-          pb-2
+          pb-3 sm:pb-4
         "
         style={{ alignItems: 'stretch', scrollBehavior: 'auto' }}
         onMouseEnter={() => (isPausedRef.current = true)}
@@ -150,7 +150,7 @@ export const CampaignCarousel = () => {
           items.map((campaign, i) => (
             <div
               key={`${campaign.id}-${i}`}
-              className="flex-shrink-0 w-[280px] sm:w-[320px] md:w-[340px] h-auto transition-transform duration-500 ease-in-out"
+              className="flex-shrink-0 w-[260px] xs:w-[280px] sm:w-[300px] md:w-[320px] lg:w-[340px] h-auto"
             >
               <CampaignCard campaign={campaign} />
             </div>

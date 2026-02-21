@@ -1,9 +1,10 @@
 import { Header } from '../../Header'
 import { Footer } from '../../Footer'
+import { useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Keyboard, A11y, Autoplay } from 'swiper/modules';
+import { Pagination, Keyboard, A11y, Autoplay } from 'swiper/modules';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import 'swiper/css';
-import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
 const FAQ = () => {

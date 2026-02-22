@@ -17,6 +17,26 @@ enum Role {
   STUDENT_PRESIDENT
 }
 
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum YearOfStudy {
+  FIRST
+  SECOND
+  THIRD
+  FINAL
+}
+
+enum Occupation {
+  SALARIED
+  BUSINESS
+  PROFESSIONAL
+  OTHER
+}
+
 enum ProjectStatus {
   PENDING
   APPROVED
@@ -95,6 +115,36 @@ model User {
   subscriptionId     String? // NEW
   subscriptionExpiry DateTime? // NEW
 
+  // ── Student Profile Fields ──
+  phone          String?
+  countryCode    String?  @default("+91")
+  gender         Gender?
+  dateOfBirth    DateTime?
+  address        String?
+
+  // Academic
+  college        String?
+  yearOfStudy    YearOfStudy?
+
+  // Social & Bio
+  instagram      String?
+  facebook       String?
+  twitterX       String?
+  reddit         String?
+  bio            String?
+  profilePicture String?
+
+  // Student extras
+  skills         String[]  @default([])
+  projectTitle   String?
+  fundingRequired Float?
+  portfolioUrl   String?
+  githubUrl      String?
+  linkedinUrl    String?
+
+  // Profile completion
+  profileComplete Boolean  @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -145,6 +195,31 @@ model Donor {
   // Password reset
   resetPasswordToken  String?
   resetPasswordExpiry DateTime?
+
+  // ── Donor Profile Fields ──
+  phone             String?
+  countryCode       String?  @default("+91")
+  gender            Gender?
+  dateOfBirth       DateTime?
+  panNumber         String?
+  education         String?
+  occupation        Occupation?
+  address           String?
+
+  // Social & Bio
+  instagram         String?
+  facebook          String?
+  twitterX          String?
+  reddit            String?
+  bio               String?
+  profilePicture    String?
+
+  // Donor preferences
+  donationCategories String[]  @default([])
+  anonymousDonation  Boolean   @default(false)
+
+  // Profile completion
+  profileComplete    Boolean   @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

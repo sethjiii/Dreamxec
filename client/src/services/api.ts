@@ -10,6 +10,7 @@ const API_BASE_URL =
 // ===============================
 export interface ApiResponse<T> {
   success: boolean;
+  status?: string;
   message?: string;
   data?: T;
   meta?: any;

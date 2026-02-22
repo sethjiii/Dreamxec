@@ -39,6 +39,7 @@ const adminRedisRoutes = require("./src/api/admin/adminRedis.routes");
 const clubRoutes = require('./src/api/clubs/club.routes');
 const campaignCommentRoutes = require("./src/api/campaign-comments/campaignComment.routes");
 const seoRoutes = require("./src/api/seo/seo.routes");
+const profileRoutes = require('./src/api/profile/profile.routes');
 
 
 
@@ -164,6 +165,7 @@ app.use("/api/otp", otpRoutes);
 app.use("/api/student-verification", studentVerificationRoutes);
 app.use("/api/payments", require("./src/api/payments/payment.routes"));
 app.use("/api", campaignCommentRoutes);
+app.use("/api/profile", profileRoutes);
 app.use("/", seoRoutes);
 
 // --------------------------------------------

@@ -32,6 +32,7 @@ import AdminClubVerifications from './components/admin/AdminClubVerifications';
 import ClubDiscovery from "./components/ClubDiscovery";
 import ClubDetails from "./components/ClubDetails";
 import AuthCallback from './components/AuthCallback';
+import ProfileSetup from './components/ProfileSetup';
 import {
   getDonorApplications,
   updateApplicationStatus
@@ -1344,6 +1345,9 @@ function AppContent() {
 
                               {/* OAuth callback handler */}
                               <Route path="/auth/callback" element={<AuthCallback />} />
+
+                              {/* Profile Setup — redirected here after first auth */}
+                              <Route path="/profile/setup" element={<ProfileSetup />} />
 
                               {/* Check Email Page */}
                               <Route

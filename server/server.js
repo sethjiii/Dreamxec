@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const helmet = require('helmet');
 const passport = require('passport');
 const session = require('express-session');
 const AppError = require('./src/utils/AppError');
@@ -50,6 +51,43 @@ const profileRoutes = require('./src/api/profile/profile.routes');
 require('./src/config/passport');
 
 const app = express();
+
+// --------------------------------------------
+// 0️⃣ SECURITY HEADERS (helmet)
+// --------------------------------------------
+app.use(
+  helmet({
+    // Strict-Transport-Security: max-age=31536000; includeSubDomains
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+    // X-Content-Type-Options: nosniff
+    noSniff: true,
+    // Referrer-Policy: strict-origin-when-cross-origin
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    // Content-Security-Policy
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'", "https:", "data:"],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: [],
+      },
+    },
+    // Disable X-Powered-By (hides Express signature)
+    hidePoweredBy: true,
+    // Prevent clickjacking
+    frameguard: { action: 'deny' },
+    // XSS filter for older browsers
+    xssFilter: true,
+  })
+);
 
 // --------------------------------------------
 // 1️⃣ CORS

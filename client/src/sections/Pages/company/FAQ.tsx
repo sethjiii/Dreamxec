@@ -69,7 +69,7 @@ const donorFAQs = [
 const corporateFAQs = [
   {
     q: "How does CSR on DreamXec work?",
-    a: "You allocate CSR budget to support student innovation. Models range from sponsoring 1 specific project to annual innovation grants to long-term partnerships (₹1Cr+). Each comes with different branding, reporting, and talent acquisition benefits. Email partnerships@dreamxec.org to discuss your budget and priorities."
+    a: "You allocate CSR budget to support student innovation. Models range from sponsoring 1 specific project to annual innovation grants to long-term partnerships (₹1Cr+). Each comes with different branding, reporting, and talent acquisition benefits. Email partnerships@dreamxec.com to discuss your budget and priorities."
   },
   {
     q: "What's the ROI of DreamXec partnerships?",
@@ -389,7 +389,7 @@ const FAQ = () => {
             </div>
 
             <p className="nb-hero-sub">
-              Answers for students, donors, and corporate partners — all in one place. Can't find what you're looking for? Email <strong>support@dreamxec.org</strong> and we'll respond within 24 hours.
+              Answers for students, donors, and corporate partners — all in one place. Can't find what you're looking for? Email <strong>support@dreamxec.com</strong> and we'll respond within 24 hours.
             </p>
 
             <div className="pill-row">
@@ -504,7 +504,7 @@ const FAQ = () => {
               <div style={{ background:"#0B9C2C" }} />
             </div>
             <div className="nb-cta-btns">
-              <a href="mailto:support@dreamxec.org" className="nb-btn-1">✉️ Email Support →</a>
+              <a href="mailto:support@dreamxec.com" className="nb-btn-1">✉️ Email Support →</a>
               <a href="/" className="nb-btn-2">🏠 Back to Home</a>
             </div>
           </div>

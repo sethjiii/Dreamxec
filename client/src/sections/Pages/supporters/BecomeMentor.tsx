@@ -110,7 +110,7 @@ const mentorStories = [
   {
     icon: "👨‍💻",
     name: "Arvind",
-    title: "Senior Engineer at Google",
+    title: "Senior Engineer",
     accent: "#FF7F00",
     story: "I mentor 2–3 DreamXec projects every year. It takes ~2 hours/week, and honestly? I learn as much as I teach. These 22-year-olds think about problems differently. One mentee's startup idea made me rethink our team's approach to a product. I now have 3 interns from DreamXec projects in my team. Best talent pipeline I've found.",
   },

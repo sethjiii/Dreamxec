@@ -9,49 +9,37 @@ const criteria = [
     title: "Merit First",
     text: "Ideas are judged by potential, not pedigree. Whether you're from IIT or a tier-3 college, if your project has merit, you get funded.",
     icon: "/assets/icon-pack/DX-ILLUSTRATION-PACK/3.svg",
-    shadow: "#FF7F00",
-    stripe: "#FF7F00",
-    num: "01",
+    shadow: "#FF7F00", stripe: "#FF7F00", num: "01",
   },
   {
     title: "Transparency",
     text: "Every rupee is tracked. Every milestone is public. No hidden fees, no opacity—just honest impact.",
     icon: "/assets/icon-pack/DX-ILLUSTRATION-PACK/4.svg",
-    shadow: "#0B9C2C",
-    stripe: "#0B9C2C",
-    num: "02",
+    shadow: "#0B9C2C", stripe: "#0B9C2C", num: "02",
   },
   {
     title: "Gurukul Spirit",
     text: "Like ancient Gurukuls where teachers and students co-created knowledge, DreamXec connects generations — alumni mentoring students, corporates enabling research.",
     icon: "/assets/icon-pack/DX-ILLUSTRATION-PACK/5.svg",
-    shadow: "#003366",
-    stripe: "#003366",
-    num: "03",
+    shadow: "#003366", stripe: "#003366", num: "03",
   },
   {
     title: "Atmanirbhar Bharat",
     text: "We're building India's self-reliance in innovation. Not waiting for foreign funding, not copying Silicon Valley — creating our own model rooted in Indian context.",
     icon: "/assets/icon-pack/DX-ILLUSTRATION-PACK/6.svg",
-    shadow: "#FF7F00",
-    stripe: "#FF7F00",
-    num: "04",
+    shadow: "#FF7F00", stripe: "#FF7F00", num: "04",
   },
   {
     title: "UN SDG Alignment",
     text: "Every project must contribute to at least one Sustainable Development Goal. Innovation for profit AND purpose.",
     icon: "/assets/icon-pack/DX-ILLUSTRATION-PACK/7.svg",
-    shadow: "#0B9C2C",
-    stripe: "#0B9C2C",
-    num: "05",
+    shadow: "#0B9C2C", stripe: "#0B9C2C", num: "05",
   },
   {
     title: "Community First",
     text: "Students aren't 'users,' donors aren't 'customers'—we're all stakeholders in India's future.",
     icon: "/assets/icon-pack/DX-ILLUSTRATION-PACK/20.svg",
-    shadow: "#003366",
-    stripe: "#003366",
-    num: "06",
+    shadow: "#003366", stripe: "#003366", num: "06",
   },
 ];
 
@@ -60,10 +48,8 @@ export const CriteriaGrid = () => {
     <div className="w-full px-4">
       <div className="mt-[10%] max-w-6xl mx-auto">
 
-        {/* ── SECTION HEADING ── */}
+        {/* HEADING */}
         <div className="text-center mb-10 sm:mb-12 md:mb-14">
-
-          {/* Eyebrow stamp */}
           <div className="flex justify-center mb-4">
             <span
               className="inline-flex items-center gap-2 px-3 py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-white"
@@ -73,120 +59,68 @@ export const CriteriaGrid = () => {
             </span>
           </div>
 
-          {/* Main heading with stamp highlight */}
           <h2 className="font-black leading-tight mb-3">
             <span className="block text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-dreamxec-navy uppercase tracking-tight">
               Our Values
             </span>
             <span className="block mt-1 sm:mt-2">
               <span className="relative inline-block">
-                <span
-                  className="absolute inset-0 translate-x-[4px] translate-y-[4px] sm:translate-x-[6px] sm:translate-y-[6px]"
-                  style={{ background: '#0B9C2C' }}
-                  aria-hidden
-                />
-                <span
-                  className="relative z-10 inline-block px-3 sm:px-5 py-1 text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-white font-black uppercase tracking-tight"
-                  style={{ background: '#003366', border: '3px solid #003366' }}
-                >
+                <span className="absolute inset-0 translate-x-[4px] translate-y-[4px] sm:translate-x-[6px] sm:translate-y-[6px]" style={{ background: '#0B9C2C' }} aria-hidden />
+                <span className="relative z-10 inline-block px-3 sm:px-5 py-1 text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-white font-black uppercase tracking-tight" style={{ background: '#003366', border: '3px solid #003366' }}>
                   & Principles
                 </span>
               </span>
             </span>
           </h2>
 
-          <p
-            className="inline-block mt-5 sm:mt-6 px-4 sm:px-5 py-2 text-xs sm:text-sm md:text-base font-black text-dreamxec-navy uppercase tracking-wide"
-            style={{ border: '2px dashed #003366', background: '#fff7ed' }}
-          >
+          <p className="inline-block mt-5 sm:mt-6 px-4 sm:px-5 py-2 text-xs sm:text-sm md:text-base font-black text-dreamxec-navy uppercase tracking-wide" style={{ border: '2px dashed #003366', background: '#fff7ed' }}>
             We seek students and young professionals whose projects embody these principles
           </p>
         </div>
 
-        {/* ── SWIPER CAROUSEL ── */}
+        {/* SWIPER */}
         <Swiper
           modules={[Navigation, Pagination, Keyboard, A11y, Autoplay]}
           spaceBetween={20}
           slidesPerView={1}
           speed={700}
-          navigation
-          pagination={{ clickable: true }}
+          navigation={{ nextEl: '.criteria-btn-next', prevEl: '.criteria-btn-prev' }}
+          pagination={{ clickable: true, el: '.criteria-pagination' }}
           keyboard={{ enabled: true }}
           grabCursor={true}
           autoplay={{ delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true }}
           breakpoints={{
-            768: { slidesPerView: 2, spaceBetween: 24 },
+            768:  { slidesPerView: 2, spaceBetween: 24 },
             1024: { slidesPerView: 2, spaceBetween: 28 },
           }}
-          className="criteria-carousel pb-12"
+          className="criteria-carousel"
         >
           {criteria.map((item, index) => (
             <SwiperSlide key={index} className="h-auto">
               <div
                 className="bg-white flex flex-col h-full transition-all duration-200 hover:translate-x-[-3px] hover:translate-y-[-3px]"
-                style={{
-                  border: '3px solid #003366',
-                  boxShadow: `6px 6px 0 ${item.shadow}`,
-                }}
+                style={{ border: '3px solid #003366', boxShadow: `6px 6px 0 ${item.shadow}` }}
               >
-                {/* Top color stripe */}
                 <div className="h-2" style={{ background: item.stripe }} />
-
                 <div className="flex items-center justify-center flex-1 p-4 sm:p-5 md:p-6 gap-2">
-
-                  {/* Left: number + text */}
                   <div className="flex-1 flex flex-col min-w-0">
-
-                    {/* Number badge */}
-                    <div
-                      className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center font-black text-white text-xs sm:text-sm mb-3 flex-shrink-0"
-                      style={{ background: item.stripe, border: '2px solid #003366' }}
-                    >
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center font-black text-white text-xs sm:text-sm mb-3 flex-shrink-0" style={{ background: item.stripe, border: '2px solid #003366' }}>
                       {item.num}
                     </div>
-
-                    {/* Title */}
                     <h3 className="text-base sm:text-lg md:text-xl font-black text-dreamxec-navy uppercase tracking-tight leading-snug mb-2 sm:mb-3">
                       {item.title}
                     </h3>
-
-                    {/* Hard rule */}
-                    <div
-                      className="mb-2 sm:mb-3 h-0.5 w-8"
-                      style={{ background: item.stripe }}
-                    />
-
-                    {/* Text */}
+                    <div className="mb-2 sm:mb-3 h-0.5 w-8" style={{ background: item.stripe }} />
                     <p className="text-xs sm:text-sm text-dreamxec-navy/70 font-medium text-justify leading-relaxed flex-1">
                       {item.text}
                     </p>
                   </div>
-
-                  {/* Right: SVG icon in bordered box */}
                   <div className="flex-1 flex items-center justify-center">
                     <div
-                      className="
-                                w-24 h-24        /* mobile */
-                                sm:w-28 sm:h-28  /* small phones / large phones */
-                                md:w-36 md:h-36  /* tablets */
-                                lg:w-40 lg:h-40  /* small laptops */
-                                xl:w-44 xl:h-44  /* desktops */
-                                flex items-center justify-center
-                              "
+                      className="w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 flex items-center justify-center"
                       style={{ border: `2px solid ${item.stripe}`, background: `${item.stripe}10` }}
                     >
-                      <img
-                        src={item.icon}
-                        alt={`${item.title} icon`}
-                        className="
-                                  w-14 h-14
-                                  sm:w-16 sm:h-16
-                                  md:w-20 md:h-20
-                                  lg:w-24 lg:h-24
-                                  xl:w-28 xl:h-28
-                                  object-contain
-                                "
-                      />
+                      <img src={item.icon} alt={`${item.title} icon`} className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 object-contain" />
                     </div>
                   </div>
                 </div>
@@ -195,45 +129,55 @@ export const CriteriaGrid = () => {
           ))}
         </Swiper>
 
-        {/* Custom swiper nav/pagination styles */}
+        {/* ── CONTROLS ROW: ‹ · · · › all in one line ── */}
+        <div className="flex items-center justify-center gap-3 mt-6">
+
+          <button
+            className="criteria-btn-prev w-9 h-9 flex-shrink-0 flex items-center justify-center bg-white transition-all hover:bg-[#003366] hover:translate-x-[-1px] hover:translate-y-[-1px] group"
+            style={{ border: '3px solid #003366', boxShadow: '3px 3px 0 #FF7F00' }}
+            aria-label="Previous"
+          >
+            <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+              <path d="M8 2L2 8L8 14" stroke="#003366" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:stroke-white transition-colors duration-150" />
+            </svg>
+          </button>
+
+          {/* Swiper injects bullets here */}
+          <div className="criteria-pagination flex items-center justify-center gap-0" />
+
+          <button
+            className="criteria-btn-next w-9 h-9 flex-shrink-0 flex items-center justify-center bg-white transition-all hover:bg-[#003366] hover:translate-x-[-1px] hover:translate-y-[-1px] group"
+            style={{ border: '3px solid #003366', boxShadow: '3px 3px 0 #FF7F00' }}
+            aria-label="Next"
+          >
+            <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+              <path d="M2 2L8 8L2 14" stroke="#003366" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:stroke-white transition-colors duration-150" />
+            </svg>
+          </button>
+        </div>
+
         <style>{`
+          /* Hide default Swiper nav arrows (we're using custom ones) */
           .criteria-carousel .swiper-button-next,
-          .criteria-carousel .swiper-button-prev {
-            width: 36px;
-            height: 36px;
-            background: #fff;
-            border: 3px solid #003366;
-            box-shadow: 3px 3px 0 #FF7F00;
-            color: #003366;
-            border-radius: 0;
-            top: 45%;
-          }
-          .criteria-carousel .swiper-button-next::after,
-          .criteria-carousel .swiper-button-prev::after {
-            font-size: 14px;
-            font-weight: 900;
-          }
-          .criteria-carousel .swiper-button-next:hover,
-          .criteria-carousel .swiper-button-prev:hover {
-            background: #003366;
-            color: #fff;
-            transform: translate(-1px, -1px);
-          }
-          .criteria-carousel .swiper-pagination-bullet {
+          .criteria-carousel .swiper-button-prev { display: none; }
+
+          /* Square pagination bullets */
+          .criteria-pagination .swiper-pagination-bullet {
             width: 10px;
             height: 10px;
             background: #fff;
             border: 2px solid #003366;
             border-radius: 0;
             opacity: 1;
+            margin: 0 4px;
+            display: inline-block;
+            cursor: pointer;
+            transition: transform 0.15s, background 0.15s;
           }
-          .criteria-carousel .swiper-pagination-bullet-active {
+          .criteria-pagination .swiper-pagination-bullet-active {
             background: #FF7F00;
             border-color: #003366;
-            transform: scale(1.2);
-          }
-          .criteria-carousel .swiper-pagination {
-            bottom: 0;
+            transform: scale(1.3);
           }
         `}</style>
       </div>

@@ -32,7 +32,7 @@ function useScrollReveal(threshold = 0.12) {
 const sdgAlignments = [
   { icon: "🏫", sdg: "SDG 4", label: "Quality Education",           accent: "#FF7F00", description: "We fund student innovation, capacity building, and skill development—core to NEP 2020." },
   { icon: "💼", sdg: "SDG 8", label: "Decent Work & Growth",        accent: "#003262", description: "Funded students get jobs, start companies, create employment for others." },
-  { icon: "♀️", sdg: "SDG 5", label: "Gender Equality",             accent: "#0B9C2C", description: "40% of our projects are women-led; we actively encourage female innovators." },
+  { icon: "♀️", sdg: "SDG 5", label: "Gender Equality",             accent: "#0B9C2C", description: "We actively encourage female innovators." },
   { icon: "⚖️", sdg: "SDG 10", label: "Reduced Inequality",         accent: "#FF7F00", description: "Focus on underrepresented geographies including Tier 2/3 cities across India." },
   { icon: "🤝", sdg: "SDG 17", label: "Partnerships for Goals",     accent: "#003262", description: "Multi-stakeholder model: corporates, mentors, government, and students united." },
 ];

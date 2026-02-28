@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Header } from '../Header'
 import { Footer } from '../Footer'
 
@@ -7,6 +8,24 @@ interface ComingSoonProps {
 }
 
 const ComingSoon = ({ title, subtitle }: ComingSoonProps) => {
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [message, setMessage] = useState('')
+
+  const handleSubscribe = async () => {
+    if (!email.trim() || status === 'loading' || status === 'success') return
+    setStatus('loading')
+    try {
+      // Replace with your actual subscribe endpoint
+      await new Promise(res => setTimeout(res, 1000))
+      setStatus('success')
+      setMessage('You\'re subscribed! We\'ll keep you posted.')
+    } catch {
+      setStatus('error')
+      setMessage('Something went wrong. Please try again.')
+    }
+  }
+
   return (
     <>
       <title>{title} | DreamXec</title>
@@ -24,11 +43,9 @@ const ComingSoon = ({ title, subtitle }: ComingSoonProps) => {
 
         {/* ── Background decorations ── */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          {/* Dot grid */}
           <div className="absolute inset-0 opacity-[0.05]"
             style={{ backgroundImage: 'radial-gradient(circle, #003366 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
 
-          {/* Corner squares */}
           <div className="absolute top-10 left-8 w-16 h-16 rotate-12 opacity-10" style={{ background: '#FF7F00', border: '3px solid #003366' }} />
           <div className="absolute top-20 left-20 w-8 h-8 rotate-45 opacity-10" style={{ border: '2px solid #0B9C2C' }} />
           <div className="absolute top-12 right-10 w-12 h-12 -rotate-6 opacity-10" style={{ background: '#0B9C2C', border: '3px solid #003366' }} />
@@ -36,13 +53,12 @@ const ComingSoon = ({ title, subtitle }: ComingSoonProps) => {
           <div className="absolute bottom-20 left-10 w-14 h-14 -rotate-12 opacity-10" style={{ border: '3px solid #003366' }} />
           <div className="absolute bottom-12 right-12 w-10 h-10 rotate-6 opacity-10" style={{ background: '#003366' }} />
 
-          {/* Tricolor vertical bars */}
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-40 flex flex-col hidden sm:flex">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-40 flex-col hidden sm:flex">
             <div className="flex-1" style={{ background: '#FF7F00', opacity: 0.3 }} />
             <div className="flex-1" style={{ background: '#003366', opacity: 0.3 }} />
             <div className="flex-1" style={{ background: '#0B9C2C', opacity: 0.3 }} />
           </div>
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-40 flex flex-col hidden sm:flex">
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-40 flex-col hidden sm:flex">
             <div className="flex-1" style={{ background: '#0B9C2C', opacity: 0.3 }} />
             <div className="flex-1" style={{ background: '#003366', opacity: 0.3 }} />
             <div className="flex-1" style={{ background: '#FF7F00', opacity: 0.3 }} />
@@ -64,7 +80,6 @@ const ComingSoon = ({ title, subtitle }: ComingSoonProps) => {
 
           {/* Illustration */}
           <div className="relative">
-            {/* Shadow block behind illustration */}
             <div className="absolute inset-0 translate-x-[8px] translate-y-[8px]" style={{ background: '#FF7F00' }} aria-hidden />
             <div
               className="relative w-40 h-40 sm:w-52 sm:h-52 flex items-center justify-center bg-white"
@@ -126,6 +141,76 @@ const ComingSoon = ({ title, subtitle }: ComingSoonProps) => {
                 style={{ borderLeft: '3px solid #FF7F00', paddingLeft: '12px' }}
               >
                 This page will be available soon with amazing content to help you on your innovation journey with DreamXec.
+              </p>
+            </div>
+
+            {/* ── Divider ── */}
+            <div
+              className="my-7 h-px"
+              style={{ background: 'repeating-linear-gradient(90deg, #003366 0px, #003366 6px, transparent 6px, transparent 12px)', opacity: 0.15 }}
+            />
+
+            {/* ── Newsletter ── */}
+            <div className="flex flex-col gap-4">
+
+              {/* Label row */}
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-1.5 h-5 bg-[#FF7F00]" />
+                <h4 className="text-sm font-black text-[#003366] uppercase tracking-widest">
+                  Stay Ahead of Innovation
+                </h4>
+              </div>
+
+              {/* Input + button */}
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSubscribe()}
+                  placeholder="Enter your email address"
+                  disabled={status === 'loading' || status === 'success'}
+                  className="flex-1 px-4 py-2.5 text-sm font-bold text-[#003366] bg-[#fffbf5] placeholder-[#003366]/40 focus:outline-none transition-all disabled:opacity-50"
+                  style={{
+                    border: '3px solid #003366',
+                    boxShadow: status === 'error' ? '3px 3px 0 #dc2626' : '3px 3px 0 #FF7F00',
+                  }}
+                />
+                <button
+                  onClick={handleSubscribe}
+                  disabled={status === 'loading' || status === 'success'}
+                  className="px-6 py-2.5 font-black text-xs uppercase tracking-widest whitespace-nowrap transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{
+                    background: status === 'success' ? '#0B9C2C' : '#FF7F00',
+                    color: '#003366',
+                    border: '3px solid #003366',
+                    boxShadow: status === 'loading' || status === 'success' ? 'none' : '3px 3px 0 #003366',
+                  }}
+                >
+                  {status === 'loading' ? '⏳' : status === 'success' ? '✔ Subscribed' : 'Subscribe →'}
+                </button>
+              </div>
+
+              {/* Status messages */}
+              {status === 'error' && (
+                <div
+                  className="px-3 py-2 text-xs font-black text-red-700"
+                  style={{ border: '2px solid #dc2626', background: '#fef2f2' }}
+                >
+                  ⚠ {message}
+                </div>
+              )}
+              {status === 'success' && (
+                <div
+                  className="px-3 py-2 text-xs font-black text-green-700"
+                  style={{ border: '2px solid #0B9C2C', background: '#f0fdf4' }}
+                >
+                  ✔ {message}
+                </div>
+              )}
+
+              <p className="text-[11px] font-medium text-[#003366]/50 leading-relaxed">
+                Get weekly briefs on India's most promising student projects, success stories, and funding opportunities.
               </p>
             </div>
           </div>

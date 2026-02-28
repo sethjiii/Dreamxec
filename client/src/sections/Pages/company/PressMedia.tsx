@@ -91,6 +91,7 @@ const pressKitFiles = [
 ───────────────────────────────────────────── */
 function ArticleCard({ item }: { item: typeof articles[0] }) {
   return (
+    
     <a
       href={item.url}
       target="_blank"

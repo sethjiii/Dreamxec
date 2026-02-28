@@ -29,7 +29,7 @@ const CORE_VALUES = [
 
 const STATS = [
   { value: '40M+', label: 'College Students in India' },
-  { value: '5M+', label: 'Actively Innovating' },
+  { value: '5M+', label: 'Actively Wanting to Innovating' },
   { value: '0.1%', label: 'Receive Meaningful Funding' },
   { value: '2030', label: 'Target: 1M Students Funded' },
 ];

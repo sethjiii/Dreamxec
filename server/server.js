@@ -8,6 +8,7 @@ const globalErrorHandler = require('./src/middleware/error.middleware');
 const RedisStore = require('connect-redis').default;
 const redis = require('./src/services/redis.service');
 const cleanupOtpRedisKeys = require("./src/utils/redisOTPCleanup");
+const morgan = require("morgan");
 
 const prisma=require("./src/config/prisma")
 
@@ -47,10 +48,20 @@ const profileRoutes = require('./src/api/profile/profile.routes');
 
 
 
+
 // Passport config
 require('./src/config/passport');
 
 const app = express();
+
+// --------------------------------------------
+// REQUEST LOGGING
+// --------------------------------------------
+if (process.env.NODE_ENV === "production") {
+  app.use(morgan("combined"));
+} else {
+  app.use(morgan("dev"));
+}
 
 // --------------------------------------------
 // 1️⃣ CORS

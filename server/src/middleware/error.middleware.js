@@ -1,6 +1,7 @@
 const AppError = require('../utils/AppError');
 const { publishEvent } = require('../services/eventPublisher.service');
 const EVENTS = require('../config/events');
+const logger = require('../utils/logger');
 
 const handlePrismaError = (err) => {
   if (err.code === 'P2002') {
@@ -16,7 +17,14 @@ const handlePrismaError = (err) => {
 };
 
 module.exports = (err, req, res, next) => {
-  console.error('ERROR 💥', err);
+  logger.error({
+    message: err.message,
+    stack: err.stack,
+    method: req.method,
+    path: req.originalUrl,
+    userId: req.user?.id || null,
+    ip: req.ip,
+  });
 
   let error = err;
 

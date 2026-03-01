@@ -3,6 +3,8 @@ import { Hero } from "./components/Hero";
 import { CampaignCarousel } from "./components/CampaignCarousel";
 import { useEffect, useState } from "react";
 import { NewsletterModal } from "../../components/NewsletterModal";
+import { InTheNews } from "./components/InTheNews";
+import { ResearchClock } from "./components/ResearchClock";
 
 
 export const HeroSection = () => {
@@ -56,7 +58,9 @@ export const HeroSection = () => {
         <div className="w-full flex justify-center mb-12 md:mb-16">
           <Hero />
         </div>
-
+<div className="w-screen relative left-1/2 right-1/2 -mx-[50vw] mt-12">
+        <InTheNews />
+ </div>
         {/* Title */}
         <div className="w-full flex justify-center">
           <HeroTitle user={currentUser} />
@@ -67,8 +71,8 @@ export const HeroSection = () => {
       <div className="w-screen relative left-1/2 right-1/2 -mx-[50vw] mt-12">
         <CampaignCarousel />
       </div>
-      {/* <div className="mt-12" />
-      <RopeDivider /> */}
+      <ResearchClock />
+     
     </section>
   );
 };

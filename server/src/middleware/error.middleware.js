@@ -2,6 +2,7 @@ const AppError = require('../utils/AppError');
 const { publishEvent } = require('../services/eventPublisher.service');
 const EVENTS = require('../config/events');
 const logger = require('../utils/logger');
+const Sentry = require('@sentry/node');
 
 const handlePrismaError = (err) => {
   if (err.code === 'P2002') {
@@ -17,21 +18,20 @@ const handlePrismaError = (err) => {
 };
 
 module.exports = (err, req, res, next) => {
-  logger.error({
-    message: err.message,
-    stack: err.stack,
-    method: req.method,
-    path: req.originalUrl,
-    userId: req.user?.id || null,
-    ip: req.ip,
-  });
-
   let error = err;
 
   // ===============================
   // HANDLE ZOD VALIDATION ERRORS
   // ===============================
   if (err.name === "ZodError") {
+    logger.warn("Validation Error", {
+      path: req.originalUrl,
+      method: req.method,
+      userId: req.user?.id || null,
+      requestId: req.requestId,
+      errors: err.errors
+    });
+
     return res.status(400).json({
       status: "fail",
       message: "Validation failed",
@@ -60,17 +60,32 @@ module.exports = (err, req, res, next) => {
   error.status = error.status || 'error';
 
   // ===============================
-  // PUBLISH SYSTEM ERROR
+  // LOG BASED ON STATUS
   // ===============================
-  if (error.statusCode === 500) {
+  const logPayload = {
+    message: error.message,
+    path: req.originalUrl,
+    method: req.method,
+    userId: req.user?.id || null,
+    requestId: req.requestId,
+    ip: req.ip,
+  };
+
+  if (error.statusCode >= 500) {
+    logger.error("Server Error", logPayload);
+
+    // Capture only real server errors in Sentry
+    Sentry.captureException(error);
+
     publishEvent(EVENTS.SYSTEM_ERROR, {
-      message: error.message,
-      stack: error.stack,
-      path: req.originalUrl,
-      method: req.method
+      ...logPayload,
+      stack: error.stack
     }).catch(e =>
-      console.error("Failed to publish system error:", e)
+      logger.error("Failed to publish system error", e)
     );
+
+  } else {
+    logger.warn("Client Error", logPayload);
   }
 
   // ===============================
@@ -81,7 +96,6 @@ module.exports = (err, req, res, next) => {
       status: error.status,
       message: error.message,
       stack: error.stack,
-      error,
     });
   }
 

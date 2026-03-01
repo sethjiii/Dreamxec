@@ -440,7 +440,8 @@ exports.getUserProject = catchAsync(async (req, res, next) => {
 });
 
 
-exports.getPublicUserProjects = catchAsync(async (req, res) => {
+exports.getPublicUserProjects = catchAsync(
+  async function getPublicUserProjects(req, res) {
   // Step 1: Fetch projects without the user relation to avoid the crash
   // caused by orphaned userId references (user deleted but project remains).
   const rawProjects = await prisma.userProject.findMany({

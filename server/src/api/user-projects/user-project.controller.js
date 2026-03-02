@@ -5,6 +5,10 @@ const uploadToCloudinary = require('../../utils/uploadToCloudinary');
 const { publishEvent } = require('../../services/eventPublisher.service');
 const EVENTS = require('../../config/events');
 const generateUniqueSlug = require("../../utils/generateSlug");
+const { getCache, setCache, delCache } = require('../../utils/cache');
+
+const PUBLIC_PROJECTS_TTL = 60;   // seconds
+const PROJECT_DETAIL_TTL  = 120;  // seconds
 
 
 
@@ -333,6 +337,13 @@ exports.updateUserProject = catchAsync(async (req, res, next) => {
     return project;
   });
 
+  // Invalidate public list cache + this project's detail cache
+  await Promise.all([
+    delCache('public:projects*'),
+    delCache(`project:${updatedProject.id}`),
+    delCache(`project:slug:${updatedProject.slug}`),
+  ]);
+
   // Publish Event
   if (updatedProject.status === 'APPROVED') {
     await publishEvent(EVENTS.CAMPAIGN_UPDATE, {
@@ -375,66 +386,61 @@ exports.deleteUserProject = catchAsync(async (req, res, next) => {
 exports.getUserProject = catchAsync(async (req, res, next) => {
   const { id: identifier } = req.params;
 
-  let userProject;
+  // ── Cache check ──────────────────────────────────────────────────────────
+  const isObjectId = identifier.length === 24;
+  const cacheKey = isObjectId
+    ? `project:${identifier}`
+    : `project:slug:${identifier}`;
 
-  // If it's Mongo ObjectId (24 chars)
-  if (identifier.length === 24) {
-    userProject = await prisma.userProject.findUnique({
-      where: { id: identifier },
-      include: {
-        club: { select: { id: true, name: true, college: true, slug: true } },
-        milestones: {
-          orderBy: { order: 'asc' },
-          include: {
-            submissions: {
-              orderBy: { version: 'desc' },
-              take: 1
-            }
-          }
-        },
-        user: { select: { id: true, name: true } },
-        donations: {
-          select: {
-            amount: true,
-            createdAt: true,
-            donor: { select: { name: true } },
-            anonymous: true,
-          },
-        },
-      },
-    });
-  } else {
-    userProject = await prisma.userProject.findUnique({
-      where: { slug: identifier },
-      include: {
-        club: { select: { id: true, name: true, college: true } },
-        milestones: {
-          orderBy: { order: 'asc' },
-          include: {
-            submissions: {
-              orderBy: { version: 'desc' },
-              take: 1
-            }
-          }
-        },
-        user: { select: { id: true, name: true } },
-        donations: {
-          select: {
-            amount: true,
-            createdAt: true,
-            donor: { select: { name: true } },
-            anonymous: true,
-          },
-        },
-      },
-    });
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    console.log(`[Cache] HIT ${cacheKey}`);
+    return res.status(200).json({ status: 'success', data: { userProject: cached } });
   }
 
+  // Shared include — milestones with last submission, donations capped at 5
+  const projectInclude = {
+    club: { select: { id: true, name: true, college: true, slug: true } },
+    milestones: {
+      orderBy: { order: 'asc' },
+      include: {
+        submissions: {
+          orderBy: { version: 'desc' },
+          take: 1,
+        },
+      },
+    },
+    user: { select: { id: true, name: true } },
+    // Only the 5 most recent donations — enough for a "recent donors" section
+    // Full donation history has a dedicated paginated endpoint if needed
+    donations: {
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: {
+        amount: true,
+        createdAt: true,
+        donor: { select: { name: true } },
+        anonymous: true,
+      },
+    },
+  };
+
+  const userProject = await prisma.userProject.findUnique({
+    where: isObjectId ? { id: identifier } : { slug: identifier },
+    include: projectInclude,
+  });
+
   if (!userProject)
-    return next(new AppError("User project not found", 404));
+    return next(new AppError('User project not found', 404));
+
+  // Cache both id and slug keys pointing to the same data
+  await Promise.all([
+    setCache(`project:${userProject.id}`, userProject, PROJECT_DETAIL_TTL),
+    setCache(`project:slug:${userProject.slug}`, userProject, PROJECT_DETAIL_TTL),
+  ]);
 
   res.status(200).json({
-    status: "success",
+    status: 'success',
     data: { userProject },
   });
 });
@@ -442,44 +448,66 @@ exports.getUserProject = catchAsync(async (req, res, next) => {
 
 exports.getPublicUserProjects = catchAsync(
   async function getPublicUserProjects(req, res) {
-  // Step 1: Fetch projects without the user relation to avoid the crash
-  // caused by orphaned userId references (user deleted but project remains).
+
+  // ── Pagination params ─────────────────────────────────────────────────────
+  const limit  = Math.min(parseInt(req.query.limit  || '12', 10), 50);
+  const cursor = req.query.cursor || null; // last project id from previous page
+
+  // ── Cache check ───────────────────────────────────────────────────────────
+  const cacheKey = `public:projects:cursor:${cursor || 'start'}:limit:${limit}`;
+  const cached   = await getCache(cacheKey);
+  if (cached) {
+    console.log(`[Cache] HIT ${cacheKey}`);
+    return res.status(200).json(cached);
+  }
+
+  // ── DB query ──────────────────────────────────────────────────────────────
+  // Step 1: Fetch paginated projects without donations (use amountRaised / currentAmount)
+  //         Milestones are summary-only (no nested submissions) for the list view.
   const rawProjects = await prisma.userProject.findMany({
     where: { status: 'APPROVED' },
+    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+    take: limit + 1, // fetch one extra to detect if there is a next page
     include: {
       club: { select: { id: true, name: true, college: true } },
       milestones: {
         orderBy: { order: 'asc' },
-        include: {
-          submissions: {
-            orderBy: { version: 'desc' },
-            take: 1
-          }
-        }
+        select: { id: true, title: true, status: true, order: true, budget: true },
       },
-      donations: { select: { amount: true } },
+      // No donations — use amountRaised (currentAmount) field already on project
     },
     orderBy: { createdAt: 'desc' },
   });
 
-  // Step 2: Collect unique userIds and bulk-fetch users
-  const userIds = [...new Set(rawProjects.map(p => p.userId).filter(Boolean))];
+  // Detect next page
+  const hasNextPage = rawProjects.length > limit;
+  const projects    = hasNextPage ? rawProjects.slice(0, limit) : rawProjects;
+  const nextCursor  = hasNextPage ? projects[projects.length - 1].id : null;
+
+  // Step 2: Bulk-fetch users to avoid orphaned project crashes
+  const userIds = [...new Set(projects.map(p => p.userId).filter(Boolean))];
   const users = await prisma.user.findMany({
     where: { id: { in: userIds } },
     select: { id: true, name: true },
   });
   const userMap = Object.fromEntries(users.map(u => [u.id, u]));
 
-  // Step 3: Attach user and filter out orphaned projects (no matching user)
-  const userProjects = rawProjects
+  // Step 3: Attach user, filter orphans
+  const userProjects = projects
     .map(p => ({ ...p, user: userMap[p.userId] || null }))
     .filter(p => p.user !== null);
 
-  res.status(200).json({
+  const payload = {
     status: 'success',
     results: userProjects.length,
+    pagination: { nextCursor, hasNextPage },
     data: { userProjects },
-  });
+  };
+
+  // ── Store in cache ────────────────────────────────────────────────────────
+  await setCache(cacheKey, payload, PUBLIC_PROJECTS_TTL);
+
+  res.status(200).json(payload);
 });
 
 

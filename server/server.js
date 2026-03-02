@@ -12,6 +12,7 @@ const redis = require('./src/services/redis.service');
 const cleanupOtpRedisKeys = require("./src/utils/redisOTPCleanup");
 const morgan = require("morgan");
 const requestId = require("./src/middleware/requestId.middleware");
+const compression = require('compression');
 
 const prisma = require("./src/config/prisma")
 
@@ -59,6 +60,10 @@ require('./src/config/passport');
 const app = express();
 
 app.use(requestId);
+// --------------------------------------------
+// GZIP COMPRESSION
+// --------------------------------------------
+app.use(compression());
 // --------------------------------------------
 // REQUEST LOGGING
 // --------------------------------------------

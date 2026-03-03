@@ -1,7 +1,8 @@
+import { useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Keyboard, A11y, Autoplay } from 'swiper/modules';
+import { Pagination, Keyboard, A11y, Autoplay } from 'swiper/modules';
+import type { Swiper as SwiperType } from 'swiper';
 import 'swiper/css';
-import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
 const criteria = [
@@ -44,11 +45,14 @@ const criteria = [
 ];
 
 export const CriteriaGrid = () => {
-  return (
-    <div className="w-full px-4">
-      <div className="mt-[10%] max-w-6xl mx-auto">
+  const swiperRef = useRef<SwiperType | null>(null);
 
-        {/* HEADING */}
+  return (
+    /* No px-4 here — this div is full width of whatever the section gives us */
+    <div className="w-full">
+
+      {/* HEADING — constrained width, padded */}
+      <div className="max-w-6xl mx-auto px-4 mt-[10%]">
         <div className="text-center mb-10 sm:mb-12 md:mb-14">
           <div className="flex justify-center mb-4">
             <span
@@ -77,22 +81,66 @@ export const CriteriaGrid = () => {
             We seek students and young professionals whose projects embody these principles
           </p>
         </div>
+      </div>
 
-        {/* SWIPER */}
+      {/* CAROUSEL — truly full width, arrows pinned to screen edges */}
+      <div className="mt-10 relative w-full overflow-hidden">
+
+        {/* Left arrow */}
+        <button
+          onClick={() => swiperRef.current?.slidePrev()}
+          className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-white transition-all hover:bg-[#003366] hover:translate-x-[-1px] hover:translate-y-[-1px] group"
+          style={{ border: '3px solid #003366', boxShadow: '3px 3px 0 #FF7F00' }}
+          aria-label="Previous"
+        >
+          <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+            <path
+              d="M8 2L2 8L8 14"
+              stroke="#003366"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="group-hover:stroke-white transition-colors duration-150"
+            />
+          </svg>
+        </button>
+
+        {/* Right arrow */}
+        <button
+          onClick={() => swiperRef.current?.slideNext()}
+          className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-white transition-all hover:bg-[#003366] hover:translate-x-[-1px] hover:translate-y-[-1px] group"
+          style={{ border: '3px solid #003366', boxShadow: '3px 3px 0 #FF7F00' }}
+          aria-label="Next"
+        >
+          <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+            <path
+              d="M2 2L8 8L2 14"
+              stroke="#003366"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="group-hover:stroke-white transition-colors duration-150"
+            />
+          </svg>
+        </button>
+
         <Swiper
-          modules={[Navigation, Pagination, Keyboard, A11y, Autoplay]}
+          onSwiper={(swiper) => { swiperRef.current = swiper; }}
+          modules={[Pagination, Keyboard, A11y, Autoplay]}
           spaceBetween={20}
           slidesPerView={1}
           speed={700}
-          navigation={{ nextEl: '.criteria-btn-next', prevEl: '.criteria-btn-prev' }}
-          pagination={{ clickable: true, el: '.criteria-pagination' }}
+          loop={true}
           keyboard={{ enabled: true }}
           grabCursor={true}
-          autoplay={{ delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+          autoplay={{ delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+          pagination={{ clickable: true, el: '.criteria-pagination' }}
           breakpoints={{
             768:  { slidesPerView: 2, spaceBetween: 24 },
             1024: { slidesPerView: 2, spaceBetween: 28 },
           }}
+          /* padding keeps cards from sitting behind the arrows */
+          style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
           className="criteria-carousel"
         >
           {criteria.map((item, index) => (
@@ -128,59 +176,35 @@ export const CriteriaGrid = () => {
             </SwiperSlide>
           ))}
         </Swiper>
-
-        {/* ── CONTROLS ROW: ‹ · · · › all in one line ── */}
-        <div className="flex items-center justify-center gap-3 mt-6">
-
-          <button
-            className="criteria-btn-prev w-9 h-9 flex-shrink-0 flex items-center justify-center bg-white transition-all hover:bg-[#003366] hover:translate-x-[-1px] hover:translate-y-[-1px] group"
-            style={{ border: '3px solid #003366', boxShadow: '3px 3px 0 #FF7F00' }}
-            aria-label="Previous"
-          >
-            <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
-              <path d="M8 2L2 8L8 14" stroke="#003366" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:stroke-white transition-colors duration-150" />
-            </svg>
-          </button>
-
-          {/* Swiper injects bullets here */}
-          <div className="criteria-pagination flex items-center justify-center gap-0" />
-
-          <button
-            className="criteria-btn-next w-9 h-9 flex-shrink-0 flex items-center justify-center bg-white transition-all hover:bg-[#003366] hover:translate-x-[-1px] hover:translate-y-[-1px] group"
-            style={{ border: '3px solid #003366', boxShadow: '3px 3px 0 #FF7F00' }}
-            aria-label="Next"
-          >
-            <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
-              <path d="M2 2L8 8L2 14" stroke="#003366" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:stroke-white transition-colors duration-150" />
-            </svg>
-          </button>
-        </div>
-
-        <style>{`
-          /* Hide default Swiper nav arrows (we're using custom ones) */
-          .criteria-carousel .swiper-button-next,
-          .criteria-carousel .swiper-button-prev { display: none; }
-
-          /* Square pagination bullets */
-          .criteria-pagination .swiper-pagination-bullet {
-            width: 10px;
-            height: 10px;
-            background: #fff;
-            border: 2px solid #003366;
-            border-radius: 0;
-            opacity: 1;
-            margin: 0 4px;
-            display: inline-block;
-            cursor: pointer;
-            transition: transform 0.15s, background 0.15s;
-          }
-          .criteria-pagination .swiper-pagination-bullet-active {
-            background: #FF7F00;
-            border-color: #003366;
-            transform: scale(1.3);
-          }
-        `}</style>
       </div>
+
+      {/* Pagination dots */}
+      <div className="flex items-center justify-center mt-6">
+        <div className="criteria-pagination flex items-center justify-center gap-0" />
+      </div>
+
+      <style>{`
+        .criteria-carousel .swiper-button-next,
+        .criteria-carousel .swiper-button-prev { display: none; }
+
+        .criteria-pagination .swiper-pagination-bullet {
+          width: 10px;
+          height: 10px;
+          background: #fff;
+          border: 2px solid #003366;
+          border-radius: 0;
+          opacity: 1;
+          margin: 0 4px;
+          display: inline-block;
+          cursor: pointer;
+          transition: transform 0.15s, background 0.15s;
+        }
+        .criteria-pagination .swiper-pagination-bullet-active {
+          background: #FF7F00;
+          border-color: #003366;
+          transform: scale(1.3);
+        }
+      `}</style>
     </div>
   );
 };

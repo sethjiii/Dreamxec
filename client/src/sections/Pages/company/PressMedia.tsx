@@ -60,6 +60,17 @@ const articles = [
     domain: "prittleprattlenews.com",
     shadow: "#000080",
   },
+  {
+    outlet: "Financial Express",
+    outletShort: "FE",
+    tier: "National Daily",
+    date: "Feb 2026",
+    headline: "DreamXec, India’s first student research crowdfunding platform, launched",
+    summary: "Launched on National Science Day 2026, DreamXec is India's first dedicated crowdfunding platform for 43.3 million higher education students.",
+    url: "https://www.financialexpress.com/jobs-career/education/dreamxec-indias-first-student-research-crowdfunding-platform-launched/4159420/",
+    domain: "financialexpress.com",
+    shadow: "#000080",
+  },
 ];
 
 const pressKitFiles = [

@@ -35,6 +35,12 @@ const outlets = [
     url: 'https://www.prittleprattlenews.com/education/dreamxec-national-science-day-student-research-funding-2026/',
     style: { fontFamily: "'Arial', sans-serif", fontWeight: 800, letterSpacing: '0.02em' },
   },
+  {
+    name: 'Financial Express',
+    full: 'Financial Express',
+    url: 'https://www.financialexpress.com/jobs-career/education/dreamxec-indias-first-student-research-crowdfunding-platform-launched/4159420/',
+    style: { fontFamily: "'Arial Black', sans-serif", fontWeight: 900, letterSpacing: '-0.02em' },
+  },
 ];
 
 // Duplicate for seamless loop
@@ -173,6 +179,8 @@ export const InTheNews = () => {
                 '★',
                 '"Crowdfunding Platform Launched to Support Student Innovation" — The Week',
                 '★',
+                '"DreamXec, India’s first student research crowdfunding platform, launched" — Financial Express',
+                '★',
               ].map((item, i) => (
                 <span
                   key={i}
@@ -192,6 +200,8 @@ export const InTheNews = () => {
                 '"Crowdfunding Platform Launched to Support Student Research" — News18',
                 '★',
                 '"Crowdfunding Platform Launched to Support Student Innovation" — The Week',
+                '★',
+                '"DreamXec, India’s first student research crowdfunding platform, launched" — Financial Express',
                 '★',
               ].map((item, i) => (
                 <span

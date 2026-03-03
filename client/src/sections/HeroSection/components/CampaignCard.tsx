@@ -15,7 +15,38 @@ export const CampaignCard = ({ campaign }: Props) => {
       className="w-full h-full bg-white flex flex-col transition-all duration-200 hover:translate-x-[-3px] hover:translate-y-[-3px]"
       style={{ border: '3px solid #003366', boxShadow: '6px 6px 0 #FF7F00' }}
     >
-      {/* Orange top stripe — same on every card */}
+      {/* ── HEADING BLOCK ── */}
+      <div
+        className="flex-shrink-0 flex items-center justify-between px-3 py-2"
+        style={{ background: '#003366', borderBottom: '3px solid #003366' }}
+      >
+        {/* Left: wordmark-style label */}
+        <div className="flex items-center gap-2">
+          <span
+            className="inline-flex items-center justify-center w-5 h-5 text-[10px] font-black text-dreamxec-navy"
+            style={{ background: '#FF7F00', border: '2px solid #FF7F00' }}
+          >
+            ★
+          </span>
+          <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">
+            DreamXec
+          </span>
+        </div>
+
+        {/* Right: live badge */}
+        <span
+          className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-white"
+          style={{ border: '1.5px solid #FF7F00' }}
+        >
+          <span
+            className="w-1.5 h-1.5 rounded-full animate-pulse"
+            style={{ background: '#FF7F00' }}
+          />
+          Live
+        </span>
+      </div>
+
+      {/* Orange top stripe */}
       <div className="h-2 flex-shrink-0" style={{ background: '#FF7F00' }} />
 
       {/* Image */}
@@ -75,7 +106,7 @@ export const CampaignCard = ({ campaign }: Props) => {
           </span>
         </div>
 
-        {/* Progress bar — flat, bordered */}
+        {/* Progress bar */}
         <div
           className="w-full h-3 mb-4 overflow-hidden"
           style={{ border: '2px solid #003366', background: '#f3f4f6' }}

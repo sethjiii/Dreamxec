@@ -199,7 +199,7 @@ body {
      Gives the page an instant brand anchor.
      Remove if you have a navbar that already does this.
   ════════════════════════════════════════════════════════ */
-  
+
 }
 
 
@@ -517,7 +517,7 @@ body {
   }
 
   /* Whiteboard card */
-  .card-whiteboard {
+  /* .card-whiteboard {
     background-image: url('/assets/icon-pack/DX-ILLUSTRATION-PACK/white-board.png');
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -529,7 +529,7 @@ body {
 
   .card-whiteboard:hover {
     transform: translateY(-10px) scale(1.05);
-  }
+  } */
 
   /* Heatmap */
   .react-calendar-heatmap .dx-empty {
@@ -702,6 +702,12 @@ img {
   .about-values-carousel {
     padding: 40px 35px 60px !important;
   }
+
+  /* @media (min-width: 1024px) {
+    .wwb-arrow {
+      display: none !important;
+    }
+  } */
 }
 
 /* ─────────────────────────────────────────────

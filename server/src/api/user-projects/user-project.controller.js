@@ -411,8 +411,6 @@ exports.getUserProject = catchAsync(async (req, res, next) => {
       },
     },
     user: { select: { id: true, name: true } },
-    // Only the 5 most recent donations — enough for a "recent donors" section
-    // Full donation history has a dedicated paginated endpoint if needed
     donations: {
       orderBy: { createdAt: 'desc' },
       take: 5,
@@ -450,7 +448,7 @@ exports.getPublicUserProjects = catchAsync(
   async function getPublicUserProjects(req, res) {
 
   // ── Pagination params ─────────────────────────────────────────────────────
-  const limit  = Math.min(parseInt(req.query.limit  || '12', 10), 50);
+  const limit  = Math.min(parseInt(req.query.limit  || '20', 10), 100);
   const cursor = req.query.cursor || null; // last project id from previous page
 
   // ── Cache check ───────────────────────────────────────────────────────────

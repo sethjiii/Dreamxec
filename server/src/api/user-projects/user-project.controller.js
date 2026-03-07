@@ -447,11 +447,8 @@ exports.getUserProject = catchAsync(async (req, res, next) => {
 exports.getPublicUserProjects = catchAsync(
   async function getPublicUserProjects(req, res) {
 
-  // ── Pagination params ─────────────────────────────────────────────────────
   const limit  = Math.min(parseInt(req.query.limit  || '20', 10), 100);
-  const cursor = req.query.cursor || null; // last project id from previous page
-
-  // ── Cache check ───────────────────────────────────────────────────────────
+  const cursor = req.query.cursor || null; 
   const cacheKey = `public:projects:cursor:${cursor || 'start'}:limit:${limit}`;
   const cached   = await getCache(cacheKey);
   if (cached) {
@@ -459,30 +456,24 @@ exports.getPublicUserProjects = catchAsync(
     return res.status(200).json(cached);
   }
 
-  // ── DB query ──────────────────────────────────────────────────────────────
-  // Step 1: Fetch paginated projects without donations (use amountRaised / currentAmount)
-  //         Milestones are summary-only (no nested submissions) for the list view.
   const rawProjects = await prisma.userProject.findMany({
     where: { status: 'APPROVED' },
     ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
-    take: limit + 1, // fetch one extra to detect if there is a next page
+    take: limit + 1, 
     include: {
       club: { select: { id: true, name: true, college: true } },
       milestones: {
         orderBy: { order: 'asc' },
         select: { id: true, title: true, status: true, order: true, budget: true },
       },
-      // No donations — use amountRaised (currentAmount) field already on project
     },
     orderBy: { createdAt: 'desc' },
   });
 
-  // Detect next page
   const hasNextPage = rawProjects.length > limit;
   const projects    = hasNextPage ? rawProjects.slice(0, limit) : rawProjects;
   const nextCursor  = hasNextPage ? projects[projects.length - 1].id : null;
 
-  // Step 2: Bulk-fetch users to avoid orphaned project crashes
   const userIds = [...new Set(projects.map(p => p.userId).filter(Boolean))];
   const users = await prisma.user.findMany({
     where: { id: { in: userIds } },
@@ -490,7 +481,6 @@ exports.getPublicUserProjects = catchAsync(
   });
   const userMap = Object.fromEntries(users.map(u => [u.id, u]));
 
-  // Step 3: Attach user, filter orphans
   const userProjects = projects
     .map(p => ({ ...p, user: userMap[p.userId] || null }))
     .filter(p => p.user !== null);
@@ -502,7 +492,6 @@ exports.getPublicUserProjects = catchAsync(
     data: { userProjects },
   };
 
-  // ── Store in cache ────────────────────────────────────────────────────────
   await setCache(cacheKey, payload, PUBLIC_PROJECTS_TTL);
 
   res.status(200).json(payload);

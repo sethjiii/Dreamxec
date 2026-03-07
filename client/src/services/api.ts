@@ -17,6 +17,7 @@ export interface ApiResponse<T> {
   token?: string;
   otp?: string;
   results?: number;
+  pagination?: { nextCursor: string | null; hasNextPage: boolean };
 }
 
 export interface ApiError {

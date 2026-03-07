@@ -157,9 +157,8 @@ export default function BrowseCampaigns(_props: BrowseCampaignsProps) {
   const [sortBy, setSortBy] = useState<SortOption>('recent');
 
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const isFetchingRef = useRef(false); // guard against duplicate fetches
+  const isFetchingRef = useRef(false);
 
-  /* ── fetch a page from backend ── */
   const fetchPage = useCallback(async (cursor: string | null) => {
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
@@ -167,7 +166,7 @@ export default function BrowseCampaigns(_props: BrowseCampaignsProps) {
     try {
       const res = await getPublicUserProjects({ limit: LIMIT, ...(cursor ? { cursor } : {}) });
       const projects = res.data?.userProjects ?? [];
-      const pag = res.data?.pagination;
+      const pag = res.pagination ?? res.data?.pagination;
 
       const mapped = projects.map(mapUserProjectToCampaign);
 
@@ -182,16 +181,14 @@ export default function BrowseCampaigns(_props: BrowseCampaignsProps) {
     }
   }, []);
 
-  /* ── initial load ── */
   useEffect(() => {
     (async () => {
       setInitialLoading(true);
       await fetchPage(null);
       setInitialLoading(false);
     })();
-  }, []); // eslint-disable-line
+  }, []);
 
-  /* ── load more ── */
   const loadMore = useCallback(async () => {
     if (loadingMore || !hasNextPage || !nextCursor) return;
     setLoadingMore(true);
@@ -199,7 +196,6 @@ export default function BrowseCampaigns(_props: BrowseCampaignsProps) {
     setLoadingMore(false);
   }, [loadingMore, hasNextPage, nextCursor, fetchPage]);
 
-  /* ── IntersectionObserver sentinel ── */
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el) return;
@@ -211,7 +207,6 @@ export default function BrowseCampaigns(_props: BrowseCampaignsProps) {
     return () => observer.disconnect();
   }, [loadMore]);
 
-  /* ── client-side filter + sort (on already-fetched campaigns) ── */
   const filtered = campaigns
     .filter(c => {
       const q = searchQuery.toLowerCase();
@@ -405,7 +400,6 @@ export default function BrowseCampaigns(_props: BrowseCampaignsProps) {
               )}
             </div>
 
-            {/* Campaign grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {filtered.map(campaign => (
                 <CampaignCard
@@ -414,19 +408,15 @@ export default function BrowseCampaigns(_props: BrowseCampaignsProps) {
                   href={`/campaign/${campaign.id}`}
                 />
               ))}
-
-              {/* Inline skeleton cards while loading more */}
               {loadingMore && Array.from({ length: 3 }).map((_, i) => (
                 <SkeletonCard key={`sk-${i}`} />
               ))}
             </div>
 
-            {/* Sentinel + spinner */}
             <div ref={sentinelRef}>
               {loadingMore && <LoadMoreSpinner />}
             </div>
 
-            {/* All loaded badge */}
             {!hasNextPage && campaigns.length > LIMIT && (
               <AllLoadedBadge total={campaigns.length} />
             )}

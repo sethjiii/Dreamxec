@@ -35,13 +35,13 @@ export const Header = ({ currentUser, onLogin, onLogout }: HeaderProps) => {
 return (
     <header className="bg-transparent z-50 sticky top-0">
       <div className={`max-w-[1500px] mx-auto px-6 transition-all duration-300 ${
-        isScrolling ? 'px-16' : 'px-6'
+        isScrolling ? 'lg:px-16' : 'lg:px-6'
       }`}>
         <div className="bg-white border-2 border-dreamxec-navy rounded-2xl shadow-pastel-saffron my-2 relative overflow-hidden">
           
-          {/* Scrolling tagline banner */}
+          {/* Scrolling tagline banner - desktop only */}
           <div
-            className={`absolute inset-0 flex items-center justify-center z-10 transition-all duration-300 pointer-events-none ${
+            className={`hidden lg:flex absolute inset-0 items-center justify-center z-10 transition-all duration-300 pointer-events-none ${
               isScrolling ? 'opacity-100' : 'opacity-0'
             }`}
           >
@@ -51,7 +51,7 @@ return (
           </div>
 
           {/* Normal navbar */}
-          <div className={`transition-all duration-300 ${isScrolling ? 'opacity-0' : 'opacity-100'}`}>
+          <div className={`transition-all duration-300 ${isScrolling ? 'lg:opacity-0' : 'opacity-100'}`}>
             <Navbar currentUser={user} onLogin={handleLogin} onLogout={handleLogout} />
           </div>
 

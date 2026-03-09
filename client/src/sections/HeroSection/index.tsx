@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { NewsletterModal } from "../../components/NewsletterModal";
 import { InTheNews } from "./components/InTheNews";
 import { ResearchClock } from "./components/ResearchClock";
-import { ResearchFlipClock } from "../../components/ResearchFlipClock.tsx";
+import { ResearchFlipClock } from "../../components/ResearchFlipClock";
 
 
 export const HeroSection = () => {

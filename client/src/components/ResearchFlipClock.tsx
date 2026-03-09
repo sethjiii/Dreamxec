@@ -30,14 +30,23 @@ function FlipDigit({ digit, isRed }) {
 
   const bg  = isRed ? '#dc2626' : '#003366';
   const bdr = isRed ? '#991b1b' : '#001a4d';
-  const half = {
-    position: 'absolute', left: 0, right: 0, height: '50%',
-    background: bg, border: `1px solid ${bdr}`,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    overflow: 'hidden', color: '#fff',
-    fontFamily: "'Courier New', monospace", fontWeight: 900,
-    fontSize: '1em', lineHeight: 1,
-  };
+  const half: React.CSSProperties = {
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  height: '50%',
+  background: bg,
+  border: `1px solid ${bdr}`,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  overflow: 'hidden',
+  color: '#fff',
+  fontFamily: "'Courier New', monospace",
+  fontWeight: 900,
+  fontSize: '1em',
+  lineHeight: 1,
+};
 
   return (
     <span style={{

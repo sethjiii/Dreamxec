@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { NewsletterModal } from "../../components/NewsletterModal";
 import { InTheNews } from "./components/InTheNews";
 import { ResearchClock } from "./components/ResearchClock";
+import { ResearchFlipClock } from "../../components/ResearchFlipClock.tsx";
 
 
 export const HeroSection = () => {
@@ -54,6 +55,8 @@ export const HeroSection = () => {
           md:pt-24 md:pb-12
         "
       >
+        <ResearchFlipClock />
+      
         {/* Illustration */}
         <div className="w-full flex justify-center mb-12 md:mb-16">
           <Hero />
@@ -72,6 +75,7 @@ export const HeroSection = () => {
         <CampaignCarousel />
       </div>
       <ResearchClock />
+       
      
     </section>
   );

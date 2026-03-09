@@ -128,6 +128,7 @@ export default function CampaignCard({ campaign, href }: CampaignCardProps) {
               fontWeight: 800,
               lineHeight: 1.25,
               color: '#111',
+              textTransform: 'uppercase' as const,
               fontFamily: "'Sora', system-ui, sans-serif",
               letterSpacing: '-0.02em',
               display: '-webkit-box',
@@ -138,23 +139,19 @@ export default function CampaignCard({ campaign, href }: CampaignCardProps) {
           >
             {campaign.title}
           </h3>
-          <p
-            style={{
-              margin: 0,
-              fontSize: '12px',
-              color: '#555',
-              fontWeight: 500,
-              borderLeft: '3px solid #FF7F00',
-              paddingLeft: '7px',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {campaign.club?.college || 'DreamXec Academy'}
-            &nbsp;•&nbsp;
-            {campaign.club?.name || 'DreamXec Club'}
-          </p>
+        <p
+  style={{
+    margin: 0,
+    fontSize: '12px',
+    color: '#555',
+    fontWeight: 500,
+    borderLeft: '3px solid #FF7F00',
+    paddingLeft: '7px',
+  }}
+>
+  <span style={{ display: 'block' }}>{campaign.club?.college || 'DreamXec Academy'}</span>
+  <span style={{ display: 'block' }}>{campaign.club?.name || 'DreamXec Club'}</span>
+</p>
         </div>
 
         {/* Progress */}

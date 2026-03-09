@@ -58,7 +58,7 @@ const articles = [
     summary: "Prittle Prattle News features an in-depth profile of DreamXec's launch on National Science Day, covering its vision for Atmanirbhar student innovation.",
     url: "https://www.prittleprattlenews.com/education/dreamxec-national-science-day-student-research-funding-2026/",
     domain: "prittleprattlenews.com",
-    shadow: "#000080",
+    shadow: "#003366",
   },
   {
     outlet: "Financial Express",
@@ -69,7 +69,7 @@ const articles = [
     summary: "Launched on National Science Day 2026, DreamXec is India's first dedicated crowdfunding platform for 43.3 million higher education students.",
     url: "https://www.financialexpress.com/jobs-career/education/dreamxec-indias-first-student-research-crowdfunding-platform-launched/4159420/",
     domain: "financialexpress.com",
-    shadow: "#000080",
+    shadow: "#003366",
   },
 ];
 
@@ -93,7 +93,7 @@ const pressKitFiles = [
     desc: "Summary of all media mentions",
     driveUrl: "https://drive.google.com/file/d/1WAMB4c9sH9mos92-Yllqy9Dxv1ZJARi_/view",
     embedId: "1WAMB4c9sH9mos92-Yllqy9Dxv1ZJARi_",
-    shadow: "#000080",
+    shadow: "#003366",
   },
 ];
 
@@ -108,7 +108,7 @@ function ArticleCard({ item }: { item: typeof articles[0] }) {
       target="_blank"
       rel="noopener noreferrer"
       className="group bg-white flex flex-col transition-all duration-200 hover:translate-x-[-3px] hover:translate-y-[-3px]"
-      style={{ border: '3px solid #000080', boxShadow: `6px 6px 0 ${item.shadow}` }}
+      style={{ border: '3px solid #003366', boxShadow: `6px 6px 0 ${item.shadow}` }}
     >
       {/* Top stripe */}
       <div className="h-2" style={{ background: item.shadow }} />
@@ -119,7 +119,7 @@ function ArticleCard({ item }: { item: typeof articles[0] }) {
         <div className="flex items-center gap-2.5 mb-3">
           <div
             className="w-9 h-9 flex items-center justify-center font-black text-xs text-white flex-shrink-0"
-            style={{ background: '#000080', border: '2px solid #000080' }}
+            style={{ background: '#003366', border: '2px solid #003366' }}
           >
             {item.outletShort.slice(0, 3)}
           </div>
@@ -154,7 +154,7 @@ function ArticleCard({ item }: { item: typeof articles[0] }) {
         {/* Link preview footer — domain bar */}
         <div
           className="flex items-center justify-between px-3 py-2 transition-colors group-hover:bg-dreamxec-navy mt-auto"
-          style={{ border: '2px solid #000080' }}
+          style={{ border: '2px solid #003366' }}
         >
           <div className="flex items-center gap-1.5">
             <svg className="w-3 h-3 text-dreamxec-navy/40 group-hover:text-white/60 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -182,17 +182,17 @@ function PdfCard({ file }: { file: typeof pressKitFiles[0] }) {
   return (
     <div
       className="bg-white flex flex-col"
-      style={{ border: '3px solid #000080', boxShadow: `6px 6px 0 ${file.shadow}` }}
+      style={{ border: '3px solid #003366', boxShadow: `6px 6px 0 ${file.shadow}` }}
     >
       {/* Top stripe */}
       <div className="h-2 flex-shrink-0" style={{ background: file.shadow }} />
 
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b-2 border-[#000080]/10">
+      <div className="flex items-center justify-between px-4 py-3 border-b-2 border-[#003366]/10">
         <div className="flex items-center gap-2.5">
           <div
             className="w-8 h-8 flex items-center justify-center flex-shrink-0"
-            style={{ background: file.shadow, border: '2px solid #000080' }}
+            style={{ background: file.shadow, border: '2px solid #003366' }}
           >
             <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -210,7 +210,7 @@ function PdfCard({ file }: { file: typeof pressKitFiles[0] }) {
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 px-2.5 py-1.5 font-black text-[10px] uppercase tracking-widest text-white transition-all hover:opacity-80"
-          style={{ background: '#000080', border: '2px solid #000080', boxShadow: '2px 2px 0 #FF7F00' }}
+          style={{ background: '#003366', border: '2px solid #003366', boxShadow: '2px 2px 0 #FF7F00' }}
         >
           Open ↗
         </a>
@@ -283,7 +283,7 @@ export default function PressMedia() {
                 <span className="absolute inset-0 translate-x-[5px] translate-y-[5px] sm:translate-x-[7px] sm:translate-y-[7px]" style={{ background: '#0B9C2C' }} aria-hidden />
                 <span
                   className="relative z-10 inline-block px-3 sm:px-5 py-1 text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white"
-                  style={{ background: '#FF7F00', border: '3px solid #fff', color: '#000080' }}
+                  style={{ background: '#FF7F00', border: '3px solid #fff', color: '#003366' }}
                 >
                   News
                 </span>
@@ -328,7 +328,7 @@ export default function PressMedia() {
             </h2>
             <span
               className="px-2.5 py-1 text-xs font-black text-white uppercase tracking-wide"
-              style={{ background: '#FF7F00', border: '2px solid #000080' }}
+              style={{ background: '#FF7F00', border: '2px solid #003366' }}
             >
               {articles.length} outlets
             </span>
@@ -365,12 +365,12 @@ export default function PressMedia() {
         <section>
           <div
             className="bg-white p-5 sm:p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5"
-            style={{ border: '3px solid #000080', boxShadow: '6px 6px 0 #FF7F00' }}
+            style={{ border: '3px solid #003366', boxShadow: '6px 6px 0 #FF7F00' }}
           >
             {/* Left stripe */}
             <div className="hidden sm:flex flex-col w-2 self-stretch">
               <div className="flex-1 bg-[#FF7F00]" />
-              <div className="flex-1 bg-white border-x border-[#000080]/20" />
+              <div className="flex-1 bg-white border-x border-[#003366]/20" />
               <div className="flex-1 bg-[#0B9C2C]" />
             </div>
 
@@ -387,7 +387,7 @@ export default function PressMedia() {
             <a
               href="mailto:press@dreamxec.com"
               className="flex-shrink-0 px-5 py-3 font-black text-white text-xs sm:text-sm uppercase tracking-widest transition-all hover:translate-x-[-1px] hover:translate-y-[-1px]"
-              style={{ background: '#000080', border: '2px solid #000080', boxShadow: '4px 4px 0 #FF7F00' }}
+              style={{ background: '#003366', border: '2px solid #003366', boxShadow: '4px 4px 0 #FF7F00' }}
             >
               Contact Press Team →
             </a>

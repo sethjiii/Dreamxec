@@ -188,12 +188,12 @@ export const PartnersSection = () => {
     {
       name: "Q: Is my donation tax-deductible? (Corporate/Foundation)",
       logo: "https://res.cloudinary.com/dvqeeun29/image/upload/v1767734236/23_sqrtii.png",
-      category: "A: Yes! 80G certificate auto-generated. 50% deduction.",
+      category: "A: Yes! 80G certificate (Pending) auto-generated. 50% deduction.",
     },
     {
       name: "Q: Can I donate anonymously?",
       logo: "https://res.cloudinary.com/dvqeeun29/image/upload/v1767734218/22_uadpdn.png",
-      category: "A: Yes, you can choose to remain anonymous when making a donation.",
+      category: "A: Yes, you can choose to remain anonymous when making a donation. However, for donations above ₹50,000, providing your PAN details is mandatory as per regulatory requirements.",
     },
     {
       name: "Q: What's the minimum pledge amount?",
@@ -203,7 +203,7 @@ export const PartnersSection = () => {
     {
       name: "Q: What if the project fails?",
       logo: "https://res.cloudinary.com/dvqeeun29/image/upload/v1767734189/21_apvr2t.png",
-      category: "A: Rare (95% completion rate). If it happens, we transparently share reasons. Funds already used can't be refunded, but unused funds can be redirected.",
+      category: "A: If it happens, we transparently share reasons. Funds already used can't be refunded, but unused funds can be redirected.",
     },
     {
       name: "Q. What is a Donor Opportunity?",

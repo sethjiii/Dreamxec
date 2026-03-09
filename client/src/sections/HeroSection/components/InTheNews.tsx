@@ -66,7 +66,7 @@ export const InTheNews = () => {
                 As Seen{' '}
                 <span
                   className="inline-block px-2 py-0.5"
-                  style={{ background: '#FF7F00', color: '#000080' }}
+                  style={{ background: '#FF7F00', color: '#003366' }}
                 >
                   In
                 </span>
@@ -78,7 +78,7 @@ export const InTheNews = () => {
           <div className="flex items-center gap-3 flex-wrap">
             {/* <div
               className="flex items-center gap-2 px-3 py-1.5"
-              style={{ border: '2px solid #000080', background: '#fff' }}
+              style={{ border: '2px solid #003366', background: '#fff' }}
             >
               <span className="text-lg font-black text-[#FF7F00]">5</span>
               <span className="text-[10px] font-black text-dreamxec-navy/60 uppercase tracking-widest">
@@ -89,7 +89,7 @@ export const InTheNews = () => {
             <button
               onClick={() => navigate('/press')}
               className="px-4 py-2 font-black text-xs uppercase tracking-widest text-white transition-all hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px]"
-              style={{ background: '#000080', border: '2px solid #000080', boxShadow: '3px 3px 0 #FF7F00' }}
+              style={{ background: '#003366', border: '2px solid #003366', boxShadow: '3px 3px 0 #FF7F00' }}
             >
               View All Coverage →
             </button>
@@ -100,7 +100,7 @@ export const InTheNews = () => {
       {/* ── Marquee strip ── */}
       <div
         className="w-full relative overflow-hidden py-0"
-        style={{ borderTop: '3px solid #000080', borderBottom: '3px solid #000080', background: '#fff' }}
+        style={{ borderTop: '3px solid #003366', borderBottom: '3px solid #003366', background: '#fff' }}
       >
         {/* Left fade */}
         <div
@@ -130,7 +130,7 @@ export const InTheNews = () => {
                 {/* Outlet name block */}
                 <div
                   className="flex items-center px-6 sm:px-8 md:px-10 py-4 sm:py-5 h-full transition-colors group-hover:bg-[#FF7F00]/10"
-                  style={{ borderRight: '2px solid #000080' }}
+                  style={{ borderRight: '2px solid #003366' }}
                 >
                   <span
                     className="text-lg sm:text-xl md:text-2xl text-dreamxec-navy/60 group-hover:text-dreamxec-navy transition-colors whitespace-nowrap"
@@ -154,12 +154,12 @@ export const InTheNews = () => {
       {/* ── Headline ticker below marquee ── */}
       <div
         className="w-full overflow-hidden"
-        style={{ background: '#000080', borderBottom: '3px solid #FF7F00' }}
+        style={{ background: '#003366', borderBottom: '3px solid #FF7F00' }}
       >
         <div className="flex items-center">
           {/* Label stamp */}
           <div
-            className="flex-shrink-0 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[#000080] z-10"
+            className="flex-shrink-0 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[#003366] z-10"
             style={{ background: '#FF7F00', borderRight: '3px solid #FF7F00' }}
           >
             📰 Latest

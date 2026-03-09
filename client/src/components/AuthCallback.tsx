@@ -66,8 +66,8 @@ export default function AuthCallback() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FFFBF3]">
       <div className="text-center">
-        <div className="w-12 h-12 border-4 border-[#000080] border-t-[#FF7F00] rounded-full animate-spin mx-auto mb-4" />
-        <p className="font-black text-[#000080] uppercase tracking-widest text-sm">Completing authentication...</p>
+        <div className="w-12 h-12 border-4 border-[#003366] border-t-[#FF7F00] rounded-full animate-spin mx-auto mb-4" />
+        <p className="font-black text-[#003366] uppercase tracking-widest text-sm">Completing authentication...</p>
       </div>
     </div>
   );

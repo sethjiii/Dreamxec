@@ -17,14 +17,14 @@ const Field = ({
     label, required, children,
 }: { label: string; required?: boolean; children: React.ReactNode }) => (
     <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-black text-[#000080] uppercase tracking-widest">
+        <label className="text-xs font-black text-[#003366] uppercase tracking-widest">
             {label} {required && <span className="text-red-600">*</span>}
         </label>
         {children}
     </div>
 );
 
-const inputCls = "w-full px-3 py-2.5 text-sm font-medium text-[#000080] bg-white focus:outline-none transition-all border-[3px] border-[#000080] shadow-[3px_3px_0_#FF7F00]";
+const inputCls = "w-full px-3 py-2.5 text-sm font-medium text-[#003366] bg-white focus:outline-none transition-all border-[3px] border-[#003366] shadow-[3px_3px_0_#FF7F00]";
 const selectCls = inputCls + " cursor-pointer";
 
 /* ─────────────────────────────────────────
@@ -38,20 +38,20 @@ const StepIndicator = ({ steps, current }: { steps: string[]; current: number })
                     <div
                         className="w-8 h-8 flex items-center justify-center text-sm font-black transition-all"
                         style={{
-                            border: '3px solid #000080',
+                            border: '3px solid #003366',
                             background: i < current ? '#0B9C2C' : i === current ? '#FF7F00' : '#fff',
-                            color: i <= current ? '#fff' : '#000080',
-                            boxShadow: i === current ? '3px 3px 0 #000080' : 'none',
+                            color: i <= current ? '#fff' : '#003366',
+                            boxShadow: i === current ? '3px 3px 0 #003366' : 'none',
                         }}
                     >
                         {i < current ? '✓' : i + 1}
                     </div>
-                    <span className="text-[10px] font-bold text-[#000080] mt-1 text-center hidden sm:block" style={{ maxWidth: 64 }}>
+                    <span className="text-[10px] font-bold text-[#003366] mt-1 text-center hidden sm:block" style={{ maxWidth: 64 }}>
                         {label}
                     </span>
                 </div>
                 {i < steps.length - 1 && (
-                    <div className="flex-1 h-0.5 mx-2" style={{ background: i < current ? '#0B9C2C' : '#000080', opacity: 0.3 }} />
+                    <div className="flex-1 h-0.5 mx-2" style={{ background: i < current ? '#0B9C2C' : '#003366', opacity: 0.3 }} />
                 )}
             </div>
         ))}
@@ -64,10 +64,10 @@ const StepIndicator = ({ steps, current }: { steps: string[]; current: number })
 const CompletionBar = ({ pct }: { pct: number }) => (
     <div className="mb-6">
         <div className="flex justify-between items-center mb-1.5">
-            <span className="text-xs font-black text-[#000080] uppercase tracking-widest">Profile Completion</span>
+            <span className="text-xs font-black text-[#003366] uppercase tracking-widest">Profile Completion</span>
             <span className="text-sm font-black" style={{ color: pct >= 80 ? '#0B9C2C' : '#FF7F00' }}>{pct}%</span>
         </div>
-        <div className="w-full h-3 bg-gray-100 border-2 border-[#000080] overflow-hidden">
+        <div className="w-full h-3 bg-gray-100 border-2 border-[#003366] overflow-hidden">
             <div
                 className="h-full transition-all duration-500"
                 style={{ width: `${pct}%`, background: pct >= 80 ? '#0B9C2C' : '#FF7F00' }}
@@ -100,7 +100,7 @@ const SkillsInput = ({ skills, onChange }: { skills: string[]; onChange: (s: str
                     type="button"
                     onClick={add}
                     className="px-4 py-2.5 font-black text-white text-sm uppercase tracking-wide"
-                    style={{ background: '#000080', border: '3px solid #000080' }}
+                    style={{ background: '#003366', border: '3px solid #003366' }}
                 >+</button>
             </div>
             {skills.length > 0 && (
@@ -109,7 +109,7 @@ const SkillsInput = ({ skills, onChange }: { skills: string[]; onChange: (s: str
                         <span
                             key={s}
                             className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-white"
-                            style={{ background: '#000080', border: '2px solid #000080' }}
+                            style={{ background: '#003366', border: '2px solid #003366' }}
                         >
                             {s}
                             <button type="button" onClick={() => onChange(skills.filter(x => x !== s))} className="hover:text-red-300">×</button>
@@ -136,9 +136,9 @@ const CategoryPicker = ({ selected, onChange }: { selected: string[]; onChange: 
                     onClick={() => onChange(active ? selected.filter(c => c !== cat) : [...selected, cat])}
                     className="px-3 py-1.5 text-xs font-black uppercase tracking-wide transition-all"
                     style={{
-                        border: '2px solid #000080',
-                        background: active ? '#000080' : '#fff',
-                        color: active ? '#fff' : '#000080',
+                        border: '2px solid #003366',
+                        background: active ? '#003366' : '#fff',
+                        color: active ? '#fff' : '#003366',
                         boxShadow: active ? '2px 2px 0 #FF7F00' : 'none',
                     }}
                 >{cat}</button>
@@ -349,8 +349,8 @@ export default function ProfileSetup() {
         return (
             <div className="min-h-screen bg-[#FFFBF3] flex items-center justify-center">
                 <div className="text-center">
-                    <div className="w-12 h-12 border-4 border-[#000080] border-t-[#FF7F00] rounded-full animate-spin mx-auto mb-4" />
-                    <p className="font-black text-[#000080] uppercase tracking-widest text-sm">Loading profile...</p>
+                    <div className="w-12 h-12 border-4 border-[#003366] border-t-[#FF7F00] rounded-full animate-spin mx-auto mb-4" />
+                    <p className="font-black text-[#003366] uppercase tracking-widest text-sm">Loading profile...</p>
                 </div>
             </div>
         );
@@ -363,11 +363,11 @@ export default function ProfileSetup() {
                 {/* Header */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center gap-3 mb-3">
-                        <h1 className="text-3xl font-black text-[#000080] uppercase tracking-tight">
+                        <h1 className="text-3xl font-black text-[#003366] uppercase tracking-tight">
                             {role === 'DONOR' ? '💼 Donor Profile' : '🎓 Student Profile'}
                         </h1>
                     </div>
-                    <p className="text-[#000080]/70 font-bold text-sm">
+                    <p className="text-[#003366]/70 font-bold text-sm">
                         {role === 'DONOR'
                             ? 'Tell us about yourself to unlock full donor features'
                             : 'Complete your profile to start fundraising campaigns'}
@@ -375,12 +375,12 @@ export default function ProfileSetup() {
                 </div>
 
                 {/* Card */}
-                <div className="bg-white" style={{ border: '4px solid #000080', boxShadow: '8px 8px 0 #FF7F00' }}>
+                <div className="bg-white" style={{ border: '4px solid #003366', boxShadow: '8px 8px 0 #FF7F00' }}>
 
                     {/* Tricolor bar */}
                     <div className="flex h-2">
                         <div className="flex-1 bg-[#FF7F00]" />
-                        <div className="flex-1 bg-white border-y-2 border-[#000080]" />
+                        <div className="flex-1 bg-white border-y-2 border-[#003366]" />
                         <div className="flex-1 bg-[#0B9C2C]" />
                     </div>
 
@@ -485,7 +485,7 @@ export default function ProfileSetup() {
                                                 placeholder="Tell the world about yourself in a few sentences..."
                                                 maxLength={500}
                                             />
-                                            <p className="text-right text-xs text-[#000080]/50 font-medium">{sBio.length}/500</p>
+                                            <p className="text-right text-xs text-[#003366]/50 font-medium">{sBio.length}/500</p>
                                         </Field>
                                     </>
                                 )}
@@ -558,7 +558,7 @@ export default function ProfileSetup() {
                                                 placeholder="ABCDE1234F"
                                                 maxLength={10}
                                             />
-                                            <p className="text-xs text-[#000080]/50 font-medium mt-1">10-character alphanumeric (e.g. ABCDE1234F)</p>
+                                            <p className="text-xs text-[#003366]/50 font-medium mt-1">10-character alphanumeric (e.g. ABCDE1234F)</p>
                                         </Field>
                                     </>
                                 )}
@@ -604,7 +604,7 @@ export default function ProfileSetup() {
                                                 placeholder="A short description about yourself..."
                                                 maxLength={500}
                                             />
-                                            <p className="text-right text-xs text-[#000080]/50 font-medium">{dBio.length}/500</p>
+                                            <p className="text-right text-xs text-[#003366]/50 font-medium">{dBio.length}/500</p>
                                         </Field>
                                         <Field label="Preferred Donation Categories">
                                             <CategoryPicker selected={dCategories} onChange={setDCategories} />
@@ -615,9 +615,9 @@ export default function ProfileSetup() {
                                                 type="checkbox"
                                                 checked={dAnonymous}
                                                 onChange={e => setDAnonymous(e.target.checked)}
-                                                className="w-4 h-4 accent-[#000080]"
+                                                className="w-4 h-4 accent-[#003366]"
                                             />
-                                            <label htmlFor="anon" className="text-sm font-bold text-[#000080] cursor-pointer">
+                                            <label htmlFor="anon" className="text-sm font-bold text-[#003366] cursor-pointer">
                                                 Prefer anonymous donations (name hidden from campaign pages)
                                             </label>
                                         </div>
@@ -631,29 +631,29 @@ export default function ProfileSetup() {
                             {step > 0 && (
                                 <button
                                     onClick={() => { setStep(s => s - 1); setError(''); }}
-                                    className="px-5 py-3 font-black text-sm uppercase tracking-wide text-[#000080] bg-white transition-all hover:translate-x-[-1px] hover:translate-y-[-1px]"
-                                    style={{ border: '3px solid #000080', boxShadow: '3px 3px 0 #000080' }}
+                                    className="px-5 py-3 font-black text-sm uppercase tracking-wide text-[#003366] bg-white transition-all hover:translate-x-[-1px] hover:translate-y-[-1px]"
+                                    style={{ border: '3px solid #003366', boxShadow: '3px 3px 0 #003366' }}
                                 >← Back</button>
                             )}
                             <button
                                 onClick={handleNext}
                                 disabled={saving}
                                 className="flex-1 py-3 font-black text-white uppercase tracking-widest text-sm transition-all disabled:opacity-60"
-                                style={{ background: 'linear-gradient(135deg, #0B9C2C 0%, #16a34a 100%)', border: '3px solid #000080', boxShadow: saving ? 'none' : '5px 5px 0 #000080' }}
+                                style={{ background: 'linear-gradient(135deg, #0B9C2C 0%, #16a34a 100%)', border: '3px solid #003366', boxShadow: saving ? 'none' : '5px 5px 0 #003366' }}
                             >
                                 {saving ? '⏳ Saving...' : isLast ? '🎉 Complete Setup' : 'Save & Continue →'}
                             </button>
                             <button
                                 onClick={handleSkip}
-                                className="px-5 py-3 font-black text-sm uppercase tracking-wide text-[#000080]/50 bg-white"
-                                style={{ border: '3px solid #000080', opacity: 0.6 }}
+                                className="px-5 py-3 font-black text-sm uppercase tracking-wide text-[#003366]/50 bg-white"
+                                style={{ border: '3px solid #003366', opacity: 0.6 }}
                             >Skip</button>
                         </div>
 
                         {/* Tricolor footer */}
                         <div className="mt-6 flex h-1">
                             <div className="flex-1 bg-[#FF7F00]" />
-                            <div className="flex-1 bg-[#000080]" />
+                            <div className="flex-1 bg-[#003366]" />
                             <div className="flex-1 bg-[#0B9C2C]" />
                         </div>
                     </div>

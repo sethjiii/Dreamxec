@@ -857,8 +857,8 @@ function AppContent() {
   };
 
   return (
-    <div className="text-dreamxec-navy text-[10px] not-italic normal-nums font-normal accent-auto caret-transparent block h-full tracking-[normal] leading-[normal] list-outside list-disc overflow-x-auto overflow-y-scroll pointer-events-auto text-start indent-[0px] normal-case visible border-separate font-sans">
-      <Toaster
+<div className="text-dreamxec-navy font-sans">
+       <Toaster
         position="top-right"
         toastOptions={{
           duration: 5000,

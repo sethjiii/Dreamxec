@@ -180,12 +180,23 @@ export interface UpdateUserProjectData {
    API CALLS
 ========================================================= */
 
-// PUBLIC CAMPAIGNS
-export const getPublicUserProjects = async (): Promise<
-  ApiResponse<{ userProjects: UserProject[] }>
+// PUBLIC CAMPAIGNS (paginated — cursor-based)
+export const getPublicUserProjects = async (params?: {
+  cursor?: string;
+  limit?: number;
+}): Promise<
+  ApiResponse<{
+    userProjects: UserProject[];
+    pagination?: { nextCursor: string | null; hasNextPage: boolean };
+  }>
 > => {
-  return apiRequest("/user-projects/public", { method: "GET" });
+  const query = new URLSearchParams();
+  if (params?.cursor) query.set('cursor', params.cursor);
+  if (params?.limit) query.set('limit', String(params.limit));
+  const qs = query.toString() ? `?${query.toString()}` : '';
+  return apiRequest(`/user-projects/public${qs}`, { method: 'GET' });
 };
+
 
 // SINGLE CAMPAIGN
 export const getUserProject = async (

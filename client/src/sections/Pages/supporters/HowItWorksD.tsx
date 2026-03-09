@@ -26,7 +26,7 @@ const budgetBreakdown = [
 ];
 
 const impactMetrics = [
-  { icon: "🎯", title: "Career Outcomes",  accent: "#FF7F00", description: "Jobs secured, internships landed, and higher education admissions directly linked to project experience.", vector: "/assets/icon-pack/DX-ILLUSTRATION-PACK/5.svg"  },
+  { icon: "", title: "Career Outcomes",  accent: "#FF7F00", description: "Jobs secured, internships landed, and higher education admissions directly linked to project experience.", vector: "/assets/icon-pack/DX-ILLUSTRATION-PACK/5.svg"  },
   { icon: "💡", title: "Innovation Impact",accent: "#003366", description: "Patents filed, research published in journals, and startups launched from student-led DreamXec projects.",   vector: "/assets/icon-pack/DX-ILLUSTRATION-PACK/8.svg"  },
   { icon: "🌍", title: "Social Impact",    accent: "#0B9C2C", description: "Communities directly helped, social problems quantifiably solved, and grassroots change measured.",           vector: "/assets/icon-pack/DX-ILLUSTRATION-PACK/1.svg"  },
   { icon: "📚", title: "Learning Gains",   accent: "#FF7F00", description: "New skills acquired, confidence built, and measurable personal and professional growth documented.",          vector: "/assets/icon-pack/DX-ILLUSTRATION-PACK/12.svg" },

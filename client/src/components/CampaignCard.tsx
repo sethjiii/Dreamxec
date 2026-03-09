@@ -82,7 +82,7 @@ export default function CampaignCard({ campaign, href }: CampaignCardProps) {
               fontSize: '52px',
             }}
           >
-            🎯
+            
           </div>
         )}
 

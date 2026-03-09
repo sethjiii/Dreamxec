@@ -454,7 +454,7 @@ model Donation {
   guestEmail String?
   guestPAN   String?
 
-  // 🎯 Project
+  //  Project
   userProjectId String      @db.ObjectId
   userProject   UserProject @relation(fields: [userProjectId], references: [id], onDelete: Cascade)
 

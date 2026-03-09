@@ -357,7 +357,7 @@ const BecomeMentor = () => {
           <div className="nb-stats-inner">
             {[
               { icon: "🧑‍🏫", num: "1,000+", label: "Active Mentors"     },
-              { icon: "🎯",   num: "840+",   label: "Projects Guided"    },
+              { icon: "",   num: "840+",   label: "Projects Guided"    },
               { icon: "⏱️",  num: "1 hr",   label: "Per Week Commitment" },
               { icon: "🏆",  num: "92%",    label: "Mentor Satisfaction" },
             ].map(({ icon, num, label }) => (

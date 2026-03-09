@@ -502,7 +502,7 @@ function CreateCampaignDemo({ onBack, onSubmit, prefill }) {
             {step === 3 && (
               <div>
                 <div style={{ textAlign: "center", marginBottom: 24 }}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: C.navy }}>🎯 Step 3 / 4</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: C.navy }}> Step 3 / 4</div>
                   <div style={{ fontSize: 20, fontWeight: 700, color: C.navy, marginTop: 2 }}>Explain How Funds Will Be Used</div>
                   <div style={{ fontSize: 13, opacity: 0.6 }}>
                     Break your project into milestones so donors see transparency.

@@ -461,7 +461,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
                   />
                 </div>
                 <p className="mt-3 text-dreamxec-navy/60 font-bold text-xs uppercase tracking-widest text-center">
-                  Watch how this campaign makes an impact 🎯
+                  Watch how this campaign makes an impact 
                 </p>
               </NeoCard>
             )}

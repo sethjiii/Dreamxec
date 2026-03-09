@@ -58,7 +58,7 @@ const partnerships = [
   },
   {
     num: "03",
-    icon: "🎯",
+    icon: "",
     accent: "#0B9C2C",
     budget: "₹10L – ₹50L",
     title: "Project / Club / Event Sponsorship",

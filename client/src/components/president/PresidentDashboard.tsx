@@ -99,7 +99,7 @@ export default function PresidentDashboard({
             title="Total Campaigns" 
             value={stats.totalCampaigns} 
             colorTheme="blue" 
-            icon={<span className="text-xl">🎯</span>} 
+            icon={<span className="text-xl"></span>} 
           />
           <StatCard 
             title="Approved" 

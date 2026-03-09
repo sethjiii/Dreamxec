@@ -114,7 +114,7 @@ export default function BrowseCampaigns({ campaigns, onViewCampaign }: BrowseCam
               textTransform: 'uppercase',
             }}
           >
-            🎯 DreamXec Platform
+             DreamXec Platform
           </div>
 
           <div className="flex items-start gap-4 mb-4">

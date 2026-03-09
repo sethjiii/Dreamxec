@@ -73,7 +73,7 @@ const stories = [
 ];
 
 // const impactStats = [
-//   { icon: "🎯", label: "Students Funded",    value: "12,400+", accent: "#FF7F00" },
+//   { icon: "", label: "Students Funded",    value: "12,400+", accent: "#FF7F00" },
 //   { icon: "💡", label: "Projects Launched",  value: "840+",    accent: "#FF7F00" },
 //   { icon: "🌍", label: "States Reached",     value: "28",      accent: "#FF7F00" },
 //   { icon: "📚", label: "Crores Disbursed",   value: "₹3Cr+",   accent: "#FF7F00" },

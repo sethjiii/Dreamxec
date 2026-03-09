@@ -582,7 +582,7 @@ const DonorDashboardInner: React.FC<DonorDashboardProps> = ({ donorName, project
                   <KpiCard icon="💝" title="Total Donated" value={formatCurrency(totalDonated)} accent="#0B9C2C" />
                   <KpiCard icon="📊" title="Avg Donation" value={formatCurrency(avgDonation)} accent="#FF7F00" />
                   <KpiCard icon="🏆" title="Biggest Gift" value={formatCurrency(maxDonation)} accent="#003366" />
-                  <KpiCard icon="🎯" title="Campaigns" value={projectsSupported} accent="#dc2626" />
+                  <KpiCard icon="" title="Campaigns" value={projectsSupported} accent="#dc2626" />
                 </div>
               )}
 
@@ -773,7 +773,7 @@ const DonorDashboardInner: React.FC<DonorDashboardProps> = ({ donorName, project
                 <KpiCard icon="💝" title="Total Donated" value={formatCurrency(totalDonated)} accent="#0B9C2C" loading={loadingDonations} />
                 <KpiCard icon="📊" title="Avg Donation" value={formatCurrency(avgDonation)} accent="#FF7F00" loading={loadingDonations} />
                 <KpiCard icon="🏆" title="Biggest Gift" value={formatCurrency(maxDonation)} accent="#003366" loading={loadingDonations} />
-                <KpiCard icon="🎯" title="Projects" value={projectsSupported} accent="#dc2626" loading={loadingDonations} />
+                <KpiCard icon="" title="Projects" value={projectsSupported} accent="#dc2626" loading={loadingDonations} />
               </div>
 
               {/* Filters & actions */}

@@ -178,7 +178,7 @@ function BgDecorations() {
 const STEPS = [
   { num: 1, emoji: '📝', label: 'Basic Info', desc: 'Title, goal & club' },
   { num: 2, emoji: '🎬', label: 'Media & Team', desc: 'Videos, FAQs & members' },
-  { num: 3, emoji: '🎯', label: 'Milestones', desc: 'Plan & banner upload' },
+  { num: 3, emoji: '', label: 'Milestones', desc: 'Plan & banner upload' },
   { num: 4, emoji: '✅', label: 'Review', desc: 'Final check & submit' },
 ];
 
@@ -379,7 +379,7 @@ export default function CreateCampaign({ onBack, onSubmit, initialData }: Create
       const sectionMap: Record<string, string> = {
         teamMembers: '👥 Team Members',
         faqs: '❓ FAQs',
-        milestones: '🎯 Milestones',
+        milestones: ' Milestones',
         goalAmount: '💰 Funding Goal',
         title: '📝 Campaign Title',
         description: '📝 Description',
@@ -676,7 +676,7 @@ export default function CreateCampaign({ onBack, onSubmit, initialData }: Create
             {step === 2 && (
               <div className="space-y-6">
                 <div className="flex items-start gap-3 p-4" style={{ background: '#fffbeb', border: '2px solid #FF7F00' }}>
-                  <span className="text-lg flex-shrink-0">🎯</span>
+                  <span className="text-lg flex-shrink-0"></span>
                   <p className="text-xs font-bold text-[#003366]/80 leading-relaxed">
                     Campaigns with a pitch video raise <strong>2x more</strong> on average. FAQs reduce donor hesitation.
                     Team profiles build trust. All fields here are <strong>highly recommended</strong>.

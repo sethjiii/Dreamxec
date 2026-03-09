@@ -30,7 +30,7 @@ const HOW_IT_WORKS = [
     title: "Deliver Impact",
     text: "Once funded, execute with mentor support. Track outcomes—internships, jobs, patents, social impact—and celebrate every milestone.",
     accent: "#0B9C2C",
-    icon: "🎯",
+    icon: "",
   },
 ];
 

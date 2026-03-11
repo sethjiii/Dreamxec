@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, createContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DonorAnalyticsChart from "./DonorAnalyticsChart";
 import DonationHeatmap from './CalendarHeatmap';
@@ -30,7 +31,7 @@ type ApplicationStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 interface Application { id: string; status: ApplicationStatus; coverLetter: string; skills?: string[]; createdAt: string; rejectionReason?: string; user?: ApplicationUser; donorProject?: DonorProject; }
 interface Campaign { id: string; title: string; description?: string; imageUrl?: string; status: string; goalAmount: number; amountRaised?: number; }
 interface Eligibility { canCreateOpportunity: boolean; createdProjects: number; allowedProjects: number; remainingProjects: number; perProjectCost: number; }
-interface DonorDashboardProps { donorName: string; projectsCount: number; onCreateProject?: () => void; onViewProjects?: () => void; getDonorApplications: () => Promise<{ success: boolean; data?: { applications: Application[] } }>; updateApplicationStatus: (id: string, payload: { status: ApplicationStatus; rejectionReason?: string | null }) => Promise<ApiResponse<{ application: Application }>>; getDonationSummary: () => Promise<any>; }
+interface DonorDashboardProps { donorName: string; projectsCount: number; profileComplete?: boolean; onCreateProject?: () => void; onViewProjects?: () => void; getDonorApplications: () => Promise<{ success: boolean; data?: { applications: Application[] } }>; updateApplicationStatus: (id: string, payload: { status: ApplicationStatus; rejectionReason?: string | null }) => Promise<ApiResponse<{ application: Application }>>; getDonationSummary: () => Promise<any>; }
 interface Toast { id: number; message: string; type: 'success' | 'error' | 'info'; }
 interface ToastApi { success: (msg: string) => void; error: (msg: string) => void; info: (msg: string) => void; }
 interface ConfirmInfo { id: string; title: string; }
@@ -243,7 +244,7 @@ const TierProgress: React.FC<{ totalDonated: number }> = ({ totalDonated }) => {
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 const StatusBadge: React.FC<{ status: ApplicationStatus }> = ({ status }) => {
   const cfg = {
-    PENDING:  { bg: '#fffbeb', color: '#92400e', border: '#FF7F00' },
+    PENDING: { bg: '#fffbeb', color: '#92400e', border: '#FF7F00' },
     ACCEPTED: { bg: '#f0fdf4', color: '#166534', border: '#0B9C2C' },
     REJECTED: { bg: '#fef2f2', color: '#991b1b', border: '#dc2626' },
   }[status];
@@ -327,12 +328,13 @@ const SideNavItem: React.FC<{ icon: IconName; label: string; active: boolean; ba
   </button>
 );
 
-type Tab = 'overview' | 'projects' | 'applications' | 'donations' | 'wishlist';
+type Tab = 'overview' | 'projects' | 'applications' | 'donations' | 'wishlist' | 'profile';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN DASHBOARD INNER
 // ═══════════════════════════════════════════════════════════════════════════════
-const DonorDashboardInner: React.FC<DonorDashboardProps> = ({ donorName, projectsCount, onCreateProject, onViewProjects, getDonorApplications, updateApplicationStatus }) => {
+const DonorDashboardInner: React.FC<DonorDashboardProps> = ({ donorName, projectsCount, profileComplete, onCreateProject, onViewProjects, getDonorApplications, updateApplicationStatus }) => {
+  const navigate = useNavigate();
   const toast = useToast();
 
   const [selectedTab, setSelectedTab] = useState<Tab>('overview');
@@ -420,7 +422,7 @@ const DonorDashboardInner: React.FC<DonorDashboardProps> = ({ donorName, project
       try {
         const res = await axios.get<{ status: string; data: Eligibility }>(`${API_BASE}/donations/me/eligibility`);
         if (res.data.status === 'success') setEligibility(res.data.data);
-      } catch {}
+      } catch { }
     };
     fetchEligibility();
   }, []);
@@ -431,8 +433,7 @@ const DonorDashboardInner: React.FC<DonorDashboardProps> = ({ donorName, project
   const switchTab = (tab: Tab) => { setSelectedTab(tab); setSidebarOpen(false); };
 
   const tabTitle: Record<Tab, string> = {
-    overview: 'Dashboard Overview', projects: 'My Projects',
-    applications: 'Student Applications', donations: 'Donation History', wishlist: 'My Wishlist',
+    overview: 'Dashboard Overview', projects: 'My Projects', applications: 'Student Applications', donations: 'Donation History', wishlist: 'My Wishlist', profile: 'Profile'
   };
 
   return (
@@ -462,7 +463,7 @@ const DonorDashboardInner: React.FC<DonorDashboardProps> = ({ donorName, project
 
         {/* User */}
         <div className="px-5 py-5" style={{ borderBottom: '3px solid rgba(255,127,0,0.35)' }}>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mb-3">
             <div className="w-12 h-12 flex items-center justify-center font-black text-xl flex-shrink-0"
               style={{ background: '#FF7F00', color: '#003366', border: '3px solid #fff', boxShadow: '3px 3px 0 #0B9C2C' }}>
               {donorName?.charAt(0) || 'D'}
@@ -475,6 +476,20 @@ const DonorDashboardInner: React.FC<DonorDashboardProps> = ({ donorName, project
               </span>
             </div>
           </div>
+          {/* Profile completion bar */}
+          <button
+            onClick={() => navigate('/profile/setup')}
+            className="w-full text-left mt-1"
+          >
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-[10px] font-black text-orange-300 uppercase tracking-widest">Profile</span>
+              <span className="text-[10px] font-black text-white">{profileComplete ? '✓ Complete' : '⚠ Incomplete'}</span>
+            </div>
+            <div className="w-full h-2 overflow-hidden" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,127,0,0.4)' }}>
+              <div className="h-full transition-all duration-500"
+                style={{ width: profileComplete ? '100%' : '20%', background: profileComplete ? '#0B9C2C' : '#FF7F00' }} />
+            </div>
+          </button>
         </div>
 
         {/* Nav */}
@@ -484,6 +499,7 @@ const DonorDashboardInner: React.FC<DonorDashboardProps> = ({ donorName, project
           <SideNavItem icon="file" label="Applications" active={selectedTab === 'applications'} badge={pendingApplicationsCount} onClick={() => switchTab('applications')} />
           <SideNavItem icon="heart" label="Donations" active={selectedTab === 'donations'} onClick={() => switchTab('donations')} />
           <SideNavItem icon="star" label="Wishlist" active={selectedTab === 'wishlist'} onClick={() => switchTab('wishlist')} />
+          <SideNavItem icon="check" label="My Profile" active={selectedTab === 'profile'} badge={profileComplete ? 0 : 1} onClick={() => navigate('/profile/setup')} />
         </nav>
 
         {/* Create Project CTA */}
@@ -534,6 +550,24 @@ const DonorDashboardInner: React.FC<DonorDashboardProps> = ({ donorName, project
           {/* ══════ OVERVIEW ══════ */}
           {selectedTab === 'overview' && (
             <>
+              {/* Profile Incomplete Banner */}
+              {profileComplete === false && (
+                <a
+                  href="/profile/setup"
+                  className="flex items-center gap-4 p-4 transition-all hover:translate-x-[-2px] hover:translate-y-[-2px]"
+                  style={{ background: '#fff7ed', border: '3px solid #FF7F00', boxShadow: '5px 5px 0 #003366' }}
+                >
+                  <div className="w-10 h-10 flex items-center justify-center text-xl flex-shrink-0"
+                    style={{ background: '#FF7F00', border: '2px solid #003366' }}>⚠️</div>
+                  <div className="flex-1">
+                    <p className="font-black text-sm text-[#003366] uppercase tracking-wide">Complete Your Profile</p>
+                    <p className="text-xs font-medium text-[#003366]/60 mt-0.5">Your donor profile is incomplete. Complete it to unlock all features.</p>
+                  </div>
+                  <span className="font-black text-xs text-white uppercase tracking-widest px-4 py-2"
+                    style={{ background: '#FF7F00', border: '2px solid #003366' }}>Complete →</span>
+                </a>
+              )}
+
               {/* Welcome + Tier */}
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-5 bg-white"
                 style={{ border: '3px solid #003366', boxShadow: '6px 6px 0 #FF7F00' }}>

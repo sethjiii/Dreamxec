@@ -569,6 +569,13 @@ function AppContent() {
 
         setUser(userData);
 
+        // If profile is incomplete, redirect to profile setup first
+        const profileComplete = (response.data.user as any).profileComplete;
+        if (profileComplete === false) {
+          navigate('/profile/setup');
+          return;
+        }
+
         if (userData.role === 'student') {
           navigate('/dashboard');
         } else if (userData.role === 'donor') {
@@ -629,6 +636,13 @@ function AppContent() {
         };
 
         setUser(userData);
+
+        // If profile is incomplete, redirect to profile setup first
+        const profileComplete = (response.data.user as any).profileComplete;
+        if (profileComplete === false) {
+          navigate('/profile/setup');
+          return;
+        }
 
         if (userData.role === 'student') {
           navigate('/dashboard');
@@ -857,8 +871,8 @@ function AppContent() {
   };
 
   return (
-<div className="text-dreamxec-navy font-sans">
-       <Toaster
+    <div className="text-dreamxec-navy font-sans">
+      <Toaster
         position="top-right"
         toastOptions={{
           duration: 5000,
@@ -1422,6 +1436,7 @@ function AppContent() {
                                       <DonorDashboard
                                         donorName={user.name || 'Donor'}
                                         projectsCount={donorProjects.length}
+                                        profileComplete={(user as any).profileComplete}
                                         onCreateProject={() => navigate('/donor/create')}
                                         onViewProjects={() => navigate('/donor/projects')}
                                         getDonorApplications={getDonorApplications}

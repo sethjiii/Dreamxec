@@ -326,14 +326,14 @@ export default function ProfileSetup() {
         try {
             const res = await updateProfile(buildPayload() as any);
             if (res.data) setCompletionPct(res.data.completionPct);
-        } catch {
-            setError('Failed to save. Please try again.');
+        } catch (err: any) {
+            setError(err?.message || 'Failed to save. Please try again.');
             setSaving(false);
             return;
         }
         if (isLast) {
             setSuccessMsg('🎉 Profile setup complete!');
-            setTimeout(() => navigate('/'), 1500);
+            setTimeout(() => navigate(role === 'DONOR' ? '/donor/dashboard' : '/dashboard'), 1500);
         } else {
             setStep(s => s + 1);
         }
@@ -341,7 +341,7 @@ export default function ProfileSetup() {
     };
 
     const handleSkip = () => {
-        if (isLast) { navigate('/'); }
+        if (isLast) { navigate(role === 'DONOR' ? '/donor/dashboard' : '/dashboard'); }
         else setStep(s => s + 1);
     };
 

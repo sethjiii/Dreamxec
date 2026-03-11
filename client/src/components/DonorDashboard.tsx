@@ -433,8 +433,7 @@ const DonorDashboardInner: React.FC<DonorDashboardProps> = ({ donorName, project
   const switchTab = (tab: Tab) => { setSelectedTab(tab); setSidebarOpen(false); };
 
   const tabTitle: Record<Tab, string> = {
-    overview: 'Dashboard Overview', projects: 'My Projects',
-    applications: 'Student Applications', donations: 'Donation History', wishlist: 'My Wishlist',
+    overview: 'Dashboard Overview', projects: 'My Projects', applications: 'Student Applications', donations: 'Donation History', wishlist: 'My Wishlist', profile: 'Profile'
   };
 
   return (

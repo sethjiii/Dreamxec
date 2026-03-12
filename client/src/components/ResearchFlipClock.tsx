@@ -1,13 +1,26 @@
 import { useEffect, useState, useRef } from 'react';
 
+const INDIA = { code: 'in', name: 'India', value: 255 };
+
 const COUNTRIES = [
-  { flag: '🇰🇷', name: 'S. Korea', value: 8714, isIndia: false },
-  { flag: '🇩🇰', name: 'Denmark',  value: 7953, isIndia: false },
-  { flag: '🇺🇸', name: 'USA',      value: 4412, isIndia: false },
-  { flag: '🇨🇳', name: 'China',    value: 1307, isIndia: false },
-  { flag: '🇧🇷', name: 'Brazil',   value: 888,  isIndia: false },
-  { flag: '🇮🇳', name: 'India',    value: 255,  isIndia: true  },
+  { code: 'kr', name: 'S. Korea', value: 8714 },
+  { code: 'dk', name: 'Denmark',  value: 7953 },
+  { code: 'us', name: 'USA',      value: 4412 },
+  { code: 'cn', name: 'China',    value: 1307 },
+  { code: 'br', name: 'Brazil',   value: 888  },
 ];
+
+function FlagImg({ code, size = 24 }: { code: string; size?: number }) {
+  return (
+    <img
+      src={`https://flagcdn.com/w40/${code}.png`}
+      width={size}
+      height={size * 0.67}
+      alt={code.toUpperCase()}
+      style={{ objectFit: 'cover', borderRadius: 2, display: 'block' }}
+    />
+  );
+}
 
 function FlipDigit({ digit, isRed }) {
   const [current, setCurrent] = useState(digit);
@@ -106,8 +119,7 @@ export const ResearchFlipClock = () => {
     return () => clearInterval(t);
   }, []);
 
-  const active  = COUNTRIES[activeIdx];
-  const isIndia = active.isIndia;
+  const other = COUNTRIES[activeIdx];
 
   return (
     <>
@@ -125,22 +137,20 @@ export const ResearchFlipClock = () => {
           display: 'inline-flex',
           alignItems: 'center',
           gap: 0,
-          border: `2px solid ${isIndia ? '#dc2626' : '#003366'}`,
-          boxShadow: isIndia ? '3px 3px 0 #dc2626' : '3px 3px 0 #FF7F00',
+          border: `2px solid #003366`,
+          boxShadow: '3px 3px 0 #FF7F00',
           background: '#fff',
-          transition: 'border-color 0.3s, box-shadow 0.3s',
           overflow: 'hidden',
-          flexWrap: 'wrap',        // graceful on very small screens
+          flexWrap: 'wrap',
         }}>
 
           {/* "No. of Researchers per Million:" label */}
           <div style={{
-            background: isIndia ? '#dc2626' : '#003366',
+            background: '#003366',
             padding: '0 12px',
             alignSelf: 'stretch',
             display: 'flex',
             alignItems: 'center',
-            transition: 'background 0.3s',
           }}>
             <span style={{
               fontFamily: "'Courier New', monospace",
@@ -148,71 +158,118 @@ export const ResearchFlipClock = () => {
               fontWeight: 900,
               textTransform: 'uppercase',
               letterSpacing: '0.16em',
-              color: isIndia ? '#fecaca' : 'rgba(255,255,255,0.65)',
+              color: 'rgba(255,255,255,0.65)',
               whiteSpace: 'nowrap',
             }}>
               No. of Researchers per Million :
             </span>
           </div>
 
-          {/* Flag + country name */}
+          {/* === INDIA (permanent) === */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: 6,
             padding: '7px 12px',
-            borderRight: `1.5px solid ${isIndia ? '#fecaca' : '#e5e7eb'}`,
-            background: isIndia ? 'rgba(220,38,38,0.04)' : 'transparent',
-            transition: 'background 0.3s',
+            borderRight: '1.5px solid #fecaca',
+            background: 'rgba(220,38,38,0.04)',
           }}>
-            <span style={{ fontSize: 18, lineHeight: 1 }}>{active.flag}</span>
+            <FlagImg code={INDIA.code} size={24} />
             <span style={{
               fontFamily: 'sans-serif',
               fontWeight: 900,
               fontSize: 11,
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
-              color: isIndia ? '#dc2626' : '#003366',
-              minWidth: 46,
-              transition: 'color 0.3s',
+              color: '#dc2626',
+              minWidth: 40,
             }}>
-              {active.name}
+              {INDIA.name}
             </span>
           </div>
 
-          {/* Flip number */}
+          {/* India flip number */}
           <div style={{
             padding: '6px 12px',
-            fontSize: '1.5rem',
-            background: isIndia ? 'rgba(220,38,38,0.04)' : 'transparent',
-            borderRight: `1.5px solid ${isIndia ? '#fecaca' : '#e5e7eb'}`,
-            transition: 'background 0.3s',
+            fontSize: '2rem',
+            fontWeight: 900,
+            background: 'rgba(220,38,38,0.04)',
+            borderRight: '1.5px solid #fecaca',
           }}>
-            <FlipNumber value={active.value} isRed={isIndia} />
+            <FlipNumber value={INDIA.value} isRed={true} />
           </div>
 
-          {/* Badge / pulse */}
-          <div style={{ padding: '0 12px', display: 'flex', alignItems: 'center' }}>
-            {isIndia ? (
+          {/* ⚠ badge for India */}
+          <div style={{ padding: '0 10px', display: 'flex', alignItems: 'center', borderRight: '1.5px solid #e5e7eb' }}>
+            <span style={{
+              background: '#dc2626', color: '#fff',
+              fontFamily: "'Courier New', monospace", fontWeight: 900, fontSize: 8,
+              padding: '3px 7px', textTransform: 'uppercase',
+              letterSpacing: '0.1em', whiteSpace: 'nowrap',
+              border: '1px solid #991b1b',
+            }}>
+              ⚠ 34× LESS
+            </span>
+          </div>
+
+          {/* vs divider */}
+          <div style={{
+            padding: '0 10px',
+            fontFamily: "'Courier New', monospace",
+            fontWeight: 900,
+            fontSize: 10,
+            color: '#6b7280',
+            letterSpacing: '0.1em',
+            borderRight: '1.5px solid #e5e7eb',
+            alignSelf: 'stretch',
+            display: 'flex',
+            alignItems: 'center',
+          }}>
+            VS
+          </div>
+
+          {/* === OTHER COUNTRY (cycling) === */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '7px 12px',
+            borderRight: '1.5px solid #e5e7eb',
+          }}>
+            <FlagImg code={other.code} size={24} />
+            <span style={{
+              fontFamily: 'sans-serif',
+              fontWeight: 900,
+              fontSize: 11,
+              textTransform: 'uppercase',
+              letterSpacing: '0.12em',
+              color: '#003366',
+              minWidth: 46,
+            }}>
+              {other.name}
+            </span>
+          </div>
+
+          {/* Other country flip number */}
+          <div style={{
+            padding: '6px 12px',
+            fontSize: '2rem',
+            fontWeight: 900,
+            borderRight: '1.5px solid #e5e7eb',
+          }}>
+            <FlipNumber value={other.value} isRed={false} />
+          </div>
+
+          {/* Pulse dot */}
+          <div style={{ padding: '0 12px', display: 'flex', alignItems: 'center', borderRight: '1.5px solid #e5e7eb' }}>
+            <span style={{ position: 'relative', display: 'inline-flex', width: 8, height: 8 }}>
               <span style={{
-                background: '#dc2626', color: '#fff',
-                fontFamily: "'Courier New', monospace", fontWeight: 900, fontSize: 8,
-                padding: '3px 7px', textTransform: 'uppercase',
-                letterSpacing: '0.1em', whiteSpace: 'nowrap',
-                border: '1px solid #991b1b',
-              }}>
-                ⚠ 34× LESS
-              </span>
-            ) : (
-              <span style={{ position: 'relative', display: 'inline-flex', width: 8, height: 8 }}>
-                <span style={{
-                  position: 'absolute', inset: 0, borderRadius: '50%',
-                  background: '#4ade80', opacity: 0.65,
-                  animation: 'ping 1.2s cubic-bezier(0,0,.2,1) infinite',
-                }} />
-                <span style={{ borderRadius: '50%', width: 8, height: 8, background: '#4ade80' }} />
-              </span>
-            )}
+                position: 'absolute', inset: 0, borderRadius: '50%',
+                background: '#4ade80', opacity: 0.65,
+                animation: 'ping 1.2s cubic-bezier(0,0,.2,1) infinite',
+              }} />
+              <span style={{ borderRadius: '50%', width: 8, height: 8, background: '#4ade80' }} />
+            </span>
           </div>
 
           {/* Dot nav */}
@@ -221,7 +278,6 @@ export const ResearchFlipClock = () => {
             alignItems: 'center',
             gap: 3,
             padding: '0 10px',
-            borderLeft: `1.5px solid ${isIndia ? '#fecaca' : '#e5e7eb'}`,
             alignSelf: 'stretch',
             background: '#f9fafb',
           }}>
@@ -237,16 +293,34 @@ export const ResearchFlipClock = () => {
                   cursor: 'pointer',
                   padding: 0,
                   transition: 'all .3s',
-                  background: i === activeIdx
-                    ? (c.isIndia ? '#dc2626' : '#003366')
-                    : '#d1d5db',
+                  background: i === activeIdx ? '#003366' : '#d1d5db',
                 }}
-                aria-label={`Show ${c.name}`}
+                aria-label={`Compare with ${c.name}`}
               />
             ))}
           </div>
 
         </div>
+      </div>
+
+      {/* Data source attribution */}
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'center', paddingTop: 4 }}>
+        <a
+          href="https://data.worldbank.org/indicator/SP.POP.SCIE.RD.P6"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            fontFamily: "'Courier New', monospace",
+            fontSize: 9,
+            color: '#9ca3af',
+            textDecoration: 'none',
+            letterSpacing: '0.08em',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#003366')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#9ca3af')}
+        >
+          Source: World Bank — Researchers in R&amp;D (per million people)
+        </a>
       </div>
     </>
   );

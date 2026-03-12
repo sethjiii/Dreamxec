@@ -191,7 +191,16 @@ exports.updateMyProfile = catchAsync(async (req, res, next) => {
     if (donationCategories !== undefined) updateData.donationCategories = donationCategories;
     if (anonymousDonation !== undefined)  updateData.anonymousDonation  = anonymousDonation;
 
-    const updated = await prisma.donor.update({ where: { id }, data: updateData });
+    const updated = await prisma.donor.upsert({
+      where: { id },
+      update: updateData,
+      create: {
+        id,
+        name: req.user.name || updateData.name || '',
+        email: req.user.email,
+        ...updateData,
+      },
+    });
 
     const completionPct = calcDonorCompletion(updated);
     const isComplete = completionPct >= 80;

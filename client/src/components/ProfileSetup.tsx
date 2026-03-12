@@ -203,52 +203,58 @@ export default function ProfileSetup() {
     useEffect(() => {
         (async () => {
             setLoading(true);
-            const res = await getProfile();
-            if (res.status === 'success' && res.data) {
-                const { profile, completionPct: pct, role: r } = res.data;
-                setRole(r as Role);
-                setCompletionPct(pct);
-                const p = profile as any;
-                if (r === 'DONOR') {
-                    setDName(p.name || '');
-                    setDPhone(p.phone || '');
-                    setDCountryCode(p.countryCode || '+91');
-                    setDGender(p.gender || '');
-                    setDDob(p.dateOfBirth ? p.dateOfBirth.slice(0, 10) : '');
-                    setDPan(p.panNumber || '');
-                    setDEducation(p.education || '');
-                    setDOccupation(p.occupation || '');
-                    setDAddress(p.address || '');
-                    setDInstagram(p.instagram || '');
-                    setDFacebook(p.facebook || '');
-                    setDTwitter(p.twitterX || '');
-                    setDReddit(p.reddit || '');
-                    setDBio(p.bio || '');
-                    setDCategories(p.donationCategories || []);
-                    setDAnonymous(p.anonymousDonation || false);
-                } else {
-                    setSName(p.name || '');
-                    setSPhone(p.phone || '');
-                    setSCountryCode(p.countryCode || '+91');
-                    setSGender(p.gender || '');
-                    setSDob(p.dateOfBirth ? p.dateOfBirth.slice(0, 10) : '');
-                    setSCollege(p.college || '');
-                    setSYear(p.yearOfStudy || '');
-                    setSAddress(p.address || '');
-                    setSInstagram(p.instagram || '');
-                    setSFacebook(p.facebook || '');
-                    setSTwitter(p.twitterX || '');
-                    setSReddit(p.reddit || '');
-                    setSBio(p.bio || '');
-                    setSSkills(p.skills || []);
-                    setSProjectTitle(p.projectTitle || '');
-                    setSFunding(p.fundingRequired != null ? String(p.fundingRequired) : '');
-                    setSPortfolio(p.portfolioUrl || '');
-                    setSGithub(p.githubUrl || '');
-                    setSLinkedin(p.linkedinUrl || '');
+            try {
+                const res = await getProfile();
+                if (res.status === 'success' && res.data) {
+                    const { profile, completionPct: pct, role: r } = res.data;
+                    setRole(r as Role);
+                    setCompletionPct(pct);
+                    const p = profile as any;
+                    if (r === 'DONOR') {
+                        setDName(p.name || '');
+                        setDPhone(p.phone || '');
+                        setDCountryCode(p.countryCode || '+91');
+                        setDGender(p.gender || '');
+                        setDDob(p.dateOfBirth ? p.dateOfBirth.slice(0, 10) : '');
+                        setDPan(p.panNumber || '');
+                        setDEducation(p.education || '');
+                        setDOccupation(p.occupation || '');
+                        setDAddress(p.address || '');
+                        setDInstagram(p.instagram || '');
+                        setDFacebook(p.facebook || '');
+                        setDTwitter(p.twitterX || '');
+                        setDReddit(p.reddit || '');
+                        setDBio(p.bio || '');
+                        setDCategories(p.donationCategories || []);
+                        setDAnonymous(p.anonymousDonation || false);
+                    } else {
+                        setSName(p.name || '');
+                        setSPhone(p.phone || '');
+                        setSCountryCode(p.countryCode || '+91');
+                        setSGender(p.gender || '');
+                        setSDob(p.dateOfBirth ? p.dateOfBirth.slice(0, 10) : '');
+                        setSCollege(p.college || '');
+                        setSYear(p.yearOfStudy || '');
+                        setSAddress(p.address || '');
+                        setSInstagram(p.instagram || '');
+                        setSFacebook(p.facebook || '');
+                        setSTwitter(p.twitterX || '');
+                        setSReddit(p.reddit || '');
+                        setSBio(p.bio || '');
+                        setSSkills(p.skills || []);
+                        setSProjectTitle(p.projectTitle || '');
+                        setSFunding(p.fundingRequired != null ? String(p.fundingRequired) : '');
+                        setSPortfolio(p.portfolioUrl || '');
+                        setSGithub(p.githubUrl || '');
+                        setSLinkedin(p.linkedinUrl || '');
+                    }
                 }
+            } catch (err: any) {
+                console.error('Failed to load profile:', err);
+                setError('Failed to load your profile. You can still fill in the form below.');
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         })();
     }, []);
 

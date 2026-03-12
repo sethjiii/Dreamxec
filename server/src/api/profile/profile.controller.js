@@ -27,7 +27,7 @@ function calcStudentCompletion(u) {
  */
 function calcDonorCompletion(d) {
   const fields = [
-    d.name, d.email, d.phone, d.gender, d.dateOfBirth,
+    d.name, d.phone, d.gender, d.dateOfBirth,
     d.panNumber, d.education, d.occupation, d.address, d.bio,
   ];
   const filled = fields.filter(Boolean).length;

@@ -277,13 +277,14 @@
 // };
 
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Logo } from "../../../components/Logo";
 import { MobileMenuButton } from "../../../components/MobileMenuButton";
 import { DesktopMenu } from "./DesktopMenu";
 import { NewsletterModal } from "../../../components/NewsletterModal";
 import type { UserRole } from "../../../types";
+import { getProfile } from "../../../services/profileService";
 
 interface NavbarProps {
   currentUser?: { name: string; role: UserRole } | null;
@@ -294,13 +295,42 @@ interface NavbarProps {
 export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [newsletterOpen, setNewsletterOpen] = useState(false);
+  const [completionPct, setCompletionPct] = useState<number | null>(null);
   const navigate = useNavigate();
+
+  // Fetch profile completion % when a donor or student is logged in
+  useEffect(() => {
+    if (!currentUser) {
+      setCompletionPct(null);
+      return;
+    }
+    const showCompletion =
+      currentUser.role === 'donor' ||
+      currentUser.role === 'student' ||
+      currentUser.role === 'STUDENT_PRESIDENT';
+    if (!showCompletion) {
+      setCompletionPct(null);
+      return;
+    }
+    let cancelled = false;
+    getProfile()
+      .then((res) => {
+        if (!cancelled && res.status === 'success' && res.data) {
+          setCompletionPct(res.data.completionPct);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setCompletionPct(null);
+      });
+    return () => { cancelled = true; };
+  }, [currentUser?.role]);
 
   console.log(currentUser);
 
   // Helper to check if user is a student type (regular or president)
   // Presidents also get the clickable profile button
   const isStudentType = currentUser && (currentUser.role === 'student' || currentUser.role === 'STUDENT_PRESIDENT');
+
 
   return (
     <>
@@ -341,17 +371,32 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
                     onClick={() => navigate('/profile')}
                     className="hidden md:flex items-center gap-2 bg-dreamxec-beige border-2 border-dreamxec-navy rounded-xl px-3 py-2 shadow-md hover:bg-dreamxec-cream transition-all"
                   >
-                    <div className="w-8 h-8 bg-dreamxec-orange border-2 border-dreamxec-navy rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">
-                        {currentUser.name.charAt(0).toUpperCase()}
-                      </span>
+                    <div className="relative w-8 h-8">
+                      <div className="w-8 h-8 bg-dreamxec-orange border-2 border-dreamxec-navy rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">
+                          {currentUser.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      {completionPct !== null && completionPct < 100 && (
+                        <span
+                          className="absolute -bottom-1 -right-1 text-[9px] font-black text-white px-1 rounded-full border border-white leading-tight"
+                          style={{ background: completionPct >= 80 ? '#0B9C2C' : '#FF7F00' }}
+                        >
+                          {completionPct}%
+                        </span>
+                      )}
                     </div>
                     <div className="flex flex-col text-left">
                       <span className="text-dreamxec-navy font-bold text-sm font-sans">
                         {currentUser.name}
                       </span>
-                      <span className="text-dreamxec-navy text-xs opacity-70 font-sans">
-                        {currentUser.role === 'STUDENT_PRESIDENT' ? 'President' : 'Student'}
+                      <span
+                        className="text-xs font-bold font-sans"
+                        style={{ color: completionPct !== null ? (completionPct >= 80 ? '#0B9C2C' : '#FF7F00') : undefined, opacity: completionPct !== null ? 1 : 0.7 }}
+                      >
+                        {completionPct !== null
+                          ? `${completionPct >= 80 ? '✅' : '⚠️'} Profile ${completionPct}%`
+                          : currentUser.role === 'STUDENT_PRESIDENT' ? 'President' : 'Student'}
                       </span>
                     </div>
                   </button>
@@ -359,18 +404,39 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
 
                 {/* Simple name display for Donors/Admins (non-student types) */}
                 {!isStudentType && (
-                  <div className="hidden md:flex items-center gap-2 bg-dreamxec-beige border-2 border-dreamxec-navy rounded-xl px-3 py-2 shadow-md">
-                    <div className="w-8 h-8 bg-dreamxec-orange border-2 border-dreamxec-navy rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">
-                        {currentUser.name.charAt(0).toUpperCase()}
-                      </span>
+                  <div
+                    className="hidden md:flex items-center gap-2 bg-dreamxec-beige border-2 border-dreamxec-navy rounded-xl px-3 py-2 shadow-md cursor-pointer hover:bg-dreamxec-cream transition-all"
+                    onClick={() => currentUser.role === 'donor' ? navigate('/profile/setup') : undefined}
+                  >
+                    <div className="relative w-8 h-8">
+                      <div className="w-8 h-8 bg-dreamxec-orange border-2 border-dreamxec-navy rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">
+                          {currentUser.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      {completionPct !== null && currentUser.role === 'donor' && completionPct < 100 && (
+                        <span
+                          className="absolute -bottom-1 -right-1 text-[9px] font-black text-white px-1 rounded-full border border-white leading-tight"
+                          style={{ background: completionPct >= 80 ? '#0B9C2C' : '#FF7F00' }}
+                        >
+                          {completionPct}%
+                        </span>
+                      )}
                     </div>
                     <div className="flex flex-col text-left">
                       <span className="text-dreamxec-navy font-bold text-sm font-sans">
                         {currentUser.name}
                       </span>
-                      <span className="text-dreamxec-navy text-xs opacity-70 font-sans">
-                        {currentUser.role === 'donor' ? 'Donor' : 'Admin'}
+                      <span
+                        className="text-xs font-bold font-sans"
+                        style={{
+                          color: (completionPct !== null && currentUser.role === 'donor') ? (completionPct >= 80 ? '#0B9C2C' : '#FF7F00') : undefined,
+                          opacity: (completionPct !== null && currentUser.role === 'donor') ? 1 : 0.7
+                        }}
+                      >
+                        {(completionPct !== null && currentUser.role === 'donor')
+                          ? `${completionPct >= 80 ? '✅' : '⚠️'} Profile ${completionPct}%`
+                          : currentUser.role === 'donor' ? 'Donor' : 'Admin'}
                       </span>
                     </div>
                   </div>

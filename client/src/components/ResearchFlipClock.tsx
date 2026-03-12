@@ -147,21 +147,22 @@ export const ResearchFlipClock = () => {
           {/* "No. of Researchers per Million:" label */}
           <div style={{
             background: '#003366',
-            padding: '0 12px',
+            padding: '0 14px',
             alignSelf: 'stretch',
             display: 'flex',
             alignItems: 'center',
           }}>
             <span style={{
               fontFamily: "'Courier New', monospace",
-              fontSize: 9,
+              fontSize: 11,
               fontWeight: 900,
               textTransform: 'uppercase',
-              letterSpacing: '0.16em',
-              color: 'rgba(255,255,255,0.65)',
-              whiteSpace: 'nowrap',
+              letterSpacing: '0.14em',
+              color: 'rgba(255,255,255,0.85)',
+              lineHeight: 1.5,
+              textAlign: 'center',
             }}>
-              No. of Researchers per Million :
+              No. of Researchers<br />per Million :
             </span>
           </div>
 
@@ -199,27 +200,14 @@ export const ResearchFlipClock = () => {
             <FlipNumber value={INDIA.value} isRed={true} />
           </div>
 
-          {/* ⚠ badge for India */}
-          <div style={{ padding: '0 10px', display: 'flex', alignItems: 'center', borderRight: '1.5px solid #e5e7eb' }}>
-            <span style={{
-              background: '#dc2626', color: '#fff',
-              fontFamily: "'Courier New', monospace", fontWeight: 900, fontSize: 8,
-              padding: '3px 7px', textTransform: 'uppercase',
-              letterSpacing: '0.1em', whiteSpace: 'nowrap',
-              border: '1px solid #991b1b',
-            }}>
-              ⚠ 34× LESS
-            </span>
-          </div>
-
           {/* vs divider */}
           <div style={{
-            padding: '0 10px',
+            padding: '0 14px',
             fontFamily: "'Courier New', monospace",
             fontWeight: 900,
-            fontSize: 10,
-            color: '#6b7280',
-            letterSpacing: '0.1em',
+            fontSize: 18,
+            color: '#374151',
+            letterSpacing: '0.12em',
             borderRight: '1.5px solid #e5e7eb',
             alignSelf: 'stretch',
             display: 'flex',

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProfile, updateProfile } from '../services/profileService';
+import { useAuth } from '../context/AuthContext';
 
 /* ─────────────────────────────────────────
    TYPES
@@ -152,7 +153,18 @@ const CategoryPicker = ({ selected, onChange }: { selected: string[]; onChange: 
 ───────────────────────────────────────── */
 export default function ProfileSetup() {
     const navigate = useNavigate();
-    const [role, setRole] = useState<Role>('USER');
+    const { user } = useAuth();
+
+    // ── Derive initial role from AuthContext immediately (no API wait) ──
+    const getInitialRole = (): Role => {
+        if (!user) return 'USER';
+        // AuthContext stores the frontend-mapped role ('donor', 'student', etc.)
+        if (user.role === 'donor') return 'DONOR';
+        if (user.role === 'STUDENT_PRESIDENT') return 'STUDENT_PRESIDENT';
+        return 'USER';
+    };
+
+    const [role, setRole] = useState<Role>(getInitialRole);
     const [step, setStep] = useState(0);
     const [completionPct, setCompletionPct] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -161,7 +173,8 @@ export default function ProfileSetup() {
     const [successMsg, setSuccessMsg] = useState('');
 
     // ── Student form state ──
-    const [sName, setSName] = useState('');
+    // Pre-fill name from auth context (entered at signup)
+    const [sName, setSName] = useState(role !== 'DONOR' ? (user?.name || '') : '');
     const [sPhone, setSPhone] = useState('');
     const [sCountryCode, setSCountryCode] = useState('+91');
     const [sGender, setSGender] = useState<Gender | ''>('');
@@ -182,7 +195,8 @@ export default function ProfileSetup() {
     const [sLinkedin, setSLinkedin] = useState('');
 
     // ── Donor form state ──
-    const [dName, setDName] = useState('');
+    // Pre-fill name from auth context (entered at signup)
+    const [dName, setDName] = useState(role === 'DONOR' ? (user?.name || '') : '');
     const [dPhone, setDPhone] = useState('');
     const [dCountryCode, setDCountryCode] = useState('+91');
     const [dGender, setDGender] = useState<Gender | ''>('');
@@ -199,7 +213,7 @@ export default function ProfileSetup() {
     const [dCategories, setDCategories] = useState<string[]>([]);
     const [dAnonymous, setDAnonymous] = useState(false);
 
-    // ── Load current profile ──
+    // ── Load current profile (enrich with saved data) ──
     useEffect(() => {
         (async () => {
             setLoading(true);
@@ -207,11 +221,13 @@ export default function ProfileSetup() {
                 const res = await getProfile();
                 if (res.status === 'success' && res.data) {
                     const { profile, completionPct: pct, role: r } = res.data;
+                    // Use API role as the authoritative source once loaded
                     setRole(r as Role);
                     setCompletionPct(pct);
                     const p = profile as any;
                     if (r === 'DONOR') {
-                        setDName(p.name || '');
+                        // Use saved name OR fall back to the name from signup
+                        setDName(p.name || user?.name || '');
                         setDPhone(p.phone || '');
                         setDCountryCode(p.countryCode || '+91');
                         setDGender(p.gender || '');
@@ -228,7 +244,7 @@ export default function ProfileSetup() {
                         setDCategories(p.donationCategories || []);
                         setDAnonymous(p.anonymousDonation || false);
                     } else {
-                        setSName(p.name || '');
+                        setSName(p.name || user?.name || '');
                         setSPhone(p.phone || '');
                         setSCountryCode(p.countryCode || '+91');
                         setSGender(p.gender || '');
@@ -251,11 +267,13 @@ export default function ProfileSetup() {
                 }
             } catch (err: any) {
                 console.error('Failed to load profile:', err);
-                setError('Failed to load your profile. You can still fill in the form below.');
+                // Non-fatal: user can still fill in the form.
+                // Role was already set from AuthContext, so the header is correct.
             } finally {
                 setLoading(false);
             }
         })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // ── Validation helpers ──

@@ -95,9 +95,8 @@ function AppContent() {
   const [userCampaigns, setUserCampaigns] = useState<Campaign[]>([]);
   const [loadingCampaigns, setLoadingCampaigns] = useState(false);
 
-  const [user, setUser] = useState<User | null>(null);
+  const { user, setUser, loading } = useAuth();
   const [_isSubmitting, setIsSubmitting] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<Project[]>([]);
   const [userApplications, setUserApplications] = useState<string[]>([]);
   const [_showCheckEmail, setShowCheckEmail] = useState(false);
@@ -120,43 +119,7 @@ function AppContent() {
   // entirely to the AuthCallback component. No duplicate useEffect needed here.
 
 
-  // Load user from token on mount
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const response = await getCurrentUser();
-        if (response.data?.user) {
-          // ✅ FIX: Include all fields required by User type
-          const userData: User = {
-            id: response.data.user.id,
-            email: response.data.user.email,
-            role: mapBackendRole(response.data.user.role),
-            emailVerified: response.data.user.emailVerified || false,
-            clubIds: response.data.user?.clubIds || [],
-            createdAt: response.data.user.createdAt || new Date().toISOString(),
-            updatedAt: response.data.user.updatedAt || new Date().toISOString(),
-            isClubPresident: response.data.user?.isClubPresident || false,
-            isClubMember: response.data.user?.isClubMember || false,
-            clubVerified: response.data.user?.clubVerified || false,
-            name: response.data.user.name,
-            studentVerified: response.data.user?.studentVerified,
-            accountStatus: response.data.user?.accountStatus || 'ACTIVE',
-          };
-          setUser(userData);
-        }
-      } catch (error: any) {
-        if (error?.response?.status === 401) {
-          setUser(null)
-        } else {
-          console.error('Unexpected /auth/me error:', error);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    loadUser();
-  }, []);
 
   useEffect(() => {
     trackPageView(location.pathname);

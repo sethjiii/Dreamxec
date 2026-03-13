@@ -148,11 +148,10 @@ const TabBtn = ({
 }: { label: string; active: boolean; onClick: () => void }) => (
   <button
     onClick={onClick}
-    className={`relative px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 font-black uppercase tracking-wider text-[10px] sm:text-xs md:text-sm transition-all whitespace-nowrap select-none ${
-      active
-        ? 'bg-dreamxec-navy text-white'
-        : 'bg-white text-dreamxec-navy hover:bg-dreamxec-orange hover:text-white'
-    }`}
+    className={`relative px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 font-black uppercase tracking-wider text-[10px] sm:text-xs md:text-sm transition-all whitespace-nowrap select-none ${active
+      ? 'bg-dreamxec-navy text-white'
+      : 'bg-white text-dreamxec-navy hover:bg-dreamxec-orange hover:text-white'
+      }`}
     style={{
       border: '3px solid #003366',
       boxShadow: active ? '4px 4px 0 #FF7F00' : '2px 2px 0 #003366',
@@ -187,6 +186,102 @@ const SectionHeading = ({ children }: { children: React.ReactNode }) => (
   </h2>
 );
 
+const Model = ({ onClose, url }: { onClose: () => void; url: string }) => {
+  // Resolve the best embeddable URL based on the link type
+  const resolveEmbedUrl = (rawUrl: string): string => {
+    const lower = rawUrl.toLowerCase();
+    const isGoogle = lower.includes('drive.google.com') || lower.includes('docs.google.com');
+
+    if (isGoogle) {
+      // Google Slides: convert to /pub?output=embed for true presentation embed
+      if (lower.includes('presentation') || lower.includes('slides')) {
+        const fileIdMatch = rawUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
+        if (fileIdMatch?.[1]) {
+          return `https://docs.google.com/presentation/d/${fileIdMatch[1]}/embed?start=false&loop=false&delayms=3000`;
+        }
+      }
+      // Google Drive file (PDF, Docs, Sheets, etc.) → /preview
+      const fileIdMatch = rawUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
+      if (fileIdMatch?.[1]) {
+        return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+      }
+    }
+
+    // Office files → Microsoft Office Online viewer
+    if (lower.match(/\.(doc|docx|ppt|pptx|xls|xlsx)$/)) {
+      return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(rawUrl)}`;
+    }
+
+    // PDF or anything else → render directly
+    return rawUrl;
+  };
+
+  const embedUrl = resolveEmbedUrl(url);
+  const isPdf = url.toLowerCase().endsWith('.pdf');
+
+  // Close on backdrop click
+  const handleBackdrop = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) onClose();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      onClick={handleBackdrop}
+    >
+      <div
+        className="relative flex flex-col bg-white w-[95vw] h-[92vh]"
+        style={{ border: '4px solid #003366', boxShadow: '10px 10px 0 #FF7F00' }}
+      >
+        {/* Header bar */}
+        <div
+          className="flex items-center justify-between px-4 py-2 flex-shrink-0"
+          style={{ borderBottom: '3px solid #003366', background: '#003366' }}
+        >
+          <span className="text-white font-black uppercase tracking-widest text-sm">
+            📄 Full Screen Preview
+          </span>
+          <div className="flex items-center gap-3">
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1 text-white font-black uppercase tracking-wide text-xs hover:bg-white hover:text-dreamxec-navy transition-colors"
+              style={{ border: '2px solid rgba(255,255,255,0.5)' }}
+            >
+              Open ↗
+            </a>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 flex items-center justify-center text-white font-black text-lg hover:bg-dreamxec-orange transition-colors"
+              style={{ border: '2px solid rgba(255,255,255,0.5)' }}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        {/* Document viewer */}
+        <div className="flex-1 overflow-hidden bg-gray-100">
+          {isPdf ? (
+            <object data={url} type="application/pdf" className="w-full h-full">
+              <iframe src={`https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`} className="w-full h-full border-none" title="PDF Preview" />
+            </object>
+          ) : (
+            <iframe
+              src={embedUrl}
+              className="w-full h-full border-none bg-white"
+              title="Document Preview"
+              allow="autoplay"
+              allowFullScreen
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 /* ─────────────────────────────────────────────
    MAIN COMPONENT
 ───────────────────────────────────────────── */
@@ -198,6 +293,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
   const [error, setError] = useState<string | null>(null);
   const [donationAmount, setDonationAmount] = useState('');
   const [email, setEmail] = useState('');
+  const [open, setOpen] = useState(false)
   const [showDonateModal, setShowDonateModal] = useState(false);
   type CampaignTab = 'about' | 'video' | 'media' | 'presentation' | 'faqs';
   const [activeTab, setActiveTab] = useState<CampaignTab>('about');
@@ -242,7 +338,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
         const token = localStorage.getItem('token');
         const response = await axios.get(`${API_BASE}/wishlist/check/${id}`, { headers: { Authorization: `Bearer ${token}` } });
         if (response.data.status === 'success') setIsWishlisted(response.data.isWishlisted);
-      } catch {}
+      } catch { }
     };
     if (campaign && currentUser) checkWishlistStatus();
   }, [currentUser, id, campaign]);
@@ -334,7 +430,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
 
   const statusColors: Record<string, { bg: string; text: string; border: string }> = {
     approved: { bg: '#dcfce7', text: '#166534', border: '#16a34a' },
-    pending:  { bg: '#fef9c3', text: '#854d0e', border: '#ca8a04' },
+    pending: { bg: '#fef9c3', text: '#854d0e', border: '#ca8a04' },
     rejected: { bg: '#fee2e2', text: '#991b1b', border: '#dc2626' },
   };
   const sc = statusColors[campaign.status] || statusColors.pending;
@@ -418,7 +514,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
                     label: campaign.club?.name,
                     onClick: campaign.club?.slug ? () => navigate(`/clubs/${campaign.club?.slug}`) : undefined,
                   },
-                  { emoji: '🏷️', label: campaign.category || 'Technology'},
+                  { emoji: '🏷️', label: campaign.category || 'Technology' },
                 ].map((chip, i) => (
                   <div
                     key={i}
@@ -512,14 +608,14 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
                     if (isGoogleLink) {
                       // Extract the unique File ID from any Google link format
                       const fileIdMatch = fileUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
-                      
+
                       if (fileIdMatch && fileIdMatch[1]) {
                         const drivePreviewUrl = `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
                         return (
-                          <iframe 
-                            src={drivePreviewUrl} 
-                            className="w-full h-full border-none bg-white" 
-                            title="Google Document Preview" 
+                          <iframe
+                            src={drivePreviewUrl}
+                            className="w-full h-full border-none bg-white"
+                            title="Google Document Preview"
                             allow="autoplay"
                           />
                         );
@@ -598,7 +694,16 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
                         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                           <SectionHeading>Presentation Deck</SectionHeading>
                           <div className="flex items-center gap-4">
-                            <a href={url} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline">Open Externally ↗</a>
+                            <button
+                              onClick={() => setOpen(true)}
+                              className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-dreamxec-navy font-black uppercase tracking-wider text-[10px] sm:text-xs transition-all hover:bg-dreamxec-navy hover:text-white active:translate-x-[2px] active:translate-y-[2px]"
+                              style={{ border: '2px solid #003366', boxShadow: '3px 3px 0 #FF7F00' }}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                              </svg>
+                              Full Screen
+                            </button>
                             <span className="text-xs text-dreamxec-navy/50 font-bold uppercase tracking-wide flex items-center gap-1">
                               ← Drag right edge to resize →
                             </span>
@@ -616,7 +721,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
                         <a href={url} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline">Open ↗</a>
                       </div>
                       <div style={{ height: deckIframeHeight, border: '3px solid #003366' }}>
-                         {renderDocument(url)}
+                        {renderDocument(url)}
                       </div>
                       <p className="mt-2 text-[10px] text-dreamxec-navy/50 font-bold uppercase tracking-widest text-center">
                         View on larger screen for best experience
@@ -830,6 +935,9 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
       />
 
       <FooterContent />
+      {open && (
+        <Model onClose={() => setOpen(false)} url={campaign.presentationDeckUrl} />
+      )}
     </div>
   );
 }

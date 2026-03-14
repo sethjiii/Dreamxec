@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getPublicClubs } from "../services/clubService";
 import { StarDecoration } from "./icons/StarDecoration";
 import { FooterContent } from "../sections/Footer/components/FooterContent";
+import { useAuth } from "@/context/AuthContext";
 
 type SortOption = "newest" | "oldest";
 
@@ -182,6 +183,9 @@ export default function ClubDiscovery() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const fetchClubs = async () => {
     try {
@@ -192,6 +196,16 @@ export default function ClubDiscovery() {
       console.error("Fetch Clubs Error:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReferClick = () => {
+    if (!user) {
+      alert("Please log in as Student to refer your club.");
+      // Redirect to login and save the current location so we can return here
+      navigate("/login", { state: { from: "/refer-club" } });
+    } else {
+      navigate("/refer-club");
     }
   };
 
@@ -267,6 +281,26 @@ export default function ClubDiscovery() {
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* ── REFER YOUR CLUB CTA ── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 mt-8">
+        <div
+          className="p-6 flex flex-col md:flex-row items-center justify-between gap-4 bg-white"
+          style={{ border: '3px solid #003366', boxShadow: '6px 6px 0 #FF7F00' }}
+        >
+          <div>
+            <h3 className="text-xl font-black text-dreamxec-navy uppercase">Don't see your club?</h3>
+            <p className="text-sm font-bold text-dreamxec-navy/60">Refer your club to DreamXec and start raising funds!</p>
+          </div>
+          <button
+            onClick={handleReferClick}
+            className="px-8 py-3 font-black uppercase tracking-widest text-white transition-all hover:translate-x-[-2px] hover:translate-y-[-2px]"
+            style={{ background: '#003366', border: '3px solid #003366', boxShadow: '4px 4px 0 #FF7F00' }}
+          >
+            Refer Your Club →
+          </button>
         </div>
       </div>
 

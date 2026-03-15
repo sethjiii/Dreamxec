@@ -311,28 +311,7 @@ export default function ClubDiscovery() {
         </div>
       </div>
 
-      {/* ── CONTROLS ── */}
-      <div
-        className="sticky top-0 z-30 bg-dreamxec-cream"
-        style={{ borderBottom: '3px solid #003366', boxShadow: '0 3px 0 #FF7F00' }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-
-            {/* Search */}
-            <div className="relative flex-1">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-dreamxec-navy/50 pointer-events-none">
-                <SearchIcon />
-              </div>
-              <input
-                type="text"
-                placeholder="Search clubs or colleges..."
-                value={searchQuery}
-                onChange={(e) => { setPage(1); setSearchQuery(e.target.value); }}
-                className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm font-bold text-dreamxec-navy bg-white placeholder:text-dreamxec-navy/40 focus:outline-none transition-all"
-                style={{ border: '3px solid #003366', boxShadow: '3px 3px 0 #FF7F00' }}
-              />
-            </div>
+      
         {/* ── CONTROLS ── */}
         <div
           className="sticky top-0 z-30 bg-dreamxec-cream"

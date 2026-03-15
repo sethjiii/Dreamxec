@@ -1,3 +1,4 @@
+import SEO from "@/components/SEO";
 import { FooterContent } from "@/sections/Footer/components/FooterContent";
 import { Header } from "@/sections/Header";
 import { useState, useEffect, useRef } from "react";
@@ -217,6 +218,11 @@ export default function WhyDonate() {
 
   return (
     <>
+    <SEO
+    title="Why Donate to Innovation | DreamXec"
+    description="Support the next generation of innovators. Your donation helps student researchers build impactful technology and ideas."
+    url="https://dreamxec.com/why-donate"
+  />
       <style>{CSS}</style>
 
       {/* HEADER */}

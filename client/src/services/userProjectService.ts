@@ -66,6 +66,7 @@ export interface UserProject {
   id: string;
   title: string;
   description: string;
+  slug?: string;
 
   userId?: string;
   user?: {

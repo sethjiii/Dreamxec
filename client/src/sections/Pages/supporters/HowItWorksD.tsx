@@ -6,38 +6,39 @@ import { Navigation, Pagination, Keyboard, A11y, Autoplay } from 'swiper/modules
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import SEO from '@/components/SEO';
 
 /* ─────────────────────────────────────────
    DATA
 ───────────────────────────────────────── */
 const steps = [
-  { num: "01", icon: "🔍", accent: "#FF7F00", title: "Discover & Research",           text: "Browse projects by category, theme, or creator. Read the project description, watch the team's video, check creator credentials. Read backer comments and mentor feedback — brutal honesty helps. Use the \"Follow\" button if you want to track progress without committing yet." },
-  { num: "02", icon: "💸", accent: "#003366", title: "Pledge Your Support",            text: "Choose your pledge amount (₹100 to ₹1L+). Review what you're supporting: the specific milestone or outcome you're backing. Confirm your contact info. Add an optional note to the creator — many backers share personal stories that mean a lot to young teams." },
+  { num: "01", icon: "🔍", accent: "#FF7F00", title: "Discover & Research", text: "Browse projects by category, theme, or creator. Read the project description, watch the team's video, check creator credentials. Read backer comments and mentor feedback — brutal honesty helps. Use the \"Follow\" button if you want to track progress without committing yet." },
+  { num: "02", icon: "💸", accent: "#003366", title: "Pledge Your Support", text: "Choose your pledge amount (₹100 to ₹1L+). Review what you're supporting: the specific milestone or outcome you're backing. Confirm your contact info. Add an optional note to the creator — many backers share personal stories that mean a lot to young teams." },
   { num: "03", icon: "🔒", accent: "#0B9C2C", title: "Secure Payment & Confirmation", text: "Pay via UPI, card, or wallet (Razorpay integration). Your pledge is confirmed. You receive a receipt. The project team is notified. You join a community of supporters on that project's backer page. Now watch as the team executes with mentors' guidance." },
-  { num: "04", icon: "📈", accent: "#FF7F00", title: "Track Progress & Impact",        text: "Receive bi-weekly updates from the team via email. See project progress, challenges overcome, milestones hit. Once complete, receive a final report: what they built, what they learned, what impact they created, and what's next — job placement, patent filing, startup launch." },
+  { num: "04", icon: "📈", accent: "#FF7F00", title: "Track Progress & Impact", text: "Receive bi-weekly updates from the team via email. See project progress, challenges overcome, milestones hit. Once complete, receive a final report: what they built, what they learned, what impact they created, and what's next — job placement, patent filing, startup launch." },
 ];
 
 const budgetBreakdown = [
-  { category: "Materials & Supplies",       amount: "30–40%", description: "Components, lab materials, equipment rentals",                     accent: "#FF7F00", icon: "🧪" },
-  { category: "Team Stipends",              amount: "20–30%", description: "If students need to take time off internships or part-time jobs",   accent: "#003366", icon: "👥" },
-  { category: "Mentorship Support",         amount: "5–10%",  description: "Specialized mentors or consultants for domain expertise",           accent: "#0B9C2C", icon: "🎓" },
-  { category: "Manufacturing / Production", amount: "15–25%", description: "Prototype to small-scale production costs",                         accent: "#FF7F00", icon: "⚙️" },
-  { category: "Platform & Legal",           amount: "5%",     description: "DreamXec fees, compliance, insurance",                              accent: "#003366", icon: "📋" },
+  { category: "Materials & Supplies", amount: "30–40%", description: "Components, lab materials, equipment rentals", accent: "#FF7F00", icon: "🧪" },
+  { category: "Team Stipends", amount: "20–30%", description: "If students need to take time off internships or part-time jobs", accent: "#003366", icon: "👥" },
+  { category: "Mentorship Support", amount: "5–10%", description: "Specialized mentors or consultants for domain expertise", accent: "#0B9C2C", icon: "🎓" },
+  { category: "Manufacturing / Production", amount: "15–25%", description: "Prototype to small-scale production costs", accent: "#FF7F00", icon: "⚙️" },
+  { category: "Platform & Legal", amount: "5%", description: "DreamXec fees, compliance, insurance", accent: "#003366", icon: "📋" },
 ];
 
 const impactMetrics = [
-  { icon: "", title: "Career Outcomes",  accent: "#FF7F00", description: "Jobs secured, internships landed, and higher education admissions directly linked to project experience.", vector: "/assets/icon-pack/DX-ILLUSTRATION-PACK/5.svg"  },
-  { icon: "💡", title: "Innovation Impact",accent: "#003366", description: "Patents filed, research published in journals, and startups launched from student-led DreamXec projects.",   vector: "/assets/icon-pack/DX-ILLUSTRATION-PACK/8.svg"  },
-  { icon: "🌍", title: "Social Impact",    accent: "#0B9C2C", description: "Communities directly helped, social problems quantifiably solved, and grassroots change measured.",           vector: "/assets/icon-pack/DX-ILLUSTRATION-PACK/1.svg"  },
-  { icon: "📚", title: "Learning Gains",   accent: "#FF7F00", description: "New skills acquired, confidence built, and measurable personal and professional growth documented.",          vector: "/assets/icon-pack/DX-ILLUSTRATION-PACK/12.svg" },
+  { icon: "", title: "Career Outcomes", accent: "#FF7F00", description: "Jobs secured, internships landed, and higher education admissions directly linked to project experience.", vector: "/assets/icon-pack/DX-ILLUSTRATION-PACK/5.svg" },
+  { icon: "💡", title: "Innovation Impact", accent: "#003366", description: "Patents filed, research published in journals, and startups launched from student-led DreamXec projects.", vector: "/assets/icon-pack/DX-ILLUSTRATION-PACK/8.svg" },
+  { icon: "🌍", title: "Social Impact", accent: "#0B9C2C", description: "Communities directly helped, social problems quantifiably solved, and grassroots change measured.", vector: "/assets/icon-pack/DX-ILLUSTRATION-PACK/1.svg" },
+  { icon: "📚", title: "Learning Gains", accent: "#FF7F00", description: "New skills acquired, confidence built, and measurable personal and professional growth documented.", vector: "/assets/icon-pack/DX-ILLUSTRATION-PACK/12.svg" },
 ];
 
 const FAQ = [
-  { icon: "💰", q: "What's the minimum pledge amount?",       a: "₹100. Small amounts collectively create big impact — every rupee counts toward a student's breakthrough.",           accent: "#FF7F00" },
-  { icon: "🔄", q: "Can I change my pledge or get a refund?", a: "No. Since this is a donation, refunds are not possible once confirmed. Please review carefully before pledging.",      accent: "#0B9C2C" },
-  { icon: "⚠️", q: "What if a project fails?",               a: "Research can fail — it's part of the process. If misuse is suspected, DreamXec investigates and takes strict action.", accent: "#FF7F00" },
-  { icon: "👤", q: "Can I contribute anonymously?",           a: "Yes. Simply enable the Anonymous Backer option during checkout — your name won't be shown publicly.",                 accent: "#0B9C2C" },
-  { icon: "🏆", q: "How often do projects succeed?",          a: "Success includes learning, iteration, and measurable outcomes — not just a polished final product.",                  accent: "#FF7F00" },
+  { icon: "💰", q: "What's the minimum pledge amount?", a: "₹100. Small amounts collectively create big impact — every rupee counts toward a student's breakthrough.", accent: "#FF7F00" },
+  { icon: "🔄", q: "Can I change my pledge or get a refund?", a: "No. Since this is a donation, refunds are not possible once confirmed. Please review carefully before pledging.", accent: "#0B9C2C" },
+  { icon: "⚠️", q: "What if a project fails?", a: "Research can fail — it's part of the process. If misuse is suspected, DreamXec investigates and takes strict action.", accent: "#FF7F00" },
+  { icon: "👤", q: "Can I contribute anonymously?", a: "Yes. Simply enable the Anonymous Backer option during checkout — your name won't be shown publicly.", accent: "#0B9C2C" },
+  { icon: "🏆", q: "How often do projects succeed?", a: "Success includes learning, iteration, and measurable outcomes — not just a polished final product.", accent: "#FF7F00" },
 ];
 
 /* ─────────────────────────────────────────
@@ -61,11 +62,11 @@ function SectionLabel({ children, accent = '#FF7F00', dark = false }: { children
 ───────────────────────────────────────── */
 const HowItWorksDonors = () => {
 
-  const heroReveal   = useScrollReveal()
-  const stepsReveal  = useScrollReveal()
+  const heroReveal = useScrollReveal()
+  const stepsReveal = useScrollReveal()
   const budgetReveal = useScrollReveal()
   const impactReveal = useScrollReveal()
-  const faqReveal    = useScrollReveal()
+  const faqReveal = useScrollReveal()
 
   return (
     <>
@@ -83,9 +84,12 @@ const HowItWorksDonors = () => {
         .sr-stagger.sr-visible > *:nth-child(4){opacity:1;transform:none;transition-delay:.35s}
         .sr-stagger.sr-visible > *:nth-child(5){opacity:1;transform:none;transition-delay:.45s}
       `}</style>
-
-      <title>How It Works for Donors | DreamXec</title>
-      <meta name="description" content="Support innovation in 4 simple steps. See how DreamXec turns donations into real-world impact." />
+      
+      <SEO
+        title="How It Works for Donors | DreamXec"
+        description="Support innovation in 4 simple steps. See how DreamXec turns donations into real-world impact."
+        url="https://dreamxec.com/how-it-works/donors"
+      />
 
       <Header />
 

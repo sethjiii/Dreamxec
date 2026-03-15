@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
 import { PostHogProvider } from '@posthog/react'
+import { HelmetProvider } from 'react-helmet-async'
 
 const options = {
   api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
@@ -15,7 +16,9 @@ createRoot(document.getElementById('root')!).render(
       apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
       options={options}
     >
-      <App />
+      <HelmetProvider>
+        <App />
+      </HelmetProvider>
     </PostHogProvider>
   </StrictMode>,
 )

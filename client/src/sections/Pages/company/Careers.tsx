@@ -1,5 +1,6 @@
 import { Header } from '../../Header'
 import { Footer } from '../../Footer'
+import SEO from '@/components/SEO'
 
 const Careers = () => {
 
@@ -46,10 +47,10 @@ const Careers = () => {
   return (
     <>
       {/* SEO */}
-      <title>Careers at DreamXec | Join Our Team</title>
-      <meta
-        name="description"
-        content="Build the Future of Student Innovation. Join DreamXec. Help us unlock potential for 1 million Indian students."
+      <SEO
+        title="Careers at DreamXec"
+        description="Join DreamXec and help build India's leading platform for student innovation and research funding."
+        url="https://dreamxec.com/careers"
       />
 
       <Header />
@@ -87,7 +88,7 @@ const Careers = () => {
                 <h3 className="text-lg md:text-xl font-bold text-dreamxec-berkeley-blue mb-3">
                   {value.title}
                 </h3>
-                 <p className="text-dreamxec-navy text-sm sm:text-base md:text-lg leading-relaxed">
+                <p className="text-dreamxec-navy text-sm sm:text-base md:text-lg leading-relaxed">
                   {value.desc}
                 </p>
               </div>
@@ -96,7 +97,7 @@ const Careers = () => {
         </section>
 
         {/* Why Work at DreamXec */}
-         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <h2 className="text-dreamxec-berkeley-blue text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-center">
             Why Work at DreamXec
           </h2>
@@ -149,7 +150,7 @@ const Careers = () => {
         </section>
 
         {/* Internship Info */}
-       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <h2 className="text-dreamxec-berkeley-blue text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-center">
             Internship Program
           </h2>

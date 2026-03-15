@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { getPublicClubs } from "../services/clubService";
 import { StarDecoration } from "./icons/StarDecoration";
 import { FooterContent } from "../sections/Footer/components/FooterContent";
+import SEO from "./SEO";
 
 type SortOption = "newest" | "oldest";
 
@@ -198,225 +199,232 @@ export default function ClubDiscovery() {
   useEffect(() => { fetchClubs(); }, [page, searchQuery, sortBy]);
 
   return (
-    <div className="min-h-screen bg-dreamxec-cream">
+    <>
+      <SEO
+        title="Explore College Innovation Clubs | DreamXec"
+        description="Discover college innovation clubs raising funds for student-led research and technology projects across India."
+        url="https://dreamxec.com/clubs"
+      />
+      <div className="min-h-screen bg-dreamxec-cream">
 
-      {/* Decorative shapes */}
-      <div className="fixed top-24 left-6 opacity-10 pointer-events-none">
-        <div className="w-14 h-14 border-4 border-dreamxec-orange rotate-12" />
-      </div>
-      <div className="fixed top-1/2 right-8 opacity-10 pointer-events-none">
-        <div className="w-10 h-10 bg-dreamxec-green rotate-45" />
-      </div>
-      <div className="fixed bottom-32 left-1/4 opacity-8 pointer-events-none">
-        <div className="w-6 h-6 bg-dreamxec-navy" />
-      </div>
-
-      {/* ── HERO ── */}
-      <div className="relative bg-dreamxec-navy overflow-hidden" style={{ borderBottom: '5px solid #FF7F00' }}>
-
-        {/* Grid texture */}
-        <div
-          className="absolute inset-0 opacity-[0.04] pointer-events-none"
-          style={{
-            backgroundImage: "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
-          }}
-        />
-
-        {/* Tricolor corner tag */}
-        <div className="absolute top-0 right-0 flex flex-col w-3 h-full">
-          <div className="flex-1 bg-[#FF7F00]" />
-          <div className="flex-1 bg-white" />
-          <div className="flex-1 bg-[#0B9C2C]" />
+        {/* Decorative shapes */}
+        <div className="fixed top-24 left-6 opacity-10 pointer-events-none">
+          <div className="w-14 h-14 border-4 border-dreamxec-orange rotate-12" />
+        </div>
+        <div className="fixed top-1/2 right-8 opacity-10 pointer-events-none">
+          <div className="w-10 h-10 bg-dreamxec-green rotate-45" />
+        </div>
+        <div className="fixed bottom-32 left-1/4 opacity-8 pointer-events-none">
+          <div className="w-6 h-6 bg-dreamxec-navy" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12 sm:py-16 md:py-20">
+        {/* ── HERO ── */}
+        <div className="relative bg-dreamxec-navy overflow-hidden" style={{ borderBottom: '5px solid #FF7F00' }}>
 
-          {/* Eyebrow */}
+          {/* Grid texture */}
           <div
-            className="inline-flex items-center gap-2 px-3 py-1.5 mb-5 text-[10px] sm:text-xs font-black uppercase tracking-widest text-dreamxec-navy"
-            style={{ background: '#FF7F00', border: '2px solid #fff' }}
-          >
-            <span>★</span> DreamXec Network
+            className="absolute inset-0 opacity-[0.04] pointer-events-none"
+            style={{
+              backgroundImage: "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+              backgroundSize: "48px 48px",
+            }}
+          />
+
+          {/* Tricolor corner tag */}
+          <div className="absolute top-0 right-0 flex flex-col w-3 h-full">
+            <div className="flex-1 bg-[#FF7F00]" />
+            <div className="flex-1 bg-white" />
+            <div className="flex-1 bg-[#0B9C2C]" />
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-none mb-4">
-            Explore{" "}
-            <span
-              className="inline-block px-2 sm:px-3"
-              style={{ background: '#FF7F00', color: '#003366' }}
-            >
-              College
-            </span>{" "}
-            Clubs
-          </h1>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12 sm:py-16 md:py-20">
 
-          <p className="text-white/60 text-sm sm:text-base md:text-lg font-bold max-w-xl leading-relaxed">
-            Discover innovation hubs raising funds on DreamXec — support the next generation of ideas.
-          </p>
-
-          {/* Stats strip */}
-          {meta && (
-            <div className="mt-8 flex flex-wrap gap-3">
-              <div
-                className="flex items-center gap-3 px-4 py-2.5"
-                style={{ border: '2px solid rgba(255,255,255,0.25)', background: 'rgba(255,255,255,0.08)' }}
-              >
-                <span className="text-2xl sm:text-3xl font-black text-dreamxec-orange">{meta.total}</span>
-                <span className="text-xs sm:text-sm font-black text-white/60 uppercase tracking-widest">Registered Clubs</span>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── CONTROLS ── */}
-      <div
-        className="sticky top-0 z-30 bg-dreamxec-cream"
-        style={{ borderBottom: '3px solid #003366', boxShadow: '0 3px 0 #FF7F00' }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-
-            {/* Search */}
-            <div className="relative flex-1">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-dreamxec-navy/50 pointer-events-none">
-                <SearchIcon />
-              </div>
-              <input
-                type="text"
-                placeholder="Search clubs or colleges..."
-                value={searchQuery}
-                onChange={(e) => { setPage(1); setSearchQuery(e.target.value); }}
-                className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm font-bold text-dreamxec-navy bg-white placeholder:text-dreamxec-navy/40 focus:outline-none transition-all"
-                style={{ border: '3px solid #003366', boxShadow: '3px 3px 0 #FF7F00' }}
-              />
-            </div>
-
-            {/* Sort */}
-            <div className="relative sm:w-52">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-dreamxec-navy/50 pointer-events-none">
-                <SortIcon />
-              </div>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="w-full pl-9 pr-8 py-2.5 sm:py-3 text-sm font-bold text-dreamxec-navy bg-white focus:outline-none appearance-none cursor-pointer transition-all"
-                style={{ border: '3px solid #003366', boxShadow: '3px 3px 0 #0B9C2C' }}
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-              </select>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-dreamxec-navy/50">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M6 9l6 6 6-6" /></svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── MAIN CONTENT ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-10 md:py-12">
-
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 md:gap-8">
-            {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
-          </div>
-
-        ) : clubs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 sm:py-28 text-center">
+            {/* Eyebrow */}
             <div
-              className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center mb-5 bg-white"
-              style={{ border: '3px solid #003366', boxShadow: '5px 5px 0 #FF7F00' }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 mb-5 text-[10px] sm:text-xs font-black uppercase tracking-widest text-dreamxec-navy"
+              style={{ background: '#FF7F00', border: '2px solid #fff' }}
             >
-              <span className="text-3xl">🔍</span>
+              <span>★</span> DreamXec Network
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-dreamxec-navy uppercase tracking-tight mb-2">
-              No Clubs Found
-            </h2>
-            <p className="text-sm sm:text-base text-dreamxec-navy/50 font-bold max-w-xs">
-              Try adjusting your search filters or check back later.
-            </p>
-          </div>
 
-        ) : (
-          <>
-            {/* Results count */}
-            <div className="flex items-center gap-3 mb-7 sm:mb-8 md:mb-10">
-              <span className="text-xs font-black text-dreamxec-navy/50 uppercase tracking-widest">Showing</span>
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-none mb-4">
+              Explore{" "}
               <span
-                className="px-3 py-1.5 text-xs sm:text-sm font-black text-white uppercase tracking-wide"
-                style={{ background: '#FF7F00', border: '2px solid #003366' }}
+                className="inline-block px-2 sm:px-3"
+                style={{ background: '#FF7F00', color: '#003366' }}
               >
-                {meta?.total} Club{meta?.total !== 1 ? "s" : ""}
-              </span>
-            </div>
+                College
+              </span>{" "}
+              Clubs
+            </h1>
 
-            {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 md:gap-8">
-              {clubs.map((club, index) => (
-                <ClubCard key={club.id} club={club} index={index} />
-              ))}
-            </div>
+            <p className="text-white/60 text-sm sm:text-base md:text-lg font-bold max-w-xl leading-relaxed">
+              Discover innovation hubs raising funds on DreamXec — support the next generation of ideas.
+            </p>
 
-            {/* Pagination */}
-            {meta?.totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 sm:gap-3 mt-14 sm:mt-16 md:mt-20">
-
-                <button
-                  disabled={page === 1}
-                  onClick={() => setPage(p => p - 1)}
-                  className="flex items-center gap-1.5 px-4 sm:px-5 py-2.5 font-black text-xs sm:text-sm uppercase tracking-wide transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:translate-x-[-1px] hover:translate-y-[-1px]"
-                  style={{ border: '3px solid #003366', background: '#fff', boxShadow: '3px 3px 0 #003366', color: '#003366' }}
+            {/* Stats strip */}
+            {meta && (
+              <div className="mt-8 flex flex-wrap gap-3">
+                <div
+                  className="flex items-center gap-3 px-4 py-2.5"
+                  style={{ border: '2px solid rgba(255,255,255,0.25)', background: 'rgba(255,255,255,0.08)' }}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M15 18l-6-6 6-6" /></svg>
-                  Prev
-                </button>
-
-                {/* Page pills */}
-                <div className="flex items-center gap-1.5">
-                  {[...Array(meta.totalPages)].map((_, i) => {
-                    const p = i + 1;
-                    const isCurrent = p === page;
-                    const isNear = Math.abs(p - page) <= 1 || p === 1 || p === meta.totalPages;
-                    if (!isNear) return (p === 2 || p === meta.totalPages - 1)
-                      ? <span key={p} className="text-dreamxec-navy/30 font-black text-sm px-0.5">…</span>
-                      : null;
-                    return (
-                      <button
-                        key={p}
-                        onClick={() => setPage(p)}
-                        className="w-9 h-9 sm:w-10 sm:h-10 font-black text-sm transition-all"
-                        style={{
-                          border: '3px solid #003366',
-                          background: isCurrent ? '#003366' : '#fff',
-                          color: isCurrent ? '#fff' : '#003366',
-                          boxShadow: isCurrent ? '3px 3px 0 #FF7F00' : '2px 2px 0 #003366',
-                          transform: isCurrent ? 'translate(-1px,-1px)' : 'none',
-                        }}
-                      >
-                        {p}
-                      </button>
-                    );
-                  })}
+                  <span className="text-2xl sm:text-3xl font-black text-dreamxec-orange">{meta.total}</span>
+                  <span className="text-xs sm:text-sm font-black text-white/60 uppercase tracking-widest">Registered Clubs</span>
                 </div>
-
-                <button
-                  disabled={page === meta.totalPages}
-                  onClick={() => setPage(p => p + 1)}
-                  className="flex items-center gap-1.5 px-4 sm:px-5 py-2.5 font-black text-xs sm:text-sm uppercase tracking-wide transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:translate-x-[-1px] hover:translate-y-[-1px]"
-                  style={{ border: '3px solid #003366', background: '#fff', boxShadow: '3px 3px 0 #003366', color: '#003366' }}
-                >
-                  Next
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M9 18l6-6-6-6" /></svg>
-                </button>
               </div>
             )}
-          </>
-        )}
-      </div>
+          </div>
+        </div>
 
-      <FooterContent />
-    </div>
+        {/* ── CONTROLS ── */}
+        <div
+          className="sticky top-0 z-30 bg-dreamxec-cream"
+          style={{ borderBottom: '3px solid #003366', boxShadow: '0 3px 0 #FF7F00' }}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-3 sm:py-4">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+
+              {/* Search */}
+              <div className="relative flex-1">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-dreamxec-navy/50 pointer-events-none">
+                  <SearchIcon />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search clubs or colleges..."
+                  value={searchQuery}
+                  onChange={(e) => { setPage(1); setSearchQuery(e.target.value); }}
+                  className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm font-bold text-dreamxec-navy bg-white placeholder:text-dreamxec-navy/40 focus:outline-none transition-all"
+                  style={{ border: '3px solid #003366', boxShadow: '3px 3px 0 #FF7F00' }}
+                />
+              </div>
+
+              {/* Sort */}
+              <div className="relative sm:w-52">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-dreamxec-navy/50 pointer-events-none">
+                  <SortIcon />
+                </div>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as SortOption)}
+                  className="w-full pl-9 pr-8 py-2.5 sm:py-3 text-sm font-bold text-dreamxec-navy bg-white focus:outline-none appearance-none cursor-pointer transition-all"
+                  style={{ border: '3px solid #003366', boxShadow: '3px 3px 0 #0B9C2C' }}
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-dreamxec-navy/50">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M6 9l6 6 6-6" /></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── MAIN CONTENT ── */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-10 md:py-12">
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 md:gap-8">
+              {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
+            </div>
+
+          ) : clubs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 sm:py-28 text-center">
+              <div
+                className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center mb-5 bg-white"
+                style={{ border: '3px solid #003366', boxShadow: '5px 5px 0 #FF7F00' }}
+              >
+                <span className="text-3xl">🔍</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-dreamxec-navy uppercase tracking-tight mb-2">
+                No Clubs Found
+              </h2>
+              <p className="text-sm sm:text-base text-dreamxec-navy/50 font-bold max-w-xs">
+                Try adjusting your search filters or check back later.
+              </p>
+            </div>
+
+          ) : (
+            <>
+              {/* Results count */}
+              <div className="flex items-center gap-3 mb-7 sm:mb-8 md:mb-10">
+                <span className="text-xs font-black text-dreamxec-navy/50 uppercase tracking-widest">Showing</span>
+                <span
+                  className="px-3 py-1.5 text-xs sm:text-sm font-black text-white uppercase tracking-wide"
+                  style={{ background: '#FF7F00', border: '2px solid #003366' }}
+                >
+                  {meta?.total} Club{meta?.total !== 1 ? "s" : ""}
+                </span>
+              </div>
+
+              {/* Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 md:gap-8">
+                {clubs.map((club, index) => (
+                  <ClubCard key={club.id} club={club} index={index} />
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {meta?.totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 sm:gap-3 mt-14 sm:mt-16 md:mt-20">
+
+                  <button
+                    disabled={page === 1}
+                    onClick={() => setPage(p => p - 1)}
+                    className="flex items-center gap-1.5 px-4 sm:px-5 py-2.5 font-black text-xs sm:text-sm uppercase tracking-wide transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:translate-x-[-1px] hover:translate-y-[-1px]"
+                    style={{ border: '3px solid #003366', background: '#fff', boxShadow: '3px 3px 0 #003366', color: '#003366' }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M15 18l-6-6 6-6" /></svg>
+                    Prev
+                  </button>
+
+                  {/* Page pills */}
+                  <div className="flex items-center gap-1.5">
+                    {[...Array(meta.totalPages)].map((_, i) => {
+                      const p = i + 1;
+                      const isCurrent = p === page;
+                      const isNear = Math.abs(p - page) <= 1 || p === 1 || p === meta.totalPages;
+                      if (!isNear) return (p === 2 || p === meta.totalPages - 1)
+                        ? <span key={p} className="text-dreamxec-navy/30 font-black text-sm px-0.5">…</span>
+                        : null;
+                      return (
+                        <button
+                          key={p}
+                          onClick={() => setPage(p)}
+                          className="w-9 h-9 sm:w-10 sm:h-10 font-black text-sm transition-all"
+                          style={{
+                            border: '3px solid #003366',
+                            background: isCurrent ? '#003366' : '#fff',
+                            color: isCurrent ? '#fff' : '#003366',
+                            boxShadow: isCurrent ? '3px 3px 0 #FF7F00' : '2px 2px 0 #003366',
+                            transform: isCurrent ? 'translate(-1px,-1px)' : 'none',
+                          }}
+                        >
+                          {p}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    disabled={page === meta.totalPages}
+                    onClick={() => setPage(p => p + 1)}
+                    className="flex items-center gap-1.5 px-4 sm:px-5 py-2.5 font-black text-xs sm:text-sm uppercase tracking-wide transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:translate-x-[-1px] hover:translate-y-[-1px]"
+                    style={{ border: '3px solid #003366', background: '#fff', boxShadow: '3px 3px 0 #003366', color: '#003366' }}
+                  >
+                    Next
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M9 18l6-6-6-6" /></svg>
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        <FooterContent />
+      </div>
+    </>
   );
 }

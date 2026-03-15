@@ -6,6 +6,7 @@ import { Navigation, Pagination, Keyboard, A11y, Autoplay } from 'swiper/modules
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import SEO from "../../../components/SEO";
 
 /* ─────────────────────────────────────────────────────────
    DATA
@@ -110,8 +111,11 @@ function SectionLabel({ children, accent = '#FF7F00' }: { children: React.ReactN
 const StartAProject = () => {
   return (
     <>
-      <title>Start a Project | DreamXec</title>
-      <meta name="description" content="Turn your innovation into reality with DreamXec. Get funded, mentored, and supported to launch your student project." />
+      <SEO
+        title="Start a Project | DreamXec"
+        description="Launch your student innovation project on DreamXec. Raise funding, gain mentorship, and transform your idea into real-world impact."
+        url="https://dreamxec.com/start-project"
+      />
 
       <Header />
 

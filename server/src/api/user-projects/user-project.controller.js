@@ -6,6 +6,7 @@ const { publishEvent } = require('../../services/eventPublisher.service');
 const EVENTS = require('../../config/events');
 const generateUniqueSlug = require("../../utils/generateSlug");
 const { getCache, setCache, delCache } = require('../../utils/cache');
+const isBot = require('../../utils/isBot');
 
 const PUBLIC_PROJECTS_TTL = 60;   // seconds
 const PROJECT_DETAIL_TTL  = 120;  // seconds
@@ -386,19 +387,32 @@ exports.deleteUserProject = catchAsync(async (req, res, next) => {
 exports.getUserProject = catchAsync(async (req, res, next) => {
   const { id: identifier } = req.params;
 
-  // ── Cache check ──────────────────────────────────────────────────────────
+  const userAgent = req.headers["user-agent"] || "";
+  const botRequest = isBot(userAgent);
+
+  // ── Cache check ─────────────────────────────────────────
   const isObjectId = identifier.length === 24;
+
   const cacheKey = isObjectId
     ? `project:${identifier}`
     : `project:slug:${identifier}`;
 
   const cached = await getCache(cacheKey);
+
   if (cached) {
     console.log(`[Cache] HIT ${cacheKey}`);
-    return res.status(200).json({ status: 'success', data: { userProject: cached } });
+
+    if (botRequest) {
+      return res.send(generateBotHTML(cached));
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      data: { userProject: cached }
+    });
   }
 
-  // Shared include — milestones with last submission, donations capped at 5
+  // Shared include
   const projectInclude = {
     club: { select: { id: true, name: true, college: true, slug: true } },
     milestones: {
@@ -431,12 +445,18 @@ exports.getUserProject = catchAsync(async (req, res, next) => {
   if (!userProject)
     return next(new AppError('User project not found', 404));
 
-  // Cache both id and slug keys pointing to the same data
+  // Cache project
   await Promise.all([
     setCache(`project:${userProject.id}`, userProject, PROJECT_DETAIL_TTL),
     setCache(`project:slug:${userProject.slug}`, userProject, PROJECT_DETAIL_TTL),
   ]);
 
+  // ── BOT RESPONSE (SEO FIX) ──────────────────────────────
+  if (botRequest) {
+    return res.send(generateBotHTML(userProject));
+  }
+
+  // ── NORMAL RESPONSE ─────────────────────────────────────
   res.status(200).json({
     status: 'success',
     data: { userProject },

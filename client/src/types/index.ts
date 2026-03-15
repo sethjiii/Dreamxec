@@ -178,6 +178,7 @@ export interface Campaign {
   createdBy?: string | { id: string };
 
   userId?: string;
+  slug?: string;
 
 
 

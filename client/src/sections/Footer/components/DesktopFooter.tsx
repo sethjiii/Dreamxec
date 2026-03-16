@@ -253,6 +253,14 @@ export const DesktopFooter = () => {
                   FAQ
                 </a>
               </li>
+              <li>
+                <a
+                  href="/blog"
+                  className="text-dreamxec-cream hover:text-dreamxec-orange transition-colors duration-300 text-sm"
+                >
+                  Blog
+                </a>
+              </li>
             </ul>
             <div className="space-y-6 pt-12">
               <img

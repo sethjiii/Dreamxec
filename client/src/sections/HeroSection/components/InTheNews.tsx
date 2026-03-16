@@ -50,22 +50,22 @@ export const InTheNews = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="w-full mt-16 sm:mt-20 md:mt-24">
+    <section className="w-full mt-12 xs:mt-16 sm:mt-20 md:mt-24">
 
       {/* ── Section header ── */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 mb-6 sm:mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+      <div className="max-w-6xl mx-auto px-3 xs:px-4 sm:px-6 mb-4 xs:mb-6 sm:mb-8">
+        <div className="flex flex-col xs:gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
 
-          <div className="flex items-center gap-3">
-            <span className="inline-block w-2 h-7 bg-[#FF7F00] flex-shrink-0" />
+          <div className="flex items-center gap-2 xs:gap-3">
+            <span className="inline-block w-1.5 xs:w-2 h-6 xs:h-7 bg-[#FF7F00] flex-shrink-0" />
             <div>
-              <p className="text-[10px] font-black text-dreamxec-navy/40 uppercase tracking-[0.2em] mb-0.5">
+              <p className="text-[8px] xs:text-[10px] font-black text-dreamxec-navy/40 uppercase tracking-[0.15em] xs:tracking-[0.2em] mb-0.5 leading-none">
                 Media Coverage
               </p>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-dreamxec-navy uppercase tracking-tight leading-none">
+              <h2 className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-black text-dreamxec-navy uppercase tracking-tight leading-tight xs:leading-none">
                 As Seen{' '}
                 <span
-                  className="inline-block px-2 py-0.5"
+                  className="inline-block px-1.5 xs:px-2 py-0.5"
                   style={{ background: '#FF7F00', color: '#003366' }}
                 >
                   In
@@ -75,7 +75,7 @@ export const InTheNews = () => {
           </div>
 
           {/* Stats + CTA */}
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2 xs:gap-3 flex-wrap mt-3 xs:mt-0">
             {/* <div
               className="flex items-center gap-2 px-3 py-1.5"
               style={{ border: '2px solid #003366', background: '#fff' }}
@@ -88,10 +88,10 @@ export const InTheNews = () => {
 
             <button
               onClick={() => navigate('/press')}
-              className="px-4 py-2 font-black text-xs uppercase tracking-widest text-white transition-all hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px]"
+              className="px-3 xs:px-4 py-1.5 xs:py-2 font-black text-[10px] xs:text-xs uppercase tracking-widest text-white transition-all hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] flex-shrink-0"
               style={{ background: '#003366', border: '2px solid #003366', boxShadow: '3px 3px 0 #FF7F00' }}
             >
-              View All Coverage →
+              Coverage →
             </button>
           </div>
         </div>

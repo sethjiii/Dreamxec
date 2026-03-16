@@ -275,87 +275,87 @@ function CountryCard({ country, elapsed, maxPerStudentUSD }: {
 
       {/* Header */}
       <div
-        className="flex items-center justify-between px-3 py-2"
+        className="flex xs:flex-col sm:flex-row items-start xs:items-start sm:items-center sm:justify-between gap-1.5 xs:gap-2 px-2 xs:px-3 py-1.5 xs:py-2"
         style={{ borderBottom: '2px solid #003366', background: country.isIndia ? '#fff7ed' : '#f9fafb' }}
       >
-        <div className="flex items-center gap-2">
-          <span className="text-2xl leading-none">{country.flag}</span>
+        <div className="flex items-center gap-1.5 xs:gap-2">
+          <span className="text-xl xs:text-2xl leading-none flex-shrink-0">{country.flag}</span>
           <div>
-            <p className="font-black text-xs text-dreamxec-navy uppercase tracking-wide leading-none">{country.name}</p>
-            <p className="text-[9px] font-black uppercase tracking-widest mt-0.5" style={{ color: country.color }}>
-              {s.gdpPercent}% GDP · {s.globalShare}% global
+            <p className="font-black text-[10px] xs:text-xs text-dreamxec-navy uppercase tracking-wide leading-tight">{country.name}</p>
+            <p className="text-[8px] xs:text-[9px] font-black uppercase tracking-widest mt-0.5 leading-none" style={{ color: country.color }}>
+              {s.gdpPercent}% · {s.globalShare}%
             </p>
           </div>
         </div>
         {country.isIndia && (
-          <span className="px-1.5 py-0.5 text-[9px] font-black text-white uppercase tracking-widest" style={{ background: '#FF7F00', border: '1.5px solid #003366' }}>
-            🇮🇳 Us
+          <span className="px-1 xs:px-1.5 py-0.5 text-[8px] xs:text-[9px] font-black text-white uppercase tracking-widest flex-shrink-0" style={{ background: '#FF7F00', border: '1.5px solid #003366' }}>
+            Us
           </span>
         )}
       </div>
 
-      <div className="p-3 flex flex-col gap-2.5 flex-1">
+      <div className="p-2 xs:p-3 flex flex-col gap-2 xs:gap-2.5 flex-1">
 
         {/* ★ PER-STUDENT R&D — the headline stat */}
         <div
-          className="px-2.5 py-2"
+          className="px-2 xs:px-2.5 py-1.5 xs:py-2"
           style={{ border: `2px solid ${country.color}`, background: country.isIndia ? '#fff7ed' : `${country.color}08` }}
         >
-          <div className="flex items-baseline justify-between mb-1">
-            <span className="text-[10px] font-black uppercase tracking-widest text-dreamxec-navy/60">
-              R&D / Student / Year
+          <div className="flex flex-col xs:flex-row xs:items-baseline xs:justify-between gap-0.5 xs:gap-0 mb-1">
+            <span className="text-[8px] xs:text-[10px] font-black uppercase tracking-widest text-dreamxec-navy/60 leading-none">
+              R&D / Student / Yr
             </span>
-            <span className="font-black tabular-nums text-sm" style={{ color: country.color }}>
-              ${s.perStudentUSD.toLocaleString()}
+            <span className="font-black tabular-nums text-xs xs:text-sm leading-none" style={{ color: country.color }}>
+              ${(s.perStudentUSD / 1000).toFixed(0)}K
             </span>
           </div>
           <Bar pct={pctPerStudent} color={country.color} pulse={country.isIndia} />
           {country.isIndia && vsUSA && (
-            <p className="text-[9px] font-black mt-1.5 leading-snug" style={{ color: '#dc2626' }}>
-              ⚠ {vsUSA}× LESS than a US student gets
+            <p className="text-[7px] xs:text-[9px] font-black mt-1 xs:mt-1.5 leading-tight" style={{ color: '#dc2626' }}>
+              ⚠ {vsUSA}× LESS
             </p>
           )}
         </div>
 
         {/* Higher-ed R&D spent this session */}
         <div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-[10px] font-black text-dreamxec-navy/50 uppercase tracking-widest">Higher-Ed R&D Spent</span>
-            <span className="text-xs font-black tabular-nums" style={{ color: country.color }}>{fmtUSD(rdSpent)}</span>
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="text-[8px] xs:text-[10px] font-black text-dreamxec-navy/50 uppercase tracking-widest leading-none">R&D Spent</span>
+            <span className="text-xs xs:text-xs font-black tabular-nums flex-shrink-0" style={{ color: country.color }}>{fmtUSD(rdSpent)}</span>
           </div>
           <Bar pct={(rdSpent / maxRd) * 100} color={country.color} />
         </div>
 
         {/* Papers */}
         <div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-[10px] font-black text-dreamxec-navy/50 uppercase tracking-widest">Papers Published</span>
-            <span className="text-xs font-black tabular-nums text-dreamxec-navy">{fmt(papers, 3)}</span>
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="text-[8px] xs:text-[10px] font-black text-dreamxec-navy/50 uppercase tracking-widest leading-none">Papers</span>
+            <span className="text-xs xs:text-xs font-black tabular-nums text-dreamxec-navy flex-shrink-0">{fmt(papers, 2)}</span>
           </div>
           <Bar pct={(papers / maxPapers) * 100} color={country.color} />
         </div>
 
         {/* Patents */}
         <div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-[10px] font-black text-dreamxec-navy/50 uppercase tracking-widest">Patents Filed</span>
-            <span className="text-xs font-black tabular-nums text-dreamxec-navy">{fmt(patents, 3)}</span>
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="text-[8px] xs:text-[10px] font-black text-dreamxec-navy/50 uppercase tracking-widest leading-none">Patents</span>
+            <span className="text-xs xs:text-xs font-black tabular-nums text-dreamxec-navy flex-shrink-0">{fmt(patents, 2)}</span>
           </div>
           <Bar pct={(patents / maxPatents) * 100} color={country.color} />
         </div>
 
         {/* Researchers per million */}
         <div
-          className="mt-auto flex items-center justify-between px-2 py-1.5"
+          className="mt-auto flex items-center justify-between gap-1 px-1.5 xs:px-2 py-1"
           style={{ border: `1.5px solid ${country.color}`, background: `${country.color}10` }}
         >
-          <span className="text-[9px] font-black uppercase tracking-widest text-dreamxec-navy/60">Researchers / Million</span>
-          <span className="text-xs font-black" style={{ color: country.color }}>{s.researchersPerMillion.toLocaleString()}</span>
+          <span className="text-[7px] xs:text-[9px] font-black uppercase tracking-widest text-dreamxec-navy/60 leading-none">Res/M</span>
+          <span className="text-xs xs:text-xs font-black flex-shrink-0" style={{ color: country.color }}>{(s.researchersPerMillion / 1000).toFixed(1)}K</span>
         </div>
 
         {/* Highlight */}
         <p
-          className="text-[9px] font-bold text-dreamxec-navy/50 leading-snug"
+          className="text-[7px] xs:text-[8px] sm:text-[9px] font-bold text-dreamxec-navy/50 leading-tight"
           style={{ borderLeft: `2px solid ${country.color}`, paddingLeft: 6 }}
         >
           {country.highlight}
@@ -407,90 +407,82 @@ export const ResearchClock = () => {
     <>
       {showSrc && <SourcesModal onClose={() => setShowSrc(false)} />}
 
-      <section className="w-full mt-16 sm:mt-20 md:mt-24 px-4">
+      <section className="w-full mt-12 xs:mt-16 sm:mt-20 md:mt-24 px-3 xs:px-4">
         <div className="max-w-6xl mx-auto">
 
           {/* ── Header ── */}
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-5">
-            <div className="flex items-center gap-3">
-              <span className="inline-block w-2 h-7 bg-[#FF7F00] flex-shrink-0" />
+          <div className="flex flex-col xs:gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4 mb-4 xs:mb-5">
+            <div className="flex items-center gap-2 xs:gap-3">
+              <span className="inline-block w-1.5 xs:w-2 h-6 xs:h-7 bg-[#FF7F00] flex-shrink-0" />
               <div>
-                <p className="text-[10px] font-black text-dreamxec-navy/40 uppercase tracking-[0.2em] mb-0.5">Live Comparison</p>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-dreamxec-navy uppercase tracking-tight leading-none">
+                <p className="text-[8px] xs:text-[10px] font-black text-dreamxec-navy/40 uppercase tracking-[0.15em] xs:tracking-[0.2em] mb-0.5 leading-none">Live</p>
+                <h2 className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-black text-dreamxec-navy uppercase tracking-tight leading-tight xs:leading-none">
                   Research{' '}
-                  <span className="inline-block px-2 py-0.5" style={{ background: '#FF7F00', color: '#003366' }}>Clock</span>
+                  <span className="inline-block px-1.5 xs:px-2 py-0.5" style={{ background: '#FF7F00', color: '#003366' }}>Clock</span>
                 </h2>
               </div>
             </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <p className="text-xs font-bold text-dreamxec-navy/50 leading-relaxed max-w-xs">
-                Real-time estimates since page load — WIPO, OECD & NSF 2024–25 data.
+            <div className="flex items-center gap-2 flex-wrap mt-3 xs:mt-0">
+              <p className="w-full xs:w-auto text-[10px] xs:text-xs font-bold text-dreamxec-navy/50 leading-relaxed xs:max-w-xs">
+                Real-time data — WIPO, OECD & NSF 2024–25.
               </p>
               <button
                 onClick={() => setShowSrc(true)}
-                className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:translate-x-[-1px] hover:translate-y-[-1px]"
+                className="px-2 xs:px-3 py-1 xs:py-1.5 text-[8px] xs:text-[10px] font-black uppercase tracking-widest text-white transition-all hover:translate-x-[-1px] hover:translate-y-[-1px] flex-shrink-0"
                 style={{ background: '#0B9C2C', border: '2px solid #003366', boxShadow: '2px 2px 0 #003366' }}
               >
-                 View Sources
+                Sources
               </button>
             </div>
           </div>
 
           {/* ── Urgent gap banner ── */}
           <div
-            className="mb-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 px-4 py-3"
+            className="mb-4 xs:mb-5 flex flex-col xs:flex-row xs:items-start sm:items-center gap-2 xs:gap-3 px-3 xs:px-4 py-2 xs:py-3"
             style={{ background: '#003366', border: '3px solid #003366', boxShadow: '5px 5px 0 #FF7F00' }}
           >
-            <div className="text-2xl flex-shrink-0">⚠️</div>
+            <div className="text-xl xs:text-2xl flex-shrink-0">⚠️</div>
             <div className="flex-1">
-              <p className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-0.5">The Reality</p>
-              <p className="text-xs sm:text-sm font-black text-white leading-snug">
-                India invests{' '}
-                <span style={{ color: '#FF7F00' }}>${indiaStats.perStudentUSD.toLocaleString()}</span>
-                {' '}per student per year in research — vs{' '}
-                <span style={{ color: '#60a5fa' }}>${usaStats.perStudentUSD.toLocaleString()}</span> in the USA,{' '}
-                <span style={{ color: '#f87171' }}>${chinaStats.perStudentUSD.toLocaleString()}</span> in China, and{' '}
-                <span style={{ color: '#86efac' }}>${koreaStats.perStudentUSD.toLocaleString()}</span> in S. Korea.{' '}
-                <span style={{ color: '#FF7F00' }}>
-                  Indian students get {Math.round(usaStats.perStudentUSD / indiaStats.perStudentUSD)}× less than their US peers.
-                </span>
+              <p className="text-[8px] xs:text-[10px] font-black uppercase tracking-widest text-white/50 mb-1 xs:mb-0.5 leading-none">Reality</p>
+              <p className="text-[10px] xs:text-xs sm:text-sm font-black text-white leading-tight xs:leading-snug">
+                India: <span style={{ color: '#FF7F00' }}>${indiaStats.perStudentUSD.toLocaleString()}/yr</span> vs USA: <span style={{ color: '#60a5fa' }}>${usaStats.perStudentUSD.toLocaleString()}</span> | China: <span style={{ color: '#f87171' }}>${chinaStats.perStudentUSD.toLocaleString()}</span> | S.Korea: <span style={{ color: '#86efac' }}>${koreaStats.perStudentUSD.toLocaleString()}</span>. <span style={{ color: '#FF7F00' }}>{Math.round(usaStats.perStudentUSD / indiaStats.perStudentUSD)}× less</span> than US peers.
               </p>
             </div>
           </div>
 
           {/* ── Timer bar ── */}
           <div
-            className="flex items-center justify-between px-4 py-2.5 mb-5 bg-white"
+            className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2 xs:gap-3 px-3 xs:px-4 py-2 xs:py-2.5 mb-4 xs:mb-5 bg-white"
             style={{ border: '3px solid #003366', boxShadow: '4px 4px 0 #FF7F00' }}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 xs:gap-3">
               <div
                 className="w-2 h-2 rounded-full flex-shrink-0"
                 style={{ background: running ? '#0B9C2C' : '#dc2626', boxShadow: running ? '0 0 0 3px #0B9C2C30' : 'none' }}
               />
-              <span className="text-xs font-black text-dreamxec-navy/50 uppercase tracking-widest">{running ? 'Live' : 'Paused'}</span>
-              <span className="text-lg sm:text-xl font-black text-dreamxec-navy tabular-nums">{elapsedStr}</span>
+              <span className="text-xs xs:text-xs font-black text-dreamxec-navy/50 uppercase tracking-widest leading-none">{running ? 'Live' : 'Paused'}</span>
+              <span className="text-base xs:text-lg sm:text-xl font-black text-dreamxec-navy tabular-nums leading-none">{elapsedStr}</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 xs:gap-2 w-full xs:w-auto">
               <button
                 onClick={togglePause}
-                className="px-3 py-1.5 font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all hover:translate-x-[-1px] hover:translate-y-[-1px]"
+                className="flex-1 xs:flex-none px-2 xs:px-3 py-1.5 font-black text-[9px] xs:text-[10px] sm:text-xs uppercase tracking-widest transition-all hover:translate-x-[-1px] hover:translate-y-[-1px]"
                 style={{ background: running ? '#003366' : '#FF7F00', color: running ? '#fff' : '#003366', border: '2px solid #003366', boxShadow: '2px 2px 0 #FF7F00' }}
               >
-                {running ? '⏸ Pause' : '▶ Resume'}
+                {running ? '⏸' : '▶'}
               </button>
               <button
                 onClick={reset}
-                className="px-3 py-1.5 font-black text-[10px] sm:text-xs uppercase tracking-widest bg-white transition-all hover:translate-x-[-1px] hover:translate-y-[-1px]"
+                className="flex-1 xs:flex-none px-2 xs:px-3 py-1.5 font-black text-[9px] xs:text-[10px] sm:text-xs uppercase tracking-widest bg-white transition-all hover:translate-x-[-1px] hover:translate-y-[-1px]"
                 style={{ border: '2px solid #003366', boxShadow: '2px 2px 0 #003366' }}
               >
-                ↺ Reset
+                ↺
               </button>
             </div>
           </div>
 
           {/* ── Country cards ── */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5 xs:gap-3 sm:gap-4">
             {countries.map(country => (
               <CountryCard
                 key={country.code}
@@ -521,34 +513,34 @@ export const ResearchClock = () => {
                   const pct = (c.stats.perStudentUSD / maxPerStudentUSD) * 100;
                   return (
                     <div key={c.code}>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-black text-dreamxec-navy flex items-center gap-1.5">
+                      <div className="flex items-center justify-between mb-1 gap-2">
+                        <span className="text-[10px] xs:text-xs font-black text-dreamxec-navy flex items-center gap-1 xs:gap-1.5 min-w-0">
                           <span>{c.flag}</span>
-                          <span className="uppercase tracking-wide">{c.name}</span>
+                          <span className="uppercase tracking-wide truncate">{c.name}</span>
                           {c.isIndia && (
-                            <span className="text-[9px] px-1 py-0.5 font-black" style={{ background: '#FF7F00', color: '#fff' }}>US</span>
+                            <span className="text-[8px] xs:text-[9px] px-0.5 py-0.5 font-black flex-shrink-0" style={{ background: '#FF7F00', color: '#fff' }}>US</span>
                           )}
                         </span>
-                        <span className="font-black text-xs tabular-nums" style={{ color: c.color }}>
-                          ${c.stats.perStudentUSD.toLocaleString()} / yr
+                        <span className="font-black text-[9px] xs:text-xs tabular-nums flex-shrink-0" style={{ color: c.color }}>
+                          ${(c.stats.perStudentUSD / 1000).toFixed(0)}K
                         </span>
                       </div>
                       <div
-                        className="relative h-4 overflow-hidden"
+                        className="relative h-3 xs:h-4 overflow-hidden"
                         style={{ border: '2px solid #003366', background: '#f3f4f6' }}
                       >
                         <div
                           className="h-full flex items-center"
                           style={{ width: `${pct}%`, background: c.color }}
                         >
-                          {pct > 20 && (
-                            <span className="text-[9px] font-black text-white px-1.5 whitespace-nowrap">
-                              {Math.round(pct)}% of max
+                          {pct > 25 && (
+                            <span className="text-[8px] xs:text-[9px] font-black text-white px-1 xs:px-1.5 whitespace-nowrap leading-none">
+                              {Math.round(pct)}%
                             </span>
                           )}
                         </div>
-                        {pct <= 20 && (
-                          <span className="absolute left-2 top-0 bottom-0 flex items-center text-[9px] font-black" style={{ color: c.color }}>
+                        {pct <= 25 && (
+                          <span className="absolute left-1 xs:left-2 top-0 bottom-0 flex items-center text-[8px] xs:text-[9px] font-black leading-none" style={{ color: c.color }}>
                             {Math.round(pct)}%
                           </span>
                         )}
@@ -561,30 +553,23 @@ export const ResearchClock = () => {
 
           {/* ── India gap callout ── */}
           <div
-            className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 sm:px-5 py-3 bg-white"
+            className="mt-4 xs:mt-5 flex flex-col xs:flex-row xs:items-start sm:items-center xs:justify-between gap-2 xs:gap-3 px-3 xs:px-4 sm:px-5 py-2.5 xs:py-3 bg-white"
             style={{ border: '3px solid #003366', boxShadow: '5px 5px 0 #FF7F00' }}
           >
-            <div className="flex items-start gap-3">
-              <div className="w-1.5 h-10 flex-shrink-0 mt-0.5" style={{ background: '#FF7F00' }} />
-              <div>
-                <p className="text-[10px] font-black text-dreamxec-navy/50 uppercase tracking-widest mb-0.5">The Gap DreamXec Is Closing</p>
-                <p className="text-xs sm:text-sm font-black text-dreamxec-navy leading-snug">
-                  India spends only{' '}
-                  <span style={{ color: '#FF7F00' }}>0.65%</span> of GDP on R&D vs China's{' '}
-                  <span style={{ color: '#dc2626' }}>2.65%</span>, S. Korea's{' '}
-                  <span style={{ color: '#0B9C2C' }}>5.32%</span> and USA's{' '}
-                  <span style={{ color: '#003366' }}>3.45%</span>.
-                  India has <span style={{ color: '#FF7F00' }}>only {indiaStats.researchersPerMillion} researchers per million people</span>{' '}
-                  vs S. Korea's {koreaStats.researchersPerMillion.toLocaleString()}.
-                  DreamXec exists to close this gap — one student project at a time.
+            <div className="flex items-start gap-2 xs:gap-3 flex-1 min-w-0">
+              <div className="w-1.5 h-8 xs:h-10 flex-shrink-0 mt-0.5" style={{ background: '#FF7F00' }} />
+              <div className="min-w-0">
+                <p className="text-[9px] xs:text-[10px] font-black text-dreamxec-navy/50 uppercase tracking-widest mb-0.5 xs:mb-1 leading-none">DreamXec's Mission</p>
+                <p className="text-[9px] xs:text-xs sm:text-sm font-black text-dreamxec-navy leading-tight xs:leading-snug">
+                  India: <span style={{ color: '#FF7F00' }}>0.65%</span> GDP | China: <span style={{ color: '#dc2626' }}>2.65%</span> | S.Korea: <span style={{ color: '#0B9C2C' }}>5.32%</span> | USA: <span style={{ color: '#003366' }}>3.45%</span>. Only <span style={{ color: '#FF7F00' }}>{indiaStats.researchersPerMillion}/M</span> researchers vs <span style={{ color: '#0B9C2C' }}>{koreaStats.researchersPerMillion.toLocaleString()}/M</span> in S.Korea. We're closing this gap.
                 </p>
               </div>
             </div>
             <button
               onClick={() => setShowSrc(true)}
-              className="flex-shrink-0 text-[9px] font-bold text-dreamxec-navy/40 underline underline-offset-2 hover:text-dreamxec-navy transition-colors"
+              className="flex-shrink-0 text-[8px] xs:text-[9px] font-bold text-dreamxec-navy/40 underline underline-offset-1 hover:text-dreamxec-navy transition-colors whitespace-nowrap mt-2 xs:mt-0"
             >
-              Sources: OECD MSTI, WIPO 2024, NSF NCSES 2024 ↗
+              Sources ↗
             </button>
           </div>
 

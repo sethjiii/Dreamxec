@@ -46,26 +46,26 @@ export const HeroTitle = ({ user }) => {
     <div className="relative self-center flex flex-col w-full mt-[10%] mb-[11.8%] md:mb-[5.5%]">
 
       {/* ── TITLE BLOCK ── */}
-      <div className="text-center px-4">
+      <div className="text-center px-3 xs:px-4">
 
-        <h1 className="font-black leading-tight mb-4">
+        <h1 className="font-black leading-tight mb-3 xs:mb-4">
 
           {/* Line 1 — plain navy */}
-          <span className="block text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-dreamxec-navy uppercase tracking-tight mb-3 sm:mb-4">
+          <span className="block text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-dreamxec-navy uppercase tracking-tight mb-2 xs:mb-3 sm:mb-4">
             Igniting India's Next
           </span>
 
           {/* "Generation of" — highlighted stamp */}
-          <span className="block mb-3 sm:mb-4">
+          <span className="block mb-2 xs:mb-3 sm:mb-4">
             <span className="relative inline-block">
               {/* offset shadow */}
               <span
-                className="absolute inset-0 translate-x-[4px] translate-y-[4px] sm:translate-x-[6px] sm:translate-y-[6px]"
+                className="absolute inset-0 translate-x-[3px] translate-y-[3px] xs:translate-x-[4px] xs:translate-y-[4px] sm:translate-x-[6px] sm:translate-y-[6px]"
                 style={{ background: '#FF7F00' }}
                 aria-hidden
               />
               <span
-                className="relative z-10 inline-block px-3 sm:px-5 py-1 sm:py-1.5 text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-white font-black uppercase tracking-tight"
+                className="relative z-10 inline-block px-2 xs:px-3 sm:px-5 py-0.5 xs:py-1 sm:py-1.5 text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-white font-black uppercase tracking-tight"
                 style={{ background: '#003366', border: '3px solid #003366' }}
               >
                 Generation of
@@ -78,17 +78,17 @@ export const HeroTitle = ({ user }) => {
             <span className="relative inline-block">
               {/* big navy shadow */}
               <span
-                className="absolute inset-0 translate-x-[5px] translate-y-[5px] sm:translate-x-[8px] sm:translate-y-[8px]"
+                className="absolute inset-0 translate-x-[4px] translate-y-[4px] xs:translate-x-[5px] xs:translate-y-[5px] sm:translate-x-[8px] sm:translate-y-[8px]"
                 style={{ background: '#003366' }}
                 aria-hidden
               />
               <span
-                className="relative z-10 inline-block px-4 sm:px-6 md:px-8 py-1 sm:py-2 text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight"
+                className="relative z-10 inline-block px-3 xs:px-4 sm:px-6 md:px-8 py-0.5 xs:py-1 sm:py-2 text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight"
                 style={{
                   background: '#FAF9F6',
                   border: '3px solid #003366',
                   color: '#003366',
-                  minWidth: '12ch',
+                  minWidth: '11ch',
                 }}
               >
                 <TypingEffect />
@@ -98,9 +98,9 @@ export const HeroTitle = ({ user }) => {
         </h1>
 
         {/* Subheading */}
-        <div className="mt-8 sm:mt-10 flex justify-center">
+        <div className="mt-6 xs:mt-8 sm:mt-10 flex justify-center">
           <p
-            className="inline-block px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base md:text-lg lg:text-xl font-black text-dreamxec-navy uppercase tracking-wide"
+            className="inline-block px-3 xs:px-4 sm:px-6 py-1.5 xs:py-2 sm:py-2.5 text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl font-black text-dreamxec-navy uppercase tracking-wide"
             style={{ border: '2px dashed #003366', background: '#fff7ed' }}
           >
             Invest in the Minds That Will Define Our Tomorrow
@@ -109,7 +109,7 @@ export const HeroTitle = ({ user }) => {
       </div>
 
       {/* ── PILLS ── */}
-      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-5 mt-8 sm:mt-10 px-4">
+      <div className="flex flex-wrap justify-center gap-2 xs:gap-3 sm:gap-4 md:gap-5 mt-6 xs:mt-8 sm:mt-10 px-3 xs:px-4">
         {pills.map((pill, index) => (
           <button
             key={index}
@@ -121,9 +121,9 @@ export const HeroTitle = ({ user }) => {
               background: pill.bg,
             }}
           >
-            <span className="flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3">
-              <span className="text-base sm:text-lg leading-none">{pill.emoji}</span>
-              <span className="text-dreamxec-navy font-black text-xs sm:text-sm md:text-base uppercase tracking-widest whitespace-nowrap">
+            <span className="flex items-center gap-1.5 xs:gap-2 px-4 xs:px-5 sm:px-6 py-2 xs:py-2.5 sm:py-3">
+              <span className="text-base xs:text-base sm:text-lg leading-none">{pill.emoji}</span>
+              <span className="text-dreamxec-navy font-black text-xs xs:text-xs sm:text-sm md:text-base uppercase tracking-widest whitespace-nowrap">
                 {pill.text}
               </span>
             </span>

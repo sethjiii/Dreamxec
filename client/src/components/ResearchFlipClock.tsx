@@ -127,91 +127,123 @@ export const ResearchFlipClock = () => {
         @keyframes flipDown { 0%{transform:rotateX(0deg);opacity:1} 100%{transform:rotateX(-90deg);opacity:0} }
         @keyframes flipUp   { 0%{transform:rotateX(90deg);opacity:0} 100%{transform:rotateX(0deg);opacity:1} }
         @keyframes ping     { 75%,100%{transform:scale(2);opacity:0} }
+        
+        .flip-pill {
+          display: inline-flex;
+          align-items: stretch;
+          gap: 0;
+          border: 2px solid #003366;
+          box-shadow: 3px 3px 0 #FF7F00;
+          background: #fff;
+          overflow: hidden;
+          flex-wrap: nowrap;
+          max-width: 100%;
+          min-height: 50px;
+        }
+        
+        @media (max-width: 475px) {
+          .flip-pill {
+            min-height: 44px;
+            flex-wrap: wrap;
+          }
+        }
+        
+        .flip-label {
+          background: #003366;
+          padding: 0 8px;
+          align-self: stretch;
+          display: flex;
+          align-items: center;
+          min-width: fit-content;
+        }
+        
+        @media (min-width: 640px) {
+          .flip-label {
+            padding: 0 14px;
+          }
+        }
+        
+        .flip-label span {
+          font-family: 'Courier New', monospace;
+          font-size: clamp(8px, 1.5vw, 11px);
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          color: rgba(255, 255, 255, 0.85);
+          line-height: 1.3;
+          text-align: center;
+          white-space: pre-line;
+        }
+        
+        @media (min-width: 640px) {
+          .flip-label span {
+            letter-spacing: 0.14em;
+          }
+        }
       `}</style>
 
       {/* Full-width centering wrapper */}
-      <div style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '12px 16px 0' }}>
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '8px 8px 0 8px' }}>
 
         {/* The pill */}
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 0,
-          border: `2px solid #003366`,
-          boxShadow: '3px 3px 0 #FF7F00',
-          background: '#fff',
-          overflow: 'hidden',
-          flexWrap: 'wrap',
-        }}>
+        <div className="flip-pill">
 
           {/* "No. of Researchers per Million:" label */}
-          <div style={{
-            background: '#003366',
-            padding: '0 14px',
-            alignSelf: 'stretch',
-            display: 'flex',
-            alignItems: 'center',
-          }}>
-            <span style={{
-              fontFamily: "'Courier New', monospace",
-              fontSize: 11,
-              fontWeight: 900,
-              textTransform: 'uppercase',
-              letterSpacing: '0.14em',
-              color: 'rgba(255,255,255,0.85)',
-              lineHeight: 1.5,
-              textAlign: 'center',
-            }}>
-              No. of Researchers<br />per Million :
-            </span>
+          <div className="flip-label">
+            <span>{'Researchers\nper Million :'}</span>
           </div>
 
           {/* === INDIA (permanent) === */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 6,
-            padding: '7px 12px',
+            gap: 4,
+            padding: '6px 8px',
             borderRight: '1.5px solid #fecaca',
             background: 'rgba(220,38,38,0.04)',
+            minWidth: 'fit-content',
           }}>
-            <FlagImg code={INDIA.code} size={24} />
+            <FlagImg code={INDIA.code} size={16} />
             <span style={{
               fontFamily: 'sans-serif',
               fontWeight: 900,
-              fontSize: 11,
+              fontSize: 'clamp(8px, 1.5vw, 11px)',
               textTransform: 'uppercase',
-              letterSpacing: '0.12em',
+              letterSpacing: '0.08em',
               color: '#dc2626',
-              minWidth: 40,
+              minWidth: 'min-content',
             }}>
-              {INDIA.name}
+              IND
             </span>
           </div>
 
           {/* India flip number */}
           <div style={{
-            padding: '6px 12px',
-            fontSize: '2rem',
+            padding: '6px 8px',
+            fontSize: 'clamp(1.2rem, 3vw, 2rem)',
             fontWeight: 900,
             background: 'rgba(220,38,38,0.04)',
             borderRight: '1.5px solid #fecaca',
+            display: 'flex',
+            alignItems: 'center',
+            minWidth: 'fit-content',
           }}>
             <FlipNumber value={INDIA.value} isRed={true} />
           </div>
 
           {/* vs divider */}
           <div style={{
-            padding: '0 14px',
+            padding: '0 6px',
             fontFamily: "'Courier New', monospace",
             fontWeight: 900,
-            fontSize: 18,
+            fontSize: 'clamp(12px, 2vw, 18px)',
             color: '#374151',
-            letterSpacing: '0.12em',
+            letterSpacing: '0.08em',
             borderRight: '1.5px solid #e5e7eb',
             alignSelf: 'stretch',
             display: 'flex',
             alignItems: 'center',
+            minWidth: 'fit-content',
           }}>
             VS
           </div>
@@ -220,43 +252,47 @@ export const ResearchFlipClock = () => {
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 6,
-            padding: '7px 12px',
+            gap: 4,
+            padding: '6px 8px',
             borderRight: '1.5px solid #e5e7eb',
+            minWidth: 'fit-content',
           }}>
-            <FlagImg code={other.code} size={24} />
+            <FlagImg code={other.code} size={16} />
             <span style={{
               fontFamily: 'sans-serif',
               fontWeight: 900,
-              fontSize: 11,
+              fontSize: 'clamp(8px, 1.5vw, 11px)',
               textTransform: 'uppercase',
-              letterSpacing: '0.12em',
+              letterSpacing: '0.08em',
               color: '#003366',
-              minWidth: 46,
+              minWidth: 'min-content',
             }}>
-              {other.name}
+              {other.code.toUpperCase()}
             </span>
           </div>
 
           {/* Other country flip number */}
           <div style={{
-            padding: '6px 12px',
-            fontSize: '2rem',
+            padding: '6px 8px',
+            fontSize: 'clamp(1.2rem, 3vw, 2rem)',
             fontWeight: 900,
             borderRight: '1.5px solid #e5e7eb',
+            display: 'flex',
+            alignItems: 'center',
+            minWidth: 'fit-content',
           }}>
             <FlipNumber value={other.value} isRed={false} />
           </div>
 
           {/* Pulse dot */}
-          <div style={{ padding: '0 12px', display: 'flex', alignItems: 'center', borderRight: '1.5px solid #e5e7eb' }}>
-            <span style={{ position: 'relative', display: 'inline-flex', width: 8, height: 8 }}>
+          <div style={{ padding: '0 6px', display: 'flex', alignItems: 'center', borderRight: '1.5px solid #e5e7eb' }}>
+            <span style={{ position: 'relative', display: 'inline-flex', width: 6, height: 6 }}>
               <span style={{
                 position: 'absolute', inset: 0, borderRadius: '50%',
                 background: '#4ade80', opacity: 0.65,
                 animation: 'ping 1.2s cubic-bezier(0,0,.2,1) infinite',
               }} />
-              <span style={{ borderRadius: '50%', width: 8, height: 8, background: '#4ade80' }} />
+              <span style={{ borderRadius: '50%', width: '100%', height: '100%', background: '#4ade80' }} />
             </span>
           </div>
 
@@ -264,18 +300,19 @@ export const ResearchFlipClock = () => {
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 3,
-            padding: '0 10px',
+            gap: 2,
+            padding: '0 6px',
             alignSelf: 'stretch',
             background: '#f9fafb',
+            minWidth: 'fit-content',
           }}>
             {COUNTRIES.map((c, i) => (
               <button
                 key={i}
                 onClick={() => setActiveIdx(i)}
                 style={{
-                  width: i === activeIdx ? 16 : 5,
-                  height: 5,
+                  width: i === activeIdx ? 12 : 4,
+                  height: 4,
                   border: 'none',
                   borderRadius: 0,
                   cursor: 'pointer',
@@ -292,22 +329,24 @@ export const ResearchFlipClock = () => {
       </div>
 
       {/* Data source attribution */}
-      <div style={{ width: '100%', display: 'flex', justifyContent: 'center', paddingTop: 4 }}>
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'center', paddingTop: 4, paddingX: 8 }}>
         <a
           href="https://data.worldbank.org/indicator/SP.POP.SCIE.RD.P6"
           target="_blank"
           rel="noopener noreferrer"
           style={{
             fontFamily: "'Courier New', monospace",
-            fontSize: 9,
+            fontSize: 'clamp(7px, 1vw, 9px)',
             color: '#9ca3af',
             textDecoration: 'none',
             letterSpacing: '0.08em',
+            textAlign: 'center',
+            padding: '0 8px',
           }}
           onMouseEnter={e => (e.currentTarget.style.color = '#003366')}
           onMouseLeave={e => (e.currentTarget.style.color = '#9ca3af')}
         >
-          Source: World Bank — Researchers in R&amp;D (per million people)
+          Source: World Bank — Researchers in R&amp;D
         </a>
       </div>
     </>

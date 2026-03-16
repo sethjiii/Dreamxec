@@ -3,6 +3,7 @@ import { Header } from '../../Header';
 import { Footer } from '../../Footer';
 import { Linkedin, Twitter, Instagram, YoutubeIcon } from 'lucide-react';
 import YouTube from "react-youtube";
+import SEO from "@/components/SEO";
 
 /* ─────────────────────────────────────────
    SCROLL REVEAL HOOK
@@ -44,10 +45,10 @@ const contactCategories = [
 // ];
 
 const socials = [
-  {  platform: "Instagram", handle: "@dreamxec", url: "https://www.instagram.com/dreamxec", color: "#FF7F00", LucideIcon: Instagram },
-  {  platform: "LinkedIn", handle: "linkedin.com/company/dreamxec", url: "https://www.linkedin.com/company/dreamxec", color: "#003262", LucideIcon: Linkedin },
-  {  platform: "Twitter", handle: "@DreamXecIndia", url: "", color: "#0B9C2C", LucideIcon: Twitter },
-  {  platform: "YouTube", handle: "@dreamxecindia", url: "https://www.youtube.com/@dreamxecindia", color: "#FF0000", LucideIcon: YoutubeIcon },
+  { platform: "Instagram", handle: "@dreamxec", url: "https://www.instagram.com/dreamxec", color: "#FF7F00", LucideIcon: Instagram },
+  { platform: "LinkedIn", handle: "linkedin.com/company/dreamxec", url: "https://www.linkedin.com/company/dreamxec", color: "#003262", LucideIcon: Linkedin },
+  { platform: "Twitter", handle: "@DreamXecIndia", url: "", color: "#0B9C2C", LucideIcon: Twitter },
+  { platform: "YouTube", handle: "@dreamxecindia", url: "https://www.youtube.com/@dreamxecindia", color: "#FF0000", LucideIcon: YoutubeIcon },
 ];
 
 /* ─────────────────────────────────────────
@@ -211,9 +212,11 @@ const ContactUs = () => {
     <>
       <style>{CSS}</style>
 
-      <title>Contact Us | DreamXec</title>
-      <meta name="description" content="Have questions? Want to partner with DreamXec? Need support with your project? We're here to help." />
-
+      <SEO
+        title="Contact DreamXec"
+        description="Get in touch with the DreamXec team for partnerships, support, or inquiries related to student innovation campaigns."
+        url="https://dreamxec.com/contact"
+      />
       <Header />
 
       <main className="nb-page">
@@ -378,7 +381,7 @@ const ContactUs = () => {
               {socials.map(({ platform, handle, url, color, LucideIcon }) => (
                 <a key={platform} href={url} target="_blank" rel="noopener noreferrer" className="social-card" style={{ boxShadow: `6px 6px 0 ${color}`, borderColor: "#fff", position: "relative" }}>
                   <div style={{ background: color, position: "absolute", top: 0, left: 0, right: 0, height: 5 }} />
-                  
+
                   <div>
                     <div className="sc-platform">{platform}</div>
                     <div className="sc-handle">{handle}</div>

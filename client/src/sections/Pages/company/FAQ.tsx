@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { Header } from '../../Header';
 import { Footer } from '../../Footer';
+import SEO from "@/components/SEO";
 
 /* ─────────────────────────────────────────
    SCROLL REVEAL HOOK
@@ -82,9 +83,9 @@ const corporateFAQs = [
 ];
 
 const faqSections = [
-  { id: "students",   label: "For Students",            icon: "🎓", accent: "#FF7F00", faqs: studentFAQs   },
-  { id: "donors",     label: "For Supporters & Donors", icon: "💰", accent: "#003262", faqs: donorFAQs     },
-  { id: "corporate",  label: "For Corporate Partners",  icon: "🏢", accent: "#0B9C2C", faqs: corporateFAQs },
+  { id: "students", label: "For Students", icon: "🎓", accent: "#FF7F00", faqs: studentFAQs },
+  { id: "donors", label: "For Supporters & Donors", icon: "💰", accent: "#003262", faqs: donorFAQs },
+  { id: "corporate", label: "For Corporate Partners", icon: "🏢", accent: "#0B9C2C", faqs: corporateFAQs },
 ];
 
 /* ─────────────────────────────────────────
@@ -92,19 +93,19 @@ const faqSections = [
 ───────────────────────────────────────── */
 function SectionLabel({ children, accent = "#FF7F00", dark = false }) {
   return (
-    <div style={{ display:"flex", alignItems:"center", gap:0, marginBottom:"1rem" }}>
-      <div style={{ width:12, height:12, flexShrink:0, background:accent }} />
+    <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: "1rem" }}>
+      <div style={{ width: 12, height: 12, flexShrink: 0, background: accent }} />
       <div style={{
-        padding:"0.3rem 0.9rem", fontSize:"0.7rem", fontWeight:900,
-        textTransform:"uppercase", letterSpacing:"0.25em",
+        padding: "0.3rem 0.9rem", fontSize: "0.7rem", fontWeight: 900,
+        textTransform: "uppercase", letterSpacing: "0.25em",
         background: dark ? "#FF7F00" : "#003262",
-        color:      dark ? "#003262" : "#fff",
-        border:`2px solid ${dark ? "#FF7F00" : "#003262"}`,
-        fontFamily:"inherit",
+        color: dark ? "#003262" : "#fff",
+        border: `2px solid ${dark ? "#FF7F00" : "#003262"}`,
+        fontFamily: "inherit",
       }}>
         {children}
       </div>
-      <div style={{ width:12, height:12, flexShrink:0, background:"#0B9C2C" }} />
+      <div style={{ width: 12, height: 12, flexShrink: 0, background: "#0B9C2C" }} />
     </div>
   );
 }
@@ -346,9 +347,9 @@ const CSS = `
    PAGE
 ───────────────────────────────────────── */
 const FAQ = () => {
-  const heroReveal   = useScrollReveal();
-  const faqReveal    = useScrollReveal();
-  const ctaReveal    = useScrollReveal();
+  const heroReveal = useScrollReveal();
+  const faqReveal = useScrollReveal();
+  const ctaReveal = useScrollReveal();
 
   const [activeTab, setActiveTab] = useState("all");
 
@@ -360,8 +361,11 @@ const FAQ = () => {
     <>
       <style>{CSS}</style>
 
-      <title>FAQ | DreamXec</title>
-      <meta name="description" content="Frequently asked questions from students, supporters, and corporate partners." />
+      <SEO
+        title="Frequently Asked Questions | DreamXec"
+        description="Find answers to common questions about launching projects, funding campaigns, and supporting student innovation."
+        url="https://dreamxec.com/faq"
+      />
 
       <Header />
 
@@ -371,20 +375,20 @@ const FAQ = () => {
             §1  HERO
         ══════════════════════════════════════ */}
         <section className="nb-hero">
-          <div style={{ position:"absolute",top:0,right:0,width:320,height:320,background:"#FF7F00",transform:"rotate(-12deg)",opacity:0.04,pointerEvents:"none" }} />
-          <div style={{ position:"absolute",bottom:0,left:0,width:240,height:240,background:"#0B9C2C",transform:"rotate(6deg)",opacity:0.04,pointerEvents:"none" }} />
+          <div style={{ position: "absolute", top: 0, right: 0, width: 320, height: 320, background: "#FF7F00", transform: "rotate(-12deg)", opacity: 0.04, pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: 0, left: 0, width: 240, height: 240, background: "#0B9C2C", transform: "rotate(6deg)", opacity: 0.04, pointerEvents: "none" }} />
 
           <div ref={heroReveal.ref} className={`nb-hero-inner sr-fade ${heroReveal.isVisible ? "v" : ""}`}>
             <SectionLabel>❓ FAQ</SectionLabel>
 
-            <div style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:"0.75rem",marginBottom:"2rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem", marginBottom: "2rem" }}>
               <div className="stamp-block">
-                <div className="stamp-shadow" style={{ background:"#0B9C2C" }} />
-                <h1 className="stamp-h1" style={{ background:"#FF7F00" }}>Frequently Asked</h1>
+                <div className="stamp-shadow" style={{ background: "#0B9C2C" }} />
+                <h1 className="stamp-h1" style={{ background: "#FF7F00" }}>Frequently Asked</h1>
               </div>
               <div className="stamp-block">
-                <div className="stamp-shadow" style={{ background:"#FF7F00" }} />
-                <h1 className="stamp-h1" style={{ background:"#003262" }}>Questions</h1>
+                <div className="stamp-shadow" style={{ background: "#FF7F00" }} />
+                <h1 className="stamp-h1" style={{ background: "#003262" }}>Questions</h1>
               </div>
             </div>
 
@@ -394,12 +398,12 @@ const FAQ = () => {
 
             <div className="pill-row">
               {[
-                { label:"5 Student FAQs",    bg:"#FF7F00" },
-                { label:"4 Donor FAQs",      bg:"#003262" },
-                { label:"3 Corporate FAQs",  bg:"#0B9C2C" },
-                { label:"24hr Response",     bg:"#FF7F00" },
+                { label: "5 Student FAQs", bg: "#FF7F00" },
+                { label: "4 Donor FAQs", bg: "#003262" },
+                { label: "3 Corporate FAQs", bg: "#0B9C2C" },
+                { label: "24hr Response", bg: "#FF7F00" },
               ].map(({ label, bg }) => (
-                <div key={label} className="pill" style={{ background:bg }}>{label}</div>
+                <div key={label} className="pill" style={{ background: bg }}>{label}</div>
               ))}
             </div>
           </div>
@@ -409,9 +413,9 @@ const FAQ = () => {
         <div className="nb-stats">
           <div className="nb-stats-inner">
             {[
-              { icon:"🎓", num:"5",   label:"Student FAQs"    },
-              { icon:"💰", num:"4",   label:"Donor FAQs"      },
-              { icon:"🏢", num:"3",   label:"Corporate FAQs"  },
+              { icon: "🎓", num: "5", label: "Student FAQs" },
+              { icon: "💰", num: "4", label: "Donor FAQs" },
+              { icon: "🏢", num: "3", label: "Corporate FAQs" },
             ].map(({ icon, num, label }) => (
               <div className="nb-stat" key={label}>
                 <span className="nb-stat-icon">{icon}</span>
@@ -428,7 +432,7 @@ const FAQ = () => {
         <div className="nb-section">
 
           <div ref={faqReveal.ref} className={`nb-section-head sr-fade ${faqReveal.isVisible ? "v" : ""}`}
-            style={{ alignItems:"center", textAlign:"center", marginBottom:"2.5rem" }}>
+            style={{ alignItems: "center", textAlign: "center", marginBottom: "2.5rem" }}>
             <SectionLabel accent="#FF7F00">📋 All Questions</SectionLabel>
             <h2 className="nb-title">
               Find Your <span className="hl-orange">Answer</span>
@@ -438,17 +442,17 @@ const FAQ = () => {
           {/* Filter tabs */}
           <div className="tabs-row">
             {[
-              { id:"all",       label:"All Questions", accent:"#003262" },
-              { id:"students",  label:"🎓 Students",   accent:"#FF7F00" },
-              { id:"donors",    label:"💰 Donors",     accent:"#003262" },
-              { id:"corporate", label:"🏢 Corporate",  accent:"#0B9C2C" },
+              { id: "all", label: "All Questions", accent: "#003262" },
+              { id: "students", label: "🎓 Students", accent: "#FF7F00" },
+              { id: "donors", label: "💰 Donors", accent: "#003262" },
+              { id: "corporate", label: "🏢 Corporate", accent: "#0B9C2C" },
             ].map(({ id, label, accent }) => (
               <button
                 key={id}
                 className={`tab-btn ${activeTab === id ? "active" : ""}`}
                 style={activeTab === id
-                  ? { background:accent, borderColor:accent, boxShadow:`4px 4px 0 ${accent === "#FF7F00" ? "#003262" : "#FF7F00"}` }
-                  : { boxShadow:"3px 3px 0 #003262" }
+                  ? { background: accent, borderColor: accent, boxShadow: `4px 4px 0 ${accent === "#FF7F00" ? "#003262" : "#FF7F00"}` }
+                  : { boxShadow: "3px 3px 0 #003262" }
                 }
                 onClick={() => setActiveTab(id)}
               >
@@ -462,10 +466,10 @@ const FAQ = () => {
             {visibleSections.map(({ id, label, icon, accent, faqs }) => (
               <div key={id} className="faq-block">
                 {/* Section header bar */}
-                <div className="faq-block-header" style={{ background:accent, borderColor:"#003262", boxShadow:`5px 5px 0 ${accent === "#FF7F00" ? "#003262" : "#FF7F00"}` }}>
-                  <div className="faq-block-icon" style={{ background:"rgba(255,255,255,0.2)", borderColor:"rgba(255,255,255,0.4)" }}>{icon}</div>
-                  <div className="faq-block-title" style={{ color:"#fff" }}>{label}</div>
-                  <div className="faq-block-count" style={{ background:"rgba(0,0,0,0.2)", borderColor:"rgba(255,255,255,0.4)" }}>
+                <div className="faq-block-header" style={{ background: accent, borderColor: "#003262", boxShadow: `5px 5px 0 ${accent === "#FF7F00" ? "#003262" : "#FF7F00"}` }}>
+                  <div className="faq-block-icon" style={{ background: "rgba(255,255,255,0.2)", borderColor: "rgba(255,255,255,0.4)" }}>{icon}</div>
+                  <div className="faq-block-title" style={{ color: "#fff" }}>{label}</div>
+                  <div className="faq-block-count" style={{ background: "rgba(0,0,0,0.2)", borderColor: "rgba(255,255,255,0.4)" }}>
                     {faqs.length} {faqs.length === 1 ? "Question" : "Questions"}
                   </div>
                 </div>
@@ -485,11 +489,11 @@ const FAQ = () => {
             §4  CTA
         ══════════════════════════════════════ */}
         <section className="nb-cta">
-          <div style={{ position:"absolute",top:"-2rem",right:"-2rem",width:128,height:128,background:"#FF7F00",border:"4px solid #003262",transform:"rotate(12deg)",opacity:0.1,pointerEvents:"none" }} />
-          <div style={{ position:"absolute",bottom:"-2rem",left:"-2rem",width:96,height:96,background:"#0B9C2C",transform:"rotate(-12deg)",opacity:0.1,pointerEvents:"none" }} />
+          <div style={{ position: "absolute", top: "-2rem", right: "-2rem", width: 128, height: 128, background: "#FF7F00", border: "4px solid #003262", transform: "rotate(12deg)", opacity: 0.1, pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: "-2rem", left: "-2rem", width: 96, height: 96, background: "#0B9C2C", transform: "rotate(-12deg)", opacity: 0.1, pointerEvents: "none" }} />
 
           <div ref={ctaReveal.ref} className={`nb-cta-inner sr-fade ${ctaReveal.isVisible ? "v" : ""}`}>
-            <div style={{ display:"flex",justifyContent:"center",marginBottom:"1rem" }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
               <SectionLabel>💬 Still Have Questions?</SectionLabel>
             </div>
             <h2 className="nb-cta-title">
@@ -499,9 +503,9 @@ const FAQ = () => {
               Our team reads every email and responds within 24 hours. Whether you're a student, donor, mentor, or corporate partner — we're here to help you navigate DreamXec.
             </p>
             <div className="tricolor">
-              <div style={{ background:"#FF7F00" }} />
-              <div style={{ background:"#fff",border:"1px solid #eee" }} />
-              <div style={{ background:"#0B9C2C" }} />
+              <div style={{ background: "#FF7F00" }} />
+              <div style={{ background: "#fff", border: "1px solid #eee" }} />
+              <div style={{ background: "#0B9C2C" }} />
             </div>
             <div className="nb-cta-btns">
               <a href="mailto:support@dreamxec.com" className="nb-btn-1">✉️ Email Support →</a>

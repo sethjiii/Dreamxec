@@ -92,7 +92,8 @@ export const resetPassword = async (token: string, password: string): Promise<Ap
 
 // Google OAuth - Initiate authentication
 export const initiateGoogleAuth = (role: 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'): void => { // Added STUDENT_PRESIDENT
-  const API_URL = import.meta.env.VITE_API_URL;
+  const envUrl = import.meta.env.VITE_API_URL;
+  const API_URL = (envUrl && envUrl !== 'undefined') ? envUrl : 'http://localhost:5000/api';
 
   const authUrl = `${API_URL}/auth/google?role=${role}`;
   console.log('🔗 Redirecting to Google OAuth:', authUrl);
@@ -117,7 +118,9 @@ export const handleGoogleCallback = async (): Promise<ApiResponse<AuthResponse>>
 
 // LinkedIn OAuth - Initiate authentication
 export const initiateLinkedInAuth = (role: 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'): void => { // Added STUDENT_PRESIDENT
-  const API_URL = import.meta.env.VITE_API_URL;
+  const envUrl = import.meta.env.VITE_API_URL;
+  const API_URL = (envUrl && envUrl !== 'undefined') ? envUrl : 'http://localhost:5000/api';
+
   const authUrl = `${API_URL}/auth/linkedin?role=${role}`;
   console.log('🔗 Redirecting to LinkedIn OAuth:', authUrl);
 

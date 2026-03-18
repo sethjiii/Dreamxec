@@ -1,5 +1,6 @@
 const prisma = require("../../config/prisma");
 const AppError = require("../../utils/AppError");
+const { Prisma } = require("@prisma/client");
 
 /**
  * Create a new mentor application
@@ -11,19 +12,7 @@ exports.createMentorApplication = async (mentorData) => {
   console.log("🔧 [Service] Input data keys:", Object.keys(mentorData));
 
   try {
-    // Check if email already exists
-    const existingMentor = await prisma.mentorApplication.findUnique({
-      where: { email: mentorData.email },
-    });
-
-    if (existingMentor) {
-      console.warn("⚠️ [Service] Email already registered:", mentorData.email);
-      throw new AppError("An application with this email already exists", 409);
-    }
-
-    console.log("🔧 [Service] Email check passed, creating application...");
-
-    // Create mentor application
+    // ✅ Directly create (DB handles uniqueness)
     const mentorApplication = await prisma.mentorApplication.create({
       data: {
         ...mentorData,
@@ -35,24 +24,37 @@ exports.createMentorApplication = async (mentorData) => {
       "✅ [Service] Mentor application created successfully:",
       mentorApplication.id,
     );
+
     return mentorApplication;
   } catch (error) {
-    if (error instanceof AppError) {
-      console.error("❌ [Service] AppError:", error.message);
-      throw error;
-    }
     console.error(
       "❌ [Service] Mentor creation error:",
       error?.message || error,
     );
+
+    // ✅ Handle duplicate email (unique constraint)
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new AppError(
+        "An application with this email already exists",
+        409
+      );
+    }
+
+    // ✅ Preserve AppError if thrown elsewhere
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    // fallback
     throw new AppError("Failed to create mentor application", 500);
   }
 };
 
 /**
  * Get a mentor application by ID
- * @param {String} id - Mentor application ID
- * @returns {Promise<Object>} - Mentor application document
  */
 exports.getMentorApplicationById = async (id) => {
   const mentorApplication = await prisma.mentorApplication.findUnique({
@@ -68,8 +70,6 @@ exports.getMentorApplicationById = async (id) => {
 
 /**
  * Get all mentor applications (admin only)
- * @param {Object} filters - Filters for querying
- * @returns {Promise<Array>} - Array of mentor applications
  */
 exports.getAllMentorApplications = async (filters = {}) => {
   const {
@@ -85,19 +85,16 @@ exports.getAllMentorApplications = async (filters = {}) => {
     where.status = status;
   }
 
-  const mentorApplications = await prisma.mentorApplication.findMany({
+  return await prisma.mentorApplication.findMany({
     where,
     skip: parseInt(skip),
     take: parseInt(take),
     orderBy: { [sortBy]: sortOrder },
   });
-
-  return mentorApplications;
 };
 
 /**
- * Get mentor applications count by status (admin dashboard)
- * @returns {Promise<Object>} - Count by status
+ * Get mentor applications stats
  */
 exports.getMentorApplicationsStats = async () => {
   const stats = await prisma.mentorApplication.groupBy({
@@ -114,11 +111,7 @@ exports.getMentorApplicationsStats = async () => {
 };
 
 /**
- * Update mentor application status (admin only)
- * @param {String} id - Mentor application ID
- * @param {String} status - New status (PENDING, REVIEWED, APPROVED, REJECTED)
- * @param {String} adminNotes - Optional admin notes
- * @returns {Promise<Object>} - Updated mentor application
+ * Update mentor application status
  */
 exports.updateMentorApplicationStatus = async (
   id,
@@ -134,7 +127,7 @@ exports.updateMentorApplicationStatus = async (
     );
   }
 
-  const mentorApplication = await prisma.mentorApplication.update({
+  return await prisma.mentorApplication.update({
     where: { id },
     data: {
       status,
@@ -142,51 +135,39 @@ exports.updateMentorApplicationStatus = async (
       updatedAt: new Date(),
     },
   });
-
-  return mentorApplication;
 };
 
 /**
- * Score mentor application (admin only)
- * @param {String} id - Mentor application ID
- * @param {Number} score - Score out of 100
- * @returns {Promise<Object>} - Updated mentor application
+ * Score mentor application
  */
 exports.scoreMentorApplication = async (id, score) => {
   if (score < 0 || score > 100) {
     throw new AppError("Score must be between 0 and 100", 400);
   }
 
-  const mentorApplication = await prisma.mentorApplication.update({
+  return await prisma.mentorApplication.update({
     where: { id },
     data: {
       score,
       updatedAt: new Date(),
     },
   });
-
-  return mentorApplication;
 };
 
 /**
- * Get high-quality mentors (score >= 80 and status APPROVED)
- * @returns {Promise<Array>} - Array of high-quality mentors
+ * Get high-quality mentors
  */
 exports.getHighQualityMentors = async () => {
-  const mentors = await prisma.mentorApplication.findMany({
+  return await prisma.mentorApplication.findMany({
     where: {
       AND: [{ status: "APPROVED" }, { score: { gte: 80 } }],
     },
     orderBy: { score: "desc" },
   });
-
-  return mentors;
 };
 
 /**
- * Delete mentor application (admin only)
- * @param {String} id - Mentor application ID
- * @returns {Promise<void>}
+ * Delete mentor application
  */
 exports.deleteMentorApplication = async (id) => {
   await prisma.mentorApplication.delete({

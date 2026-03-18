@@ -1,5 +1,8 @@
 import axios, { AxiosError } from "axios";
 
+/**
+ * Axios instance
+ */
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
@@ -7,8 +10,21 @@ const api = axios.create({
   },
 });
 
+// ✅ Attach token automatically to every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token"); // adjust if needed
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+/**
+ * Mentor Application Data Interface
+ */
 export interface MentorApplicationData {
-  // Basic Information
   name: string;
   email: string;
   linkedin?: string;
@@ -17,85 +33,66 @@ export interface MentorApplicationData {
   country: string;
   city?: string;
   yearsOfExperience: number;
-
-  // Area of Expertise
   expertiseAreas: string[];
-
-  // Credibility Check
   achievement: string;
   mentoringExperience: "Yes" | "No";
   mentoringDescription?: string;
   projectsOrResearch?: string;
-
-  // Mentorship Intent
   mentorshipIntent: string;
-
-  // Scenario Question
   scenarioResponse: string;
-
-  // Commitment
   monthlyCommitment: "2-3 hours" | "4-6 hours" | "6-10 hours" | "10+ hours";
   mentorshipFormat: string[];
-
-  // Student Impact
   studentPreference: string[];
-
-  // Proof of Work
   portfolioLinks?: string;
-
-  // Values Alignment
   innovationImpactView: string;
-
-  // Final Filter Question
   studentMistakeObservation: string;
-
-  // Elite Filter (Optional)
   thirtyDayBuildPlan?: string;
-
-  // Public Feature
   publicMentorFeature?: boolean;
-
-  // Network Expansion
   mentorReferral?: string;
 }
 
 /**
- * Submit a mentor application
+ * Submit Mentor Application (PUBLIC)
  */
-export const submitMentorApplication = async (data: MentorApplicationData) => {
+export const submitMentorApplication = async (
+  data: MentorApplicationData
+) => {
   try {
     const response = await api.post("/mentor", data);
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError<{ message: string }>;
-      if (axiosError.response?.data) {
-        throw new Error(
-          axiosError.response.data.message ||
-            "Failed to submit mentor application",
-        );
-      }
+
+      throw new Error(
+        axiosError.response?.data?.message ||
+          "Failed to submit mentor application"
+      );
     }
+
     throw new Error("Network error or server unavailable");
   }
 };
 
 /**
- * Get mentor application status (if user has auth token)
+ * Get Mentor Application Status (ADMIN ONLY)
  */
-export const getMentorApplicationStatus = async (applicationId: string) => {
+export const getMentorApplicationStatus = async (
+  applicationId: string
+) => {
   try {
     const response = await api.get(`/mentor/${applicationId}`);
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError<{ message: string }>;
-      if (axiosError.response?.data) {
-        throw new Error(
-          axiosError.response.data.message || "Failed to fetch application",
-        );
-      }
+
+      throw new Error(
+        axiosError.response?.data?.message ||
+          "Failed to fetch application"
+      );
     }
+
     throw new Error("Network error or server unavailable");
   }
 };

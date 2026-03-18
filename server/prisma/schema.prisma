@@ -765,3 +765,70 @@ model AdminNote {
   targetDonor   Donor?  @relation(fields: [targetDonorId], references: [id])
   targetDonorId String? @db.ObjectId
 }
+
+// ══════════════════════════════════════════════════════
+// MENTOR APPLICATION MODEL
+// ══════════════════════════════════════════════════════
+model MentorApplication {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // ── 1. BASIC INFORMATION ──
+  name String
+  email String @unique
+  linkedin String?
+  role String
+  organization String?
+  country String
+  city String?
+  yearsOfExperience Int
+
+  // ── 2. AREA OF EXPERTISE ──
+  expertiseAreas String[] // ["AI/ML", "Blockchain", "Software Engineering", etc.]
+
+  // ── 3. CREDIBILITY CHECK ──
+  achievement String // Short paragraph on strongest achievement
+  mentoringExperience String? // Yes/No response
+  mentoringDescription String? // Description if yes
+  projectsOrResearch String? // Projects/companies/research they've worked on
+
+  // ── 4. MENTORSHIP INTENT ──
+  mentorshipIntent String // Why do they want to mentor at DreamXec
+
+  // ── 5. SCENARIO QUESTION ──
+  scenarioResponse String // How would you guide a student with no technical skills
+
+  // ── 6. COMMITMENT ──
+  monthlyCommitment String // "2-3 hours", "4-6 hours", "6-10 hours", "10+ hours"
+  mentorshipFormat String[] // ["1:1 Mentorship", "Group Mentorship", "Project Guidance", etc.]
+
+  // ── 7. STUDENT IMPACT ──
+  studentPreference String[] // ["Beginners", "Intermediate builders", "Startup founders", "Researchers"]
+
+  // ── 8. PROOF OF WORK ──
+  portfolioLinks String? // Portfolio / Github / Publications / Website
+
+  // ── 9. VALUES ALIGNMENT ──
+  innovationImpactView String // What "innovation for impact" means to them
+
+  // ── 10. FINAL FILTER QUESTION ──
+  studentMistakeObservation String // One mistake students make when building
+
+  // ── ELITE FILTER QUESTION ──
+  thirtyDayBuildPlan String? // What would you make them build in 30 days (optional)
+
+  // ── PUBLIC FEATURE ──
+  publicMentorFeature Boolean @default(false) // Willing to be featured publicly
+
+  // ── NETWORK EXPANSION ──
+  mentorReferral String? // One person they recommend as a mentor
+
+  // ── METADATA ──
+  status String @default("PENDING") // PENDING, REVIEWED, APPROVED, REJECTED
+  score Float? // Internal scoring for quality assessment
+  adminNotes String? // Admin's review notes
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}

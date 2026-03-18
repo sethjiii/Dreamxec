@@ -3,6 +3,7 @@ import { Header } from '../../Header';
 import { Footer } from '../../Footer';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Keyboard, A11y, Autoplay } from 'swiper/modules';
+import { MentorshipLeadForm } from '../../../components/MentorshipLeadForm';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -991,8 +992,31 @@ const BecomeMentor: FC = () => {
           </div>
         </div>
 
-        {/* ══════════════ §7 CTA ══════════════ */}
-        <section className="nb-cta">
+        {/* ══════════════════════════════════════
+            §7  MENTORSHIP LEAD FORM
+        ══════════════════════════════════════ */}
+        <section style={{ background: '#fffbf5', borderTop: '4px solid #003262', padding: '5rem 0' }}>
+          <div className="nb-section">
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+              <SectionLabel>📝 Application Form</SectionLabel>
+            </div>
+            <h2 className="nb-title" style={{ marginBottom: '1rem', textAlign: 'center' }}>
+              Join Our <span className="hl-orange">Mentor Network</span>
+            </h2>
+            <p style={{ textAlign: 'center', fontSize: 'clamp(0.95rem, 2vw, 1.05rem)', fontWeight: 600, color: 'rgba(0,50,98,.65)', maxWidth: 600, margin: '0 auto 3rem', lineHeight: 1.8 }}>
+              Fill out the form below to apply as a mentor. Our team reviews applications within 5–7 business days.
+            </p>
+            
+            <MentorshipLeadForm />
+          </div>
+        </section>
+
+        
+
+        {/* ══════════════════════════════════════
+            §8  CTA
+        ══════════════════════════════════════ */}
+        {/* <section className="nb-cta">
           <div style={{ position:"absolute",top:"-2rem",right:"-2rem",width:128,height:128,background:"#FF7F00",border:"4px solid #003262",transform:"rotate(12deg)",opacity:0.1,pointerEvents:"none" }} />
           <div style={{ position:"absolute",bottom:"-2rem",left:"-2rem",width:96,height:96,background:"#0B9C2C",transform:"rotate(-12deg)",opacity:0.1,pointerEvents:"none" }} />
 
@@ -1014,13 +1038,11 @@ const BecomeMentor: FC = () => {
               <div style={{ background:"#0B9C2C" }} />
             </div>
             <div className="nb-cta-btns">
-              <button className="nb-btn-1" onClick={() => setShowModal(true)}>
-                🎓 Become a Mentor →
-              </button>
+           
               <a href="/campaigns" className="nb-btn-2">Browse Student Projects</a>
             </div>
           </div>
-        </section>
+        </section> */}
 
       </main>
 

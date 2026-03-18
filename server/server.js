@@ -1,20 +1,20 @@
-const dotenv = require('dotenv');
+const dotenv = require("dotenv");
 require("./instrument");
 const Sentry = require("@sentry/node");
-const express = require('express');
-const cors = require('cors');
-const passport = require('passport');
-const session = require('express-session');
-const AppError = require('./src/utils/AppError');
-const globalErrorHandler = require('./src/middleware/error.middleware');
-const RedisStore = require('connect-redis').default;
-const redis = require('./src/services/redis.service');
+const express = require("express");
+const cors = require("cors");
+const passport = require("passport");
+const session = require("express-session");
+const AppError = require("./src/utils/AppError");
+const globalErrorHandler = require("./src/middleware/error.middleware");
+const RedisStore = require("connect-redis").default;
+const redis = require("./src/services/redis.service");
 const cleanupOtpRedisKeys = require("./src/utils/redisOTPCleanup");
 const morgan = require("morgan");
 const requestId = require("./src/middleware/requestId.middleware");
-const compression = require('compression');
+const compression = require("compression");
 
-const prisma = require("./src/config/prisma")
+const prisma = require("./src/config/prisma");
 
 // Load env
 dotenv.config();
@@ -25,37 +25,32 @@ console.log("CLIENT_URL =", CLIENT_URL);
 // --------------------------------------------
 // IMPORT ROUTES
 // --------------------------------------------
-const authRoutes = require('./src/api/auth/auth.routes');
-const userProjectRoutes = require('./src/api/user-projects/user-project.routes');
-const donorProjectRoutes = require('./src/api/donor-projects/donor-project.routes');
-const userRoutes = require('./src/api/users/user.routes');
-const donationRoutes = require('./src/api/donations/donation.routes');
-const adminRoutes = require('./src/api/admin/admin.routes');
-const applicationRoutes = require('./src/api/applications/application.routes');
+const authRoutes = require("./src/api/auth/auth.routes");
+const userProjectRoutes = require("./src/api/user-projects/user-project.routes");
+const donorProjectRoutes = require("./src/api/donor-projects/donor-project.routes");
+const userRoutes = require("./src/api/users/user.routes");
+const donationRoutes = require("./src/api/donations/donation.routes");
+const adminRoutes = require("./src/api/admin/admin.routes");
+const applicationRoutes = require("./src/api/applications/application.routes");
 const clubVerificationRoutes = require("./src/api/club-verification/clubVerification.routes");
-const clubReferralRoutes = require('./src/api/club-referral/clubReferral.routes');
-const adminClubReferralRoutes = require('./src/api/admin-club/adminClubReferral.routes');
-const adminClubVerificationRoutes = require('./src/api/admin-club/adminClubVerification.routes');
-const newsletterRoutes = require('./src/api/newsletter/newsletter.routes');
-const wishlistRoutes = require('./src/api/wishlist/wishlist.routes');
-const uploadRoutes = require('./src/api/upload/upload.routes');
+const clubReferralRoutes = require("./src/api/club-referral/clubReferral.routes");
+const adminClubReferralRoutes = require("./src/api/admin-club/adminClubReferral.routes");
+const adminClubVerificationRoutes = require("./src/api/admin-club/adminClubVerification.routes");
+const newsletterRoutes = require("./src/api/newsletter/newsletter.routes");
+const wishlistRoutes = require("./src/api/wishlist/wishlist.routes");
+const uploadRoutes = require("./src/api/upload/upload.routes");
 const otpRoutes = require("./src/api/otp/otp.routes");
 const studentVerificationRoutes = require("./src/api/studentVerification/studentVerification.routes");
 const healthRoutes = require("./src/routes/health.routes");
 const adminRedisRoutes = require("./src/api/admin/adminRedis.routes");
-const clubRoutes = require('./src/api/clubs/club.routes');
+const clubRoutes = require("./src/api/clubs/club.routes");
 const campaignCommentRoutes = require("./src/api/campaign-comments/campaignComment.routes");
 const seoRoutes = require("./src/api/seo/seo.routes");
-const profileRoutes = require('./src/api/profile/profile.routes');
-
-
-
-
-
-
+const profileRoutes = require("./src/api/profile/profile.routes");
+const mentorRoutes = require("./src/api/mentor/mentor.routes");
 
 // Passport config
-require('./src/config/passport');
+require("./src/config/passport");
 
 const app = express();
 
@@ -80,7 +75,7 @@ app.use(
   cors({
     origin: CLIENT_URL,
     credentials: true,
-  })
+  }),
 );
 
 // --------------------------------------------
@@ -103,20 +98,17 @@ app.use(
       sameSite: "none",
       maxAge: 24 * 60 * 60 * 1000,
     },
-  })
+  }),
 );
 // --------------------------------------------
 // 5️⃣ JSON BODY PARSER (EVERYTHING ELSE)
 // --------------------------------------------
 app.use(express.json());
 
-
 /* -------------------------------------------------------
    CLUB ROUTES 
 ------------------------------------------------------- */
-app.use('/api/clubs', clubRoutes);
-
-
+app.use("/api/clubs", clubRoutes);
 
 // --------------------------------------------
 // 3️⃣ PASSPORT
@@ -141,7 +133,6 @@ app.use((req, res, next) => {
 //   '/api/donations/webhook',
 //   express.raw({ type: 'application/json' })
 // );
-
 
 // --------------------------------------------
 // HEALTH / REDIS
@@ -171,34 +162,35 @@ app.get("/dev/gen-token", (req, res) => {
 // --------------------------------------------
 // ROOT
 // --------------------------------------------
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   if (CLIENT_URL) return res.redirect(CLIENT_URL);
-  res.json({ service: 'dreamxec backend', status: 'running' });
+  res.json({ service: "dreamxec backend", status: "running" });
 });
 
 // --------------------------------------------
 // API ROUTES
 // --------------------------------------------
-app.use('/api/auth', authRoutes);
-app.use('/api/user-projects', userProjectRoutes);
-app.use('/api/donor-projects', donorProjectRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/donations', donationRoutes); // includes webhook
-app.use('/api/admin', adminRoutes);
-app.use('/api/admin', adminRedisRoutes);
-app.use('/api/applications', applicationRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/user-projects", userProjectRoutes);
+app.use("/api/donor-projects", donorProjectRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/donations", donationRoutes); // includes webhook
+app.use("/api/admin", adminRoutes);
+app.use("/api/admin", adminRedisRoutes);
+app.use("/api/applications", applicationRoutes);
 app.use("/api/club-verification", clubVerificationRoutes);
 app.use("/api/club-referral", clubReferralRoutes);
 app.use("/api/admin/referrals", adminClubReferralRoutes);
 app.use("/api/admin/club-verifications", adminClubVerificationRoutes);
-app.use('/api/newsletter', newsletterRoutes);
-app.use('/api/wishlist', wishlistRoutes);
-app.use('/api/upload', uploadRoutes);
+app.use("/api/newsletter", newsletterRoutes);
+app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/upload", uploadRoutes);
 app.use("/api/otp", otpRoutes);
 app.use("/api/student-verification", studentVerificationRoutes);
 app.use("/api/payments", require("./src/api/payments/payment.routes"));
 app.use("/api", campaignCommentRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/mentor", mentorRoutes);
 app.use("/", seoRoutes);
 app.get("/debug-sentry", function mainHandler(req, res) {
   throw new Error("My first Sentry error!");
@@ -206,7 +198,7 @@ app.get("/debug-sentry", function mainHandler(req, res) {
 // --------------------------------------------
 // 404 HANDLER
 // --------------------------------------------
-app.all('*', (req, res, next) => {
+app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
@@ -217,12 +209,10 @@ app.all('*', (req, res, next) => {
 // The error handler must be registered before any other error middleware and after all controllers
 Sentry.setupExpressErrorHandler(app);
 
-// Optional fallthrough error handler
+// Keep the Sentry handler in chain, but let the global error middleware
+// decide final status/message for operational errors (e.g. validation 400).
 app.use(function onError(err, req, res, next) {
-  // The error id is attached to `res.sentry` to be returned
-  // and optionally displayed to the user for support.
-  res.statusCode = 500;
-  res.end(res.sentry + "\n");
+  next(err);
 });
 
 // --------------------------------------------
@@ -251,12 +241,11 @@ redis.on("ready", async () => {
 // --------------------------------------------
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  prisma.$connect()
+  prisma
+    .$connect()
     .then(() => {
-      console.log('Database connected successfully')
+      console.log("Database connected successfully");
       console.log(`🚀 Server running on port ${PORT}`);
-    }
-    )
-    .catch((err) => console.error('Database connection failed:', err));
-
+    })
+    .catch((err) => console.error("Database connection failed:", err));
 });

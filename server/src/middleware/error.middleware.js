@@ -1,24 +1,42 @@
-const AppError = require('../utils/AppError');
-const { publishEvent } = require('../services/eventPublisher.service');
-const EVENTS = require('../config/events');
-const logger = require('../utils/logger');
-const Sentry = require('@sentry/node');
+const AppError = require("../utils/AppError");
+const { publishEvent } = require("../services/eventPublisher.service");
+const EVENTS = require("../config/events");
+const logger = require("../utils/logger");
+const Sentry = require("@sentry/node");
 
 const handlePrismaError = (err) => {
-  if (err.code === 'P2002') {
-    const field = err.meta?.target?.[0] || 'field';
+  if (err.code === "P2002") {
+    const field = err.meta?.target?.[0] || "field";
     return new AppError(`A record with this ${field} already exists.`, 400);
   }
 
-  if (err.code === 'P2025') {
-    return new AppError('The requested record was not found.', 404);
+  if (err.code === "P2025") {
+    return new AppError("The requested record was not found.", 404);
   }
 
-  return new AppError('A database error occurred.', 500);
+  return new AppError("A database error occurred.", 500);
 };
 
 module.exports = (err, req, res, next) => {
   let error = err;
+
+  // ===============================
+  // HANDLE JOI VALIDATION ERRORS
+  // ===============================
+  if (err.isJoi || err.name === "ValidationError") {
+    logger.warn("Joi Validation Error", {
+      path: req.originalUrl,
+      method: req.method,
+      userId: req.user?.id || null,
+      requestId: req.requestId,
+      message: err.message,
+    });
+
+    return res.status(400).json({
+      status: "fail",
+      message: err.message || "Validation failed",
+    });
+  }
 
   // ===============================
   // HANDLE ZOD VALIDATION ERRORS
@@ -29,23 +47,23 @@ module.exports = (err, req, res, next) => {
       method: req.method,
       userId: req.user?.id || null,
       requestId: req.requestId,
-      errors: err.errors
+      errors: err.errors,
     });
 
     return res.status(400).json({
       status: "fail",
       message: "Validation failed",
-      errors: err.errors.map(e => ({
+      errors: err.errors.map((e) => ({
         field: e.path.join("."),
-        message: e.message
-      }))
+        message: e.message,
+      })),
     });
   }
 
   // ===============================
   // HANDLE PRISMA ERRORS
   // ===============================
-  if (err.code && err.code.startsWith('P')) {
+  if (err.code && err.code.startsWith("P")) {
     error = handlePrismaError(err);
   }
 
@@ -57,7 +75,7 @@ module.exports = (err, req, res, next) => {
   }
 
   error.statusCode = error.statusCode || 500;
-  error.status = error.status || 'error';
+  error.status = error.status || "error";
 
   // ===============================
   // LOG BASED ON STATUS
@@ -79,11 +97,8 @@ module.exports = (err, req, res, next) => {
 
     publishEvent(EVENTS.SYSTEM_ERROR, {
       ...logPayload,
-      stack: error.stack
-    }).catch(e =>
-      logger.error("Failed to publish system error", e)
-    );
-
+      stack: error.stack,
+    }).catch((e) => logger.error("Failed to publish system error", e));
   } else {
     logger.warn("Client Error", logPayload);
   }
@@ -91,7 +106,7 @@ module.exports = (err, req, res, next) => {
   // ===============================
   // DEVELOPMENT RESPONSE
   // ===============================
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     return res.status(error.statusCode).json({
       status: error.status,
       message: error.message,
@@ -110,7 +125,7 @@ module.exports = (err, req, res, next) => {
   }
 
   return res.status(500).json({
-    status: 'error',
-    message: 'Something went very wrong!',
+    status: "error",
+    message: "Something went very wrong!",
   });
 };

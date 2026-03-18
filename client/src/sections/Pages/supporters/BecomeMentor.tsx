@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, FC, ReactNode, ChangeEvent } from "react";
 import { Header } from '../../Header';
 import { Footer } from '../../Footer';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -9,41 +9,97 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
 /* ─────────────────────────────────────────
+   TYPES
+───────────────────────────────────────── */
+interface MentorType {
+  icon: string;
+  text: string;
+  accent: string;
+}
+
+interface BenefitCard {
+  icon: string;
+  accent: string;
+  category: string;
+  points: string[];
+}
+
+interface TimeCard {
+  icon: string;
+  accent: string;
+  title: string;
+  points: string[];
+}
+
+interface MentorStory {
+  icon: string;
+  name: string;
+  title: string;
+  accent: string;
+  story: string;
+}
+
+interface PillItem {
+  label: string;
+  bg: string;
+}
+
+interface FormState {
+  name: string;
+  email: string;
+  phone: string;
+  domain: string;
+  experience: string;
+  motivation: string;
+}
+
+type FormErrors = Partial<Record<keyof FormState, string>>;
+
+type ModalStep = "form" | "success";
+
+/* ─────────────────────────────────────────
    SCROLL REVEAL HOOK
 ───────────────────────────────────────── */
 function useScrollReveal(threshold = 0.12) {
-  const ref = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setIsVisible(true); obs.disconnect(); } },
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          obs.disconnect();
+        }
+      },
       { threshold }
     );
     obs.observe(el);
     return () => obs.disconnect();
   }, [threshold]);
+
   return { ref, isVisible };
 }
 
 /* ─────────────────────────────────────────
    DATA
 ───────────────────────────────────────── */
-const mentorTypes = [
-  { icon: "👨‍💻", text: "Engineers & technical leaders",          accent: "#FF7F00" },
-  { icon: "🚀", text: "Entrepreneurs & startup founders",        accent: "#003262" },
-  { icon: "👨‍⚕️", text: "Doctors & healthcare professionals",    accent: "#0B9C2C" },
-  { icon: "🎨", text: "Designers & product managers",            accent: "#FF7F00" },
-  { icon: "✍️", text: "Writers & communication experts",         accent: "#003262" },
-  { icon: "💼", text: "Business & finance professionals",        accent: "#0B9C2C" },
-  { icon: "🌍", text: "Social impact leaders & nonprofit founders", accent: "#FF7F00" },
-  { icon: "👩‍🏫", text: "Teachers & academic researchers",       accent: "#003262" },
-  { icon: "🎭", text: "Artists & creative professionals",        accent: "#0B9C2C" },
-  { icon: "🏆", text: "Domain specialists of any kind",          accent: "#FF7F00" },
+const mentorTypes: MentorType[] = [
+  { icon: "👨‍💻", text: "Engineers & technical leaders",             accent: "#FF7F00" },
+  { icon: "🚀",  text: "Entrepreneurs & startup founders",          accent: "#003262" },
+  { icon: "👨‍⚕️", text: "Doctors & healthcare professionals",       accent: "#0B9C2C" },
+  { icon: "🎨",  text: "Designers & product managers",              accent: "#FF7F00" },
+  { icon: "✍️",  text: "Writers & communication experts",           accent: "#003262" },
+  { icon: "💼",  text: "Business & finance professionals",          accent: "#0B9C2C" },
+  { icon: "🌍",  text: "Social impact leaders & nonprofit founders",accent: "#FF7F00" },
+  { icon: "👩‍🏫", text: "Teachers & academic researchers",          accent: "#003262" },
+  { icon: "🎭",  text: "Artists & creative professionals",          accent: "#0B9C2C" },
+  { icon: "🏆",  text: "Domain specialists of any kind",            accent: "#FF7F00" },
 ];
 
-const mentorBenefits = [
+const mentorBenefits: BenefitCard[] = [
   {
     icon: "❤️",
     accent: "#FF7F00",
@@ -82,7 +138,7 @@ const mentorBenefits = [
   },
 ];
 
-const timeCommitment = [
+const timeCommitment: TimeCard[] = [
   {
     icon: "⏱️",
     accent: "#FF7F00",
@@ -107,31 +163,43 @@ const timeCommitment = [
   },
 ];
 
-const mentorStories = [
+const mentorStories: MentorStory[] = [
   {
     icon: "👨‍💻",
     name: "Arvind",
     title: "Senior Engineer",
     accent: "#FF7F00",
-    story: "I mentor 2–3 DreamXec projects every year. It takes ~2 hours/week, and honestly? I learn as much as I teach. These 22-year-olds think about problems differently. One mentee's startup idea made me rethink our team's approach to a product. I now have 3 interns from DreamXec projects in my team. Best talent pipeline I've found.",
+    story:
+      "I mentor 2–3 DreamXec projects every year. It takes ~2 hours/week, and honestly? I learn as much as I teach. These 22-year-olds think about problems differently. One mentee's startup idea made me rethink our team's approach to a product. I now have 3 interns from DreamXec projects in my team. Best talent pipeline I've found.",
   },
   {
     icon: "👩‍⚕️",
     name: "Dr. Priya",
     title: "Doctor & Social Entrepreneur",
     accent: "#003262",
-    story: "I mentor healthcare innovation projects. It's deeply meaningful — these students are solving real problems in rural health. I've helped 5 projects get funding. Watching them impact thousands of lives? That's why I became a doctor. Now DreamXec lets me multiply that impact by mentoring others.",
+    story:
+      "I mentor healthcare innovation projects. It's deeply meaningful — these students are solving real problems in rural health. I've helped 5 projects get funding. Watching them impact thousands of lives? That's why I became a doctor. Now DreamXec lets me multiply that impact by mentoring others.",
   },
 ];
 
 /* ─────────────────────────────────────────
    SECTION LABEL
 ───────────────────────────────────────── */
-function SectionLabel({ children, accent = "#FF7F00", dark = false }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: "1rem" }}>
-      <div style={{ width: 12, height: 12, flexShrink: 0, background: accent }} />
-      <div style={{
+interface SectionLabelProps {
+  children: ReactNode;
+  accent?: string;
+  dark?: boolean;
+}
+
+const SectionLabel: FC<SectionLabelProps> = ({
+  children,
+  accent = "#FF7F00",
+  dark = false,
+}) => (
+  <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: "1rem" }}>
+    <div style={{ width: 12, height: 12, flexShrink: 0, background: accent }} />
+    <div
+      style={{
         padding: "0.3rem 0.9rem",
         fontSize: "0.7rem",
         fontWeight: 900,
@@ -141,16 +209,444 @@ function SectionLabel({ children, accent = "#FF7F00", dark = false }) {
         color: dark ? "#003262" : "#fff",
         border: `2px solid ${dark ? "#FF7F00" : "#003262"}`,
         fontFamily: "inherit",
-      }}>
-        {children}
-      </div>
-      <div style={{ width: 12, height: 12, flexShrink: 0, background: "#0B9C2C" }} />
+      }}
+    >
+      {children}
     </div>
-  );
-}
+    <div style={{ width: 12, height: 12, flexShrink: 0, background: "#0B9C2C" }} />
+  </div>
+);
 
 /* ─────────────────────────────────────────
-   CSS
+   MENTOR FORM MODAL
+───────────────────────────────────────── */
+// ⚠️  Replace with your actual Google Form prefilled action URL
+const GOOGLE_FORM_ACTION =
+  "https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse";
+
+// Map your Google Form field entry IDs here
+const FIELD: Record<keyof FormState, string> = {
+  name:       "entry.000000001", // replace with real entry IDs
+  email:      "entry.000000002",
+  phone:      "entry.000000003",
+  domain:     "entry.000000004",
+  experience: "entry.000000005",
+  motivation: "entry.000000006",
+};
+
+interface MentorFormModalProps {
+  onClose: () => void;
+}
+
+const MentorFormModal: FC<MentorFormModalProps> = ({ onClose }) => {
+  const [step, setStep]       = useState<ModalStep>("form");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [form, setForm]       = useState<FormState>({
+    name: "", email: "", phone: "", domain: "", experience: "", motivation: "",
+  });
+  const [errors, setErrors]   = useState<FormErrors>({});
+  const overlayRef            = useRef<HTMLDivElement>(null);
+
+  // Close on ESC
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  // Lock body scroll
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  const validate = (): FormErrors => {
+    const e: FormErrors = {};
+    if (!form.name.trim())       e.name       = "Name is required";
+    if (!form.email.trim())      e.email      = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = "Enter a valid email";
+    if (!form.domain.trim())     e.domain     = "Please mention your domain";
+    if (!form.motivation.trim()) e.motivation = "Please share your motivation";
+    return e;
+  };
+
+  const handleChange =
+    (field: keyof FormState) =>
+    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      setForm((f) => ({ ...f, [field]: e.target.value }));
+      if (errors[field]) setErrors((er) => ({ ...er, [field]: undefined }));
+    };
+
+  const handleSubmit = async (): Promise<void> => {
+    const e = validate();
+    if (Object.keys(e).length) {
+      setErrors(e);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const body = new URLSearchParams({
+        [FIELD.name]:       form.name,
+        [FIELD.email]:      form.email,
+        [FIELD.phone]:      form.phone,
+        [FIELD.domain]:     form.domain,
+        [FIELD.experience]: form.experience,
+        [FIELD.motivation]: form.motivation,
+      });
+
+      // no-cors: Google Forms won't return a proper response but data is saved
+      await fetch(GOOGLE_FORM_ACTION, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body.toString(),
+      });
+    } catch (_) {
+      // no-cors always "fails" silently — that's expected
+    }
+
+    setLoading(false);
+    setStep("success");
+  };
+
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === overlayRef.current) onClose();
+  };
+
+  return (
+    <>
+      <style>{MODAL_CSS}</style>
+      <div className="mf-overlay" ref={overlayRef} onClick={handleOverlayClick}>
+        <div className="mf-modal">
+
+          {/* ── TOP BAR ── */}
+          <div className="mf-topbar">
+            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+              <div style={{ width: 10, height: 10, background: "#FF7F00" }} />
+              <span className="mf-topbar-title">🎓 Become a DreamXec Mentor</span>
+              <div style={{ width: 10, height: 10, background: "#0B9C2C" }} />
+            </div>
+            <button className="mf-close" onClick={onClose} aria-label="Close">✕</button>
+          </div>
+
+          {step === "form" ? (
+            <div className="mf-body">
+              <div className="mf-intro">
+                <p className="mf-intro-text">
+                  Fill in your details below and our team will reach out within{" "}
+                  <strong>48 hours</strong> to onboard you.
+                </p>
+              </div>
+
+              <div className="mf-fields">
+
+                {/* Name + Email */}
+                <div className="mf-row">
+                  <div className="mf-field">
+                    <label className="mf-label">
+                      Full Name <span className="mf-req">*</span>
+                    </label>
+                    <input
+                      className={`mf-input ${errors.name ? "mf-input-err" : ""}`}
+                      placeholder="Rajesh Kumar"
+                      value={form.name}
+                      onChange={handleChange("name")}
+                    />
+                    {errors.name && <span className="mf-err-msg">{errors.name}</span>}
+                  </div>
+                  <div className="mf-field">
+                    <label className="mf-label">
+                      Email Address <span className="mf-req">*</span>
+                    </label>
+                    <input
+                      className={`mf-input ${errors.email ? "mf-input-err" : ""}`}
+                      placeholder="you@example.com"
+                      type="email"
+                      value={form.email}
+                      onChange={handleChange("email")}
+                    />
+                    {errors.email && <span className="mf-err-msg">{errors.email}</span>}
+                  </div>
+                </div>
+
+                {/* Phone + Domain */}
+                <div className="mf-row">
+                  <div className="mf-field">
+                    <label className="mf-label">Phone Number</label>
+                    <input
+                      className="mf-input"
+                      placeholder="+91 98765 43210"
+                      type="tel"
+                      value={form.phone}
+                      onChange={handleChange("phone")}
+                    />
+                  </div>
+                  <div className="mf-field">
+                    <label className="mf-label">
+                      Your Domain / Field <span className="mf-req">*</span>
+                    </label>
+                    <input
+                      className={`mf-input ${errors.domain ? "mf-input-err" : ""}`}
+                      placeholder="e.g. Software Engineering, Healthcare..."
+                      value={form.domain}
+                      onChange={handleChange("domain")}
+                    />
+                    {errors.domain && <span className="mf-err-msg">{errors.domain}</span>}
+                  </div>
+                </div>
+
+                {/* Experience */}
+                <div className="mf-field mf-field-full">
+                  <label className="mf-label">Years of Professional Experience</label>
+                  <div className="mf-select-wrap">
+                    <select
+                      className="mf-select"
+                      value={form.experience}
+                      onChange={handleChange("experience")}
+                    >
+                      <option value="">Select experience level</option>
+                      <option value="1-3">1–3 years</option>
+                      <option value="4-7">4–7 years</option>
+                      <option value="8-12">8–12 years</option>
+                      <option value="13+">13+ years</option>
+                    </select>
+                    <span className="mf-select-arrow">▾</span>
+                  </div>
+                </div>
+
+                {/* Motivation */}
+                <div className="mf-field mf-field-full">
+                  <label className="mf-label">
+                    Why do you want to mentor? <span className="mf-req">*</span>
+                  </label>
+                  <textarea
+                    className={`mf-textarea ${errors.motivation ? "mf-input-err" : ""}`}
+                    placeholder="Share what drives you to mentor students and what you hope to contribute..."
+                    rows={4}
+                    value={form.motivation}
+                    onChange={handleChange("motivation")}
+                  />
+                  {errors.motivation && (
+                    <span className="mf-err-msg">{errors.motivation}</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Footer Buttons */}
+              <div className="mf-footer">
+                <button className="mf-cancel" onClick={onClose}>
+                  Cancel
+                </button>
+                <button className="mf-submit" onClick={handleSubmit} disabled={loading}>
+                  {loading ? (
+                    <span className="mf-spinner-wrap">
+                      <span className="mf-spinner" />
+                      Submitting...
+                    </span>
+                  ) : (
+                    "🎓 Submit Application →"
+                  )}
+                </button>
+              </div>
+            </div>
+
+          ) : (
+            /* ── SUCCESS STATE ── */
+            <div className="mf-success">
+              <div className="mf-success-icon">✅</div>
+              <h3 className="mf-success-title">Request Successfully Noted!</h3>
+              <p className="mf-success-msg">
+                Your request has been successfully noted. Our team will contact you
+                shortly to complete your onboarding as a DreamXec mentor.
+              </p>
+              <div className="mf-success-chips">
+                <span className="mf-chip" style={{ background: "#FF7F00" }}>
+                  🎓 Application Received
+                </span>
+                <span className="mf-chip" style={{ background: "#0B9C2C" }}>
+                  📩 Team Will Contact You
+                </span>
+                <span className="mf-chip" style={{ background: "#003262" }}>
+                  ⏱️ Within 48 Hours
+                </span>
+              </div>
+              <button
+                className="mf-submit"
+                style={{ marginTop: "2rem" }}
+                onClick={onClose}
+              >
+                Back to Page →
+              </button>
+            </div>
+          )}
+
+        </div>
+      </div>
+    </>
+  );
+};
+
+/* ─────────────────────────────────────────
+   MODAL CSS
+───────────────────────────────────────── */
+const MODAL_CSS = `
+  .mf-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,30,60,0.72);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+    animation: mf-fade-in 0.2s ease;
+  }
+  @keyframes mf-fade-in { from { opacity:0 } to { opacity:1 } }
+
+  .mf-modal {
+    background: #fffbf5;
+    border: 4px solid #003262;
+    box-shadow: 10px 10px 0 #FF7F00;
+    width: 100%; max-width: 680px;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+    animation: mf-slide-up 0.25s cubic-bezier(.16,1,.3,1);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  @keyframes mf-slide-up { from { transform:translateY(24px); opacity:0 } to { transform:none; opacity:1 } }
+
+  .mf-topbar {
+    background: #003262;
+    border-bottom: 4px solid #003262;
+    padding: 0.9rem 1.25rem;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 1;
+  }
+  .mf-topbar-title {
+    font-size: 0.75rem; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.2em; color: #fff;
+  }
+  .mf-close {
+    background: #FF7F00; border: 3px solid #fff;
+    color: #003262; font-weight: 900; font-size: 0.85rem;
+    width: 32px; height: 32px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 3px 3px 0 #fff;
+    font-family: inherit;
+  }
+  .mf-close:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 #fff; }
+
+  .mf-body { padding: 1.75rem 1.75rem 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; }
+
+  .mf-intro { border-left: 5px solid #FF7F00; padding: 0.75rem 1rem; background: #fff; }
+  .mf-intro-text { font-size: 0.92rem; font-weight: 600; color: rgba(0,50,98,0.7); line-height: 1.7; margin: 0; }
+
+  .mf-fields { display: flex; flex-direction: column; gap: 1rem; }
+  .mf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media(max-width:560px){ .mf-row { grid-template-columns:1fr; } }
+
+  .mf-field { display: flex; flex-direction: column; gap: 0.35rem; }
+  .mf-field-full { display: flex; flex-direction: column; gap: 0.35rem; }
+
+  .mf-label {
+    font-size: 0.7rem; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.18em; color: #003262;
+  }
+  .mf-req { color: #FF7F00; }
+
+  .mf-input, .mf-textarea, .mf-select {
+    background: #fff; border: 3px solid #003262;
+    padding: 0.65rem 0.9rem; font-size: 0.92rem;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+    color: #003262; outline: none;
+    transition: box-shadow 0.15s, transform 0.15s;
+    width: 100%; box-sizing: border-box;
+  }
+  .mf-input:focus, .mf-textarea:focus, .mf-select:focus {
+    box-shadow: 4px 4px 0 #FF7F00;
+    transform: translate(-2px,-2px);
+  }
+  .mf-input::placeholder, .mf-textarea::placeholder { color: rgba(0,50,98,0.35); font-weight: 500; }
+  .mf-input-err { border-color: #e03030 !important; }
+  .mf-err-msg { font-size: 0.7rem; font-weight: 700; color: #e03030; margin-top: 0.1rem; }
+
+  .mf-textarea { resize: vertical; min-height: 100px; }
+
+  .mf-select-wrap { position: relative; }
+  .mf-select { appearance: none; cursor: pointer; padding-right: 2.5rem; }
+  .mf-select-arrow {
+    position: absolute; right: 0.9rem; top: 50%; transform: translateY(-50%);
+    font-size: 0.85rem; color: #003262; pointer-events: none; font-weight: 900;
+  }
+
+  .mf-footer {
+    display: flex; gap: 0.75rem; justify-content: flex-end;
+    padding-top: 0.5rem; border-top: 3px solid #003262;
+    flex-wrap: wrap;
+  }
+
+  .mf-cancel {
+    padding: 0.85rem 1.75rem; font-size: 0.8rem; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 0.15em;
+    color: #003262; background: transparent;
+    border: 3px solid #003262; cursor: pointer;
+    font-family: inherit; transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 4px 4px 0 #003262;
+  }
+  .mf-cancel:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 #003262; }
+
+  .mf-submit {
+    padding: 0.85rem 2rem; font-size: 0.8rem; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 0.15em;
+    color: #003262; background: #FF7F00;
+    border: 3px solid #003262; cursor: pointer;
+    font-family: inherit; transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 5px 5px 0 #003262;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .mf-submit:hover:not(:disabled) { transform: translate(-3px,-3px); box-shadow: 8px 8px 0 #003262; }
+  .mf-submit:disabled { opacity: 0.65; cursor: not-allowed; }
+
+  .mf-spinner-wrap { display: flex; align-items: center; gap: 0.5rem; }
+  .mf-spinner {
+    width: 16px; height: 16px; border: 3px solid #003262;
+    border-top-color: transparent; border-radius: 50%;
+    animation: mf-spin 0.7s linear infinite; display: inline-block;
+  }
+  @keyframes mf-spin { to { transform: rotate(360deg) } }
+
+  /* ── SUCCESS ── */
+  .mf-success {
+    padding: 3rem 2rem; display: flex; flex-direction: column;
+    align-items: center; text-align: center; gap: 1rem;
+    animation: mf-slide-up 0.3s cubic-bezier(.16,1,.3,1);
+  }
+  .mf-success-icon { font-size: 4rem; line-height: 1; }
+  .mf-success-title {
+    font-size: clamp(1.4rem,3vw,2rem); font-weight: 900;
+    text-transform: uppercase; color: #003262;
+    letter-spacing: -0.5px; margin: 0;
+    border-bottom: 5px solid #FF7F00; padding-bottom: 0.5rem;
+  }
+  .mf-success-msg {
+    font-size: 1rem; font-weight: 600; color: rgba(0,50,98,0.7);
+    line-height: 1.75; max-width: 480px; margin: 0;
+  }
+  .mf-success-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; margin-top: 0.5rem; }
+  .mf-chip {
+    padding: 0.4rem 1rem; font-size: 0.68rem; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    color: #fff; border: 2px solid #003262;
+  }
+`;
+
+/* ─────────────────────────────────────────
+   PAGE CSS
 ───────────────────────────────────────── */
 const CSS = `
   .nb-page { background:#fffbf5; font-family:'Space Grotesk',sans-serif; color:#003262; }
@@ -171,7 +667,6 @@ const CSS = `
   .sr-stagger.v > *:nth-child(9){opacity:1;transform:none;transition-delay:.69s}
   .sr-stagger.v > *:nth-child(10){opacity:1;transform:none;transition-delay:.77s}
 
-  /* ── HERO ── */
   .nb-hero { background:#fffbf5; border-bottom:4px solid #003262; padding:5rem 2rem 4rem; position:relative; overflow:hidden; }
   .nb-hero-inner { max-width:1100px; margin:0 auto; display:flex; flex-direction:column; align-items:center; text-align:center; }
   .stamp-block { position:relative; display:inline-block; margin-bottom:0.75rem; }
@@ -181,17 +676,6 @@ const CSS = `
   .pill-row { display:flex; flex-wrap:wrap; justify-content:center; gap:0.75rem; margin-top:2rem; }
   .pill { padding:0.5rem 1.1rem; font-size:0.7rem; font-weight:900; text-transform:uppercase; letter-spacing:3px; color:#fff; border:2px solid #003262; }
 
-  /* ── STATS ── */
-  .nb-stats { background:#003262; border-bottom:4px solid #003262; }
-  .nb-stats-inner { max-width:1100px; margin:0 auto; padding:2.5rem 2rem; display:grid; grid-template-columns:repeat(4,1fr); }
-  @media(max-width:640px){ .nb-stats-inner{ grid-template-columns:1fr 1fr; } }
-  .nb-stat { text-align:center; padding:1.25rem 1rem; border-right:3px solid rgba(255,255,255,.12); }
-  .nb-stat:last-child { border-right:none; }
-  .nb-stat-icon { font-size:1.75rem; display:block; margin-bottom:0.4rem; }
-  .nb-stat-num { font-size:clamp(1.6rem,3.5vw,2.5rem); font-weight:900; color:#FF7F00; letter-spacing:-2px; line-height:1; }
-  .nb-stat-label { font-size:0.65rem; font-weight:900; text-transform:uppercase; letter-spacing:2px; color:rgba(255,255,255,.55); margin-top:0.35rem; }
-
-  /* ── SECTIONS ── */
   .nb-section { max-width:1100px; margin:0 auto; padding:5rem 2rem; }
   .nb-section-head { display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom:3rem; }
   .nb-title { font-size:clamp(1.6rem,3.5vw,2.8rem); font-weight:900; text-transform:uppercase; line-height:1.05; letter-spacing:-1px; color:#003262; }
@@ -200,18 +684,14 @@ const CSS = `
   .hl-green  { background:#0B9C2C; color:#fff;    display:inline-block; padding:0 0.4rem; }
   .hl-navy   { background:#003262; color:#fff;    display:inline-block; padding:0 0.4rem; }
 
-  /* ── WHO CAN MENTOR GRID ── */
   .mentor-type-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:1rem; }
   @media(max-width:900px){ .mentor-type-grid{ grid-template-columns:repeat(3,1fr); } }
   @media(max-width:580px){ .mentor-type-grid{ grid-template-columns:repeat(2,1fr); } }
-
   .mentor-type-card { background:#fff; border:3px solid #003262; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:1.25rem 0.75rem; gap:0.6rem; transition:transform .15s,box-shadow .15s; cursor:default; }
   .mentor-type-card:hover { transform:translate(-3px,-3px); }
   .mentor-type-icon { font-size:2rem; }
   .mentor-type-text { font-size:clamp(0.78rem,1.3vw,0.9rem); font-weight:700; color:#003262; line-height:1.4; }
-  .mentor-type-bar { height:4px; width:100%; }
 
-  /* requirement card */
   .req-card { background:#fff; border:3px solid #003262; display:grid; grid-template-columns:auto 1fr; gap:0; transition:transform .15s,box-shadow .15s; margin-top:1.25rem; }
   .req-card:hover { transform:translate(-3px,-3px); }
   .req-left { display:flex; align-items:center; justify-content:center; width:70px; font-size:2rem; border-right:3px solid #003262; background:#fffbf5; }
@@ -220,10 +700,8 @@ const CSS = `
   .req-text { font-size:clamp(0.9rem,1.6vw,1.05rem); font-weight:600; color:rgba(0,50,98,.68); line-height:1.8; text-align:justify; }
   .req-bar { height:5px; grid-column:1/-1; }
 
-  /* ── DARK BG ── */
   .nb-dark { background:#003262; border-top:4px solid #003262; border-bottom:4px solid #003262; padding:5rem 0; }
 
-  /* ── BENEFIT CARDS ── */
   .benefit-card { background:#fff; border:3px solid #fff; display:flex; flex-direction:column; height:100%; transition:transform .15s,box-shadow .15s; }
   .benefit-card:hover { transform:translate(-3px,-3px); }
   .benefit-top { height:6px; }
@@ -235,10 +713,8 @@ const CSS = `
   .benefit-bullet { font-size:0.6rem; font-weight:900; color:#fff; padding:0.15rem 0.4rem; border:2px solid #003262; flex-shrink:0; margin-top:0.2rem; }
   .benefit-text { font-size:clamp(0.88rem,1.5vw,1rem); font-weight:600; color:rgba(0,50,98,.68); line-height:1.75; text-align:justify; }
 
-  /* ── TIME COMMITMENT CARDS ── */
   .time-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; }
   @media(max-width:640px){ .time-grid{ grid-template-columns:1fr; } }
-
   .time-card { background:#fff; border:3px solid #003262; display:flex; flex-direction:column; transition:transform .15s,box-shadow .15s; }
   .time-card:hover { transform:translate(-3px,-3px); }
   .time-top { height:6px; }
@@ -251,10 +727,8 @@ const CSS = `
   .time-text { font-size:clamp(0.88rem,1.5vw,1rem); font-weight:600; color:rgba(0,50,98,.68); line-height:1.75; text-align:justify; }
   .time-bottom { height:6px; }
 
-  /* ── STORY CARDS ── */
   .stories-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; }
   @media(max-width:640px){ .stories-grid{ grid-template-columns:1fr; } }
-
   .story-card { background:#fff; border:3px solid #fff; display:flex; flex-direction:column; transition:transform .15s,box-shadow .15s; }
   .story-card:hover { transform:translate(-3px,-3px); }
   .story-top { height:6px; }
@@ -266,20 +740,13 @@ const CSS = `
   .story-quote { font-size:4rem; font-weight:900; line-height:0.7; padding:1rem 1.5rem 0.25rem; }
   .story-body { padding:0 1.5rem 1.5rem; font-size:clamp(0.9rem,1.6vw,1.05rem); font-weight:600; color:rgba(0,50,98,.68); line-height:1.8; text-align:justify; font-style:italic; flex:1; }
 
-  /* swiper nav */
   .swiper-m-prev,.swiper-m-next { position:absolute; top:50%; transform:translateY(-50%); z-index:10; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-weight:900; cursor:pointer; transition:transform .15s; }
   .swiper-m-prev:hover,.swiper-m-next:hover { transform:translateY(-50%) translate(-2px,-2px); }
   .swiper-m-prev { left:0; }
   .swiper-m-next { right:0; }
-  .swiper-s-prev,.swiper-s-next { position:absolute; top:50%; transform:translateY(-50%); z-index:10; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-weight:900; cursor:pointer; transition:transform .15s; }
-  .swiper-s-prev:hover,.swiper-s-next:hover { transform:translateY(-50%) translate(-2px,-2px); }
-  .swiper-s-prev { left:0; }
-  .swiper-s-next { right:0; }
 
-  /* ── STRIPE ── */
   .nb-stripe { width:100%; height:16px; background:repeating-linear-gradient(-45deg,#003262 0px,#003262 12px,#FF7F00 12px,#FF7F00 24px); border-top:3px solid #003262; border-bottom:3px solid #003262; }
 
-  /* ── CTA ── */
   .nb-cta { background:#fffbf5; border-top:4px solid #003262; padding:5rem 2rem; position:relative; overflow:hidden; }
   .nb-cta-inner { max-width:800px; margin:0 auto; text-align:center; }
   .nb-cta-title { font-size:clamp(1.8rem,4vw,3rem); font-weight:900; text-transform:uppercase; line-height:1.1; letter-spacing:-1px; color:#003262; margin-bottom:1rem; }
@@ -287,7 +754,7 @@ const CSS = `
   .tricolor { display:flex; height:6px; max-width:240px; margin:0 auto 2rem; }
   .tricolor div { flex:1; }
   .nb-cta-btns { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; }
-  .nb-btn-1 { padding:1.1rem 2.5rem; font-size:clamp(.85rem,1.5vw,1rem); font-weight:900; text-transform:uppercase; letter-spacing:2px; color:#003262; background:#FF7F00; border:4px solid #003262; box-shadow:7px 7px 0 #003262; text-decoration:none; transition:transform .15s,box-shadow .15s; display:inline-block; }
+  .nb-btn-1 { padding:1.1rem 2.5rem; font-size:clamp(.85rem,1.5vw,1rem); font-weight:900; text-transform:uppercase; letter-spacing:2px; color:#003262; background:#FF7F00; border:4px solid #003262; box-shadow:7px 7px 0 #003262; text-decoration:none; transition:transform .15s,box-shadow .15s; display:inline-block; cursor:pointer; font-family:inherit; }
   .nb-btn-1:hover { transform:translate(-3px,-3px); box-shadow:10px 10px 0 #003262; }
   .nb-btn-2 { padding:1.1rem 2.5rem; font-size:clamp(.85rem,1.5vw,1rem); font-weight:900; text-transform:uppercase; letter-spacing:2px; color:#fff; background:#003262; border:4px solid #003262; box-shadow:7px 7px 0 #FF7F00; text-decoration:none; transition:transform .15s,box-shadow .15s; display:inline-block; }
   .nb-btn-2:hover { transform:translate(-3px,-3px); box-shadow:10px 10px 0 #FF7F00; }
@@ -296,7 +763,9 @@ const CSS = `
 /* ─────────────────────────────────────────
    PAGE
 ───────────────────────────────────────── */
-const BecomeMentor = () => {
+const BecomeMentor: FC = () => {
+  const [showModal, setShowModal] = useState<boolean>(false);
+
   const heroReveal    = useScrollReveal();
   const whoReveal     = useScrollReveal();
   const benefitReveal = useScrollReveal();
@@ -304,20 +773,30 @@ const BecomeMentor = () => {
   const storyReveal   = useScrollReveal();
   const ctaReveal     = useScrollReveal();
 
+  const pills: PillItem[] = [
+    { label: "1 Hour / Week",    bg: "#FF7F00" },
+    { label: "8–12 Week Cycles", bg: "#0B9C2C" },
+    { label: "1,000+ Mentors",   bg: "#003262" },
+    { label: "Talent Pipeline",  bg: "#FF7F00" },
+  ];
+
   return (
     <>
       <style>{CSS}</style>
 
       <title>Become a Mentor | DreamXec</title>
-      <meta name="description" content="Guide the Next Generation of Indian Innovators. Share your expertise. Unlock student potential. Become a DreamXec mentor." />
+      <meta
+        name="description"
+        content="Guide the Next Generation of Indian Innovators. Share your expertise. Unlock student potential. Become a DreamXec mentor."
+      />
 
       <Header />
 
+      {showModal && <MentorFormModal onClose={() => setShowModal(false)} />}
+
       <main className="nb-page">
 
-        {/* ══════════════════════════════════════
-            §1  HERO
-        ══════════════════════════════════════ */}
+        {/* ══════════════ §1 HERO ══════════════ */}
         <section className="nb-hero">
           <div style={{ position:"absolute",top:0,right:0,width:320,height:320,background:"#FF7F00",transform:"rotate(-12deg)",opacity:0.04,pointerEvents:"none" }} />
           <div style={{ position:"absolute",bottom:0,left:0,width:240,height:240,background:"#0B9C2C",transform:"rotate(6deg)",opacity:0.04,pointerEvents:"none" }} />
@@ -337,43 +816,20 @@ const BecomeMentor = () => {
             </div>
 
             <p className="nb-hero-sub">
-              Share your expertise. Unlock student potential. Become a DreamXec mentor and leave a mark on the next generation of builders, researchers, and changemakers across India.
+              Share your expertise. Unlock student potential. Become a DreamXec mentor
+              and leave a mark on the next generation of builders, researchers, and
+              changemakers across India.
             </p>
 
             <div className="pill-row">
-              {[
-                { label: "1 Hour / Week",    bg: "#FF7F00" },
-                { label: "8–12 Week Cycles", bg: "#0B9C2C" },
-                { label: "1,000+ Mentors",   bg: "#003262" },
-                { label: "Talent Pipeline",  bg: "#FF7F00" },
-              ].map(({ label, bg }) => (
+              {pills.map(({ label, bg }) => (
                 <div key={label} className="pill" style={{ background: bg }}>{label}</div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* §2  STATS BAND */}
-        {/* <div className="nb-stats">
-          <div className="nb-stats-inner">
-            {[
-              { icon: "🧑‍🏫", num: "1,000+", label: "Active Mentors"     },
-              { icon: "",   num: "840+",   label: "Projects Guided"    },
-              { icon: "⏱️",  num: "1 hr",   label: "Per Week Commitment" },
-              { icon: "🏆",  num: "92%",    label: "Mentor Satisfaction" },
-            ].map(({ icon, num, label }) => (
-              <div className="nb-stat" key={label}>
-                <span className="nb-stat-icon">{icon}</span>
-                <div className="nb-stat-num">{num}</div>
-                <div className="nb-stat-label">{label}</div>
-              </div>
-            ))}
-          </div>
-        </div> */}
-
-        {/* ══════════════════════════════════════
-            §3  WHO CAN MENTOR
-        ══════════════════════════════════════ */}
+        {/* ══════════════ §3 WHO CAN MENTOR ══════════════ */}
         <div className="nb-section">
           <div ref={whoReveal.ref} className={`nb-section-head sr-fade ${whoReveal.isVisible ? "v" : ""}`}>
             <SectionLabel accent="#FF7F00">👤 Who Can Mentor</SectionLabel>
@@ -381,11 +837,12 @@ const BecomeMentor = () => {
               Any Expert. <span className="hl-orange">Any Domain.</span>
             </h2>
             <p style={{ marginTop:"0.75rem",fontWeight:700,color:"rgba(0,50,98,.6)",fontSize:"clamp(0.95rem,1.8vw,1.1rem)",maxWidth:600,lineHeight:1.75,textAlign:"justify" }}>
-              No specific credentials required — just genuine interest in helping students grow, the ability to give 1 hour/week, and willingness to share your real-world learnings.
+              No specific credentials required — just genuine interest in helping students
+              grow, the ability to give 1 hour/week, and willingness to share your
+              real-world learnings.
             </p>
           </div>
 
-          {/* 5-col icon grid */}
           <div className={`mentor-type-grid sr-stagger ${whoReveal.isVisible ? "v" : ""}`}>
             {mentorTypes.map(({ icon, text, accent }) => (
               <div key={text} className="mentor-type-card" style={{ boxShadow:`4px 4px 0 ${accent}` }}>
@@ -396,14 +853,15 @@ const BecomeMentor = () => {
             ))}
           </div>
 
-          {/* Requirement card */}
           <div className={`sr-fade ${whoReveal.isVisible ? "v" : ""}`} style={{ transitionDelay:"0.4s" }}>
             <div className="req-card" style={{ boxShadow:"5px 5px 0 #FF7F00", marginTop:"1.5rem" }}>
               <div className="req-left">📋</div>
               <div className="req-body">
                 <div className="req-title">Minimum Requirements</div>
                 <p className="req-text">
-                  No specific experience required. Just genuine interest in helping students, ability to give 1 hour/week for 8–12 weeks, and willingness to share what you've learned — successes and failures both.
+                  No specific experience required. Just genuine interest in helping
+                  students, ability to give 1 hour/week for 8–12 weeks, and willingness
+                  to share what you've learned — successes and failures both.
                 </p>
               </div>
               <div className="req-bar" style={{ background:"#FF7F00" }} />
@@ -411,12 +869,9 @@ const BecomeMentor = () => {
           </div>
         </div>
 
-        {/* ── STRIPE ── */}
         <div className="nb-stripe" />
 
-        {/* ══════════════════════════════════════
-            §4  MENTOR BENEFITS — dark + swiper
-        ══════════════════════════════════════ */}
+        {/* ══════════════ §4 MENTOR BENEFITS ══════════════ */}
         <div className="nb-dark">
           <div className="nb-section" style={{ padding:"0 2rem" }}>
             <div ref={benefitReveal.ref} className={`nb-section-head sr-fade ${benefitReveal.isVisible ? "v" : ""}`} style={{ marginBottom:"2.5rem" }}>
@@ -425,7 +880,8 @@ const BecomeMentor = () => {
                 Mentor <span className="hl-orange">Benefits</span>
               </h2>
               <p style={{ marginTop:"0.75rem",fontWeight:700,color:"rgba(255,200,150,.75)",fontSize:"1rem",textAlign:"center",maxWidth:540 }}>
-                Mentoring pays back far more than you put in — personally, professionally, and intellectually.
+                Mentoring pays back far more than you put in — personally, professionally,
+                and intellectually.
               </p>
             </div>
 
@@ -435,13 +891,15 @@ const BecomeMentor = () => {
 
               <Swiper
                 modules={[Navigation, Pagination, Keyboard, A11y, Autoplay]}
-                spaceBetween={16} slidesPerView={1} speed={800}
-                navigation={{ prevEl:".swiper-m-prev", nextEl:".swiper-m-next" }}
-                pagination={{ clickable:true }}
-                keyboard={{ enabled:true }}
+                spaceBetween={16}
+                slidesPerView={1}
+                speed={800}
+                navigation={{ prevEl: ".swiper-m-prev", nextEl: ".swiper-m-next" }}
+                pagination={{ clickable: true }}
+                keyboard={{ enabled: true }}
                 grabCursor
-                autoplay={{ delay:3200, disableOnInteraction:false, pauseOnMouseEnter:true }}
-                breakpoints={{ 768:{ slidesPerView:2,spaceBetween:16 }, 1024:{ slidesPerView:3,spaceBetween:16 } }}
+                autoplay={{ delay: 3200, disableOnInteraction: false, pauseOnMouseEnter: true }}
+                breakpoints={{ 768: { slidesPerView: 2, spaceBetween: 16 }, 1024: { slidesPerView: 3, spaceBetween: 16 } }}
                 style={{ paddingBottom:"2.5rem",paddingLeft:"2.5rem",paddingRight:"2.5rem" }}
               >
                 {mentorBenefits.map(({ icon, accent, category, points }) => (
@@ -455,7 +913,7 @@ const BecomeMentor = () => {
                       <div className="benefit-points">
                         {points.map((pt, i) => (
                           <div key={i} className="benefit-point">
-                            <span className="benefit-bullet" style={{ background:accent }}>{i+1}</span>
+                            <span className="benefit-bullet" style={{ background:accent }}>{i + 1}</span>
                             <p className="benefit-text">{pt}</p>
                           </div>
                         ))}
@@ -468,9 +926,7 @@ const BecomeMentor = () => {
           </div>
         </div>
 
-        {/* ══════════════════════════════════════
-            §5  TIME COMMITMENT
-        ══════════════════════════════════════ */}
+        {/* ══════════════ §5 TIME COMMITMENT ══════════════ */}
         <div className="nb-section">
           <div ref={timeReveal.ref} className={`nb-section-head sr-fade ${timeReveal.isVisible ? "v" : ""}`}>
             <SectionLabel accent="#0B9C2C">⏱️ Time Commitment</SectionLabel>
@@ -490,7 +946,7 @@ const BecomeMentor = () => {
                 <div className="time-points">
                   {points.map((pt, i) => (
                     <div key={i} className="time-point">
-                      <span className="time-bullet" style={{ background:accent }}>{i+1}</span>
+                      <span className="time-bullet" style={{ background:accent }}>{i + 1}</span>
                       <p className="time-text">{pt}</p>
                     </div>
                   ))}
@@ -501,12 +957,9 @@ const BecomeMentor = () => {
           </div>
         </div>
 
-        {/* ── STRIPE ── */}
         <div className="nb-stripe" />
 
-        {/* ══════════════════════════════════════
-            §6  MENTOR STORIES — dark
-        ══════════════════════════════════════ */}
+        {/* ══════════════ §6 MENTOR STORIES ══════════════ */}
         <div className="nb-dark">
           <div className="nb-section" style={{ padding:"0 2rem" }}>
             <div ref={storyReveal.ref} className={`nb-section-head sr-fade ${storyReveal.isVisible ? "v" : ""}`} style={{ marginBottom:"2.5rem" }}>
@@ -558,8 +1011,7 @@ const BecomeMentor = () => {
           </div>
         </section>
 
-        {/* ── STRIPE ── */}
-        <div className="nb-stripe" />
+        
 
         {/* ══════════════════════════════════════
             §8  CTA
@@ -576,7 +1028,9 @@ const BecomeMentor = () => {
               Shape a Student. <span className="hl-orange">Shape India.</span>
             </h2>
             <p className="nb-cta-sub">
-              The students of today are the founders, scientists, and leaders of tomorrow. Join 1,000+ mentors already on DreamXec and give one hour a week that will matter for a lifetime.
+              The students of today are the founders, scientists, and leaders of tomorrow.
+              Join 1,000+ mentors already on DreamXec and give one hour a week that will
+              matter for a lifetime.
             </p>
             <div className="tricolor">
               <div style={{ background:"#FF7F00" }} />

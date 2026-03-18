@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Header } from '../sections/Header';
 import { FooterContent } from "../sections/Footer/components/FooterContent";
+import { useAuth } from "@/context/AuthContext";
 
 
 /* -------------------- Reusable Input -------------------- */
@@ -55,6 +56,9 @@ export default function ReferClub() {
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const {user, loading: authLoading} = useAuth();
+  const location = useLocation();
 
   /* -------------------- Validation -------------------- */
   const validateUrl = (name: string, value: string) => {
@@ -131,6 +135,13 @@ export default function ReferClub() {
       setLoading(false);
     }
   };
+
+  if (authLoading) return null; // Wait for auth check
+
+  if (!user) {
+    // If user somehow reaches this page without login, send them to login
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+  }
 
   /* -------------------- UI -------------------- */
   return (

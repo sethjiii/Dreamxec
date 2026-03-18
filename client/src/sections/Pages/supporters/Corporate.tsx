@@ -6,6 +6,7 @@ import { Navigation, Pagination, Keyboard, A11y, Autoplay } from 'swiper/modules
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import SEO from "@/components/SEO";
 
 /* ─────────────────────────────────────────
    SCROLL REVEAL HOOK
@@ -263,8 +264,11 @@ const CorporateCSRPartnerships = () => {
     <>
       <style>{CSS}</style>
 
-      <title>Corporate & CSR Partnerships | DreamXec</title>
-      <meta name="description" content="Turn Your CSR Into Real Student Impact. Partner with DreamXec to fund innovation, build brand love, and align with NEP 2020 goals." />
+      <SEO
+    title="Corporate CSR Partnerships | DreamXec"
+    description="Partner with DreamXec to fund student innovation projects through CSR initiatives and empower the future of research."
+    url="https://dreamxec.com/corporate-partnerships"
+  />
 
       <Header />
 

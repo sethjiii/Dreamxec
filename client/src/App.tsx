@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import FloatingDoodles from './components/FloatingDoodles';
 import { Header } from './sections/Header';
 import { Main } from './components/Main';
@@ -104,6 +104,7 @@ function AppContent() {
   const [signupEmail, setSignupEmail] = useState('');
   const { showLoader, hideLoader } = useLoader();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
@@ -641,6 +642,12 @@ function AppContent() {
         const profileComplete = (response.data.user as any).profileComplete;
         if (profileComplete === false) {
           navigate('/profile/setup');
+          return;
+        }
+
+        const origin = (location.state as any)?.from;
+        if (origin) {
+          navigate(origin);
           return;
         }
 

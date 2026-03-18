@@ -564,7 +564,7 @@ const BecomeMentor = () => {
         {/* ══════════════════════════════════════
             §8  CTA
         ══════════════════════════════════════ */}
-        <section className="nb-cta">
+        {/* <section className="nb-cta">
           <div style={{ position:"absolute",top:"-2rem",right:"-2rem",width:128,height:128,background:"#FF7F00",border:"4px solid #003262",transform:"rotate(12deg)",opacity:0.1,pointerEvents:"none" }} />
           <div style={{ position:"absolute",bottom:"-2rem",left:"-2rem",width:96,height:96,background:"#0B9C2C",transform:"rotate(-12deg)",opacity:0.1,pointerEvents:"none" }} />
 
@@ -584,11 +584,11 @@ const BecomeMentor = () => {
               <div style={{ background:"#0B9C2C" }} />
             </div>
             <div className="nb-cta-btns">
-              <a href="#application-form" className="nb-btn-1">📝 Apply Now →</a>
+           
               <a href="/campaigns" className="nb-btn-2">Browse Student Projects</a>
             </div>
           </div>
-        </section>
+        </section> */}
 
       </main>
 

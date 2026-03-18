@@ -3,6 +3,8 @@ import {
   getClubMembers,
   removeClubMember,
   changeClubPresident,
+  getPendingJoinRequests,
+  reviewJoinRequest
 } from "../../services/clubService";
 import type { ClubMember } from "../../services/clubService";
 
@@ -17,6 +19,7 @@ export default function PresidentMembers({
 }: PresidentMembersProps) {
   const [members, setMembers] = useState<ClubMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pendingRequests, setPendingRequests] = useState<any[]>([]);
 
   const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(null);
   const [secondsAgo, setSecondsAgo] = useState(0);
@@ -53,12 +56,27 @@ export default function PresidentMembers({
     }
   }, [clubId]);
 
+  const fetchRequests = useCallback(async () => {
+    try {
+      const res = await getPendingJoinRequests();
+      const allRequests = res.data || [];
+      const clubRequests = allRequests.filter((r: any) => r.clubId === clubId);
+      setPendingRequests(clubRequests);
+    } catch (err) {
+      console.error("Failed to fetch join requests", err);
+    }
+  }, [clubId]);
+
   /* ---------------- AUTO REFRESH ---------------- */
 
   useEffect(() => {
     fetchMembers();
+    fetchRequests();
 
-    const refreshInterval = setInterval(fetchMembers, 30000);
+    const refreshInterval = setInterval(() => {
+      fetchMembers();
+      fetchRequests();
+    }, 30000);
     const timer = setInterval(() => {
       setSecondsAgo((s) => s + 1);
     }, 1000);
@@ -67,7 +85,7 @@ export default function PresidentMembers({
       clearInterval(refreshInterval);
       clearInterval(timer);
     };
-  }, [fetchMembers]);
+  }, [fetchMembers, fetchRequests]);
 
   /* ---------------- REMOVE MEMBER ---------------- */
 
@@ -79,6 +97,21 @@ export default function PresidentMembers({
       fetchMembers();
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to remove member");
+    }
+  };
+
+  const handleReviewRequest = async (requestId: string, action: 'APPROVE' | 'REJECT') => {
+    try {
+      if (!confirm(`Are you sure you want to ${action.toLowerCase()} this request?`)) return;
+      
+      const res = await reviewJoinRequest(requestId, action);
+      if (res.success) {
+        alert(`Request ${action.toLowerCase()}d successfully`);
+        fetchRequests();
+        if (action === 'APPROVE') fetchMembers();
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || `Failed to ${action.toLowerCase()} request`);
     }
   };
 
@@ -116,6 +149,49 @@ export default function PresidentMembers({
           Last updated {secondsAgo}s ago
         </div>
       </div>
+
+      {/* ---------------- PENDING REQUESTS ---------------- */}
+      {pendingRequests.length > 0 && (
+        <div className="mb-10">
+          <h2 className="text-2xl font-bold text-dreamxec-orange mb-4">Pending Join Requests</h2>
+          <table className="w-full border border-dreamxec-orange rounded-lg overflow-hidden">
+            <thead>
+              <tr className="bg-orange-50 text-dreamxec-navy border-b border-dreamxec-orange/20">
+                <th className="p-3 text-left">Name</th>
+                <th className="p-3 text-left">College / Bio</th>
+                <th className="p-3 text-left">Date</th>
+                <th className="p-3 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pendingRequests.map((req) => (
+                <tr key={req.id} className="border-t border-dreamxec-orange/10">
+                  <td className="p-3 font-semibold">{req.user?.name || "—"}</td>
+                  <td className="p-3">
+                    <p className="font-medium">{req.user?.college || "—"}</p>
+                    <p className="text-xs text-gray-500 truncate max-w-xs">{req.user?.bio || ""}</p>
+                  </td>
+                  <td className="p-3 text-sm text-gray-600">{new Date(req.createdAt).toLocaleDateString()}</td>
+                  <td className="p-3 text-center space-x-3">
+                    <button
+                      onClick={() => handleReviewRequest(req.id, 'APPROVE')}
+                      className="px-3 py-1 bg-[#0B9C2C] text-white text-xs font-bold rounded hover:bg-green-700"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => handleReviewRequest(req.id, 'REJECT')}
+                      className="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded hover:bg-red-700"
+                    >
+                      Reject
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <table className="w-full border border-dreamxec-navy rounded-lg overflow-hidden">
         <thead>

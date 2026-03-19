@@ -11,7 +11,7 @@ if (
   );
 }
 
-const sendEmail = async ({ email, subject, message }) => {
+const sendEmail = async ({ email, subject, message, html }) => {
   console.log("Sending email:", { email, subject });
 
   if (
@@ -35,11 +35,11 @@ const sendEmail = async ({ email, subject, message }) => {
     text: message,
 
     // optional but recommended
-    html: `
+    html: html || `
       <div style="font-family: Arial, sans-serif">
         <h2>DreamXec Verification Code</h2>
         <p>Your OTP is:</p>
-        <h1>${message.match(/\d{6}/)?.[0]}</h1>
+        <h1>${message ? message.match(/\d{6}/)?.[0] : ''}</h1>
         <p>This code is valid for 5 minutes.</p>
       </div>
     `,

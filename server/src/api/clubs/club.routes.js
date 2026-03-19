@@ -16,6 +16,13 @@ const {
   getPublicClubBySlug
 } = require('./club.controller');
 
+const {
+  createJoinRequest,
+  getPendingJoinRequestsForPresident,
+  reviewJoinRequest,
+  getMyJoinRequests
+} = require('./joinRequest.controller');
+
 const router = express.Router();
 
 // Multer: in-memory CSV upload
@@ -23,6 +30,14 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 } // 5 MB
 });
+
+/* -------------------------------------------------------
+   Join Requests
+------------------------------------------------------- */
+router.get('/my/join-requests', protect, getMyJoinRequests);
+router.get('/president/join-requests', protect, getPendingJoinRequestsForPresident);
+router.put('/join-requests/:requestId/review', protect, reviewJoinRequest);
+router.post('/:clubId/join', protect, createJoinRequest);
 
 /* -------------------------------------------------------
    Member Management

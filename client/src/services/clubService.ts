@@ -254,3 +254,38 @@ export const getPublicClubBySlug = async (
     }
   );
 };
+
+/* =========================================================
+   JOIN REQUESTS
+========================================================= */
+
+export const sendJoinRequest = async (
+    clubId: string
+): Promise<ApiResponse<any>> => {
+    return apiRequest(`/clubs/${clubId}/join`, {
+        method: "POST",
+    });
+};
+
+export const getPendingJoinRequests = async (): Promise<ApiResponse<any[]>> => {
+    return apiRequest(`/clubs/president/join-requests`, {
+        method: "GET",
+    });
+};
+
+export const reviewJoinRequest = async (
+    requestId: string,
+    action: "APPROVE" | "REJECT"
+): Promise<ApiResponse<any>> => {
+    return apiRequest(`/clubs/join-requests/${requestId}/review`, {
+        method: "PUT",
+        body: JSON.stringify({ action }),
+    });
+};
+
+export const getMyJoinRequests = async (): Promise<ApiResponse<any[]>> => {
+    return apiRequest(`/clubs/my/join-requests`, {
+        method: "GET",
+    });
+};
+

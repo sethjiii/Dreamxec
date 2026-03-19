@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getPublicClubBySlug } from "../services/clubService";
+import { getPublicClubBySlug, sendJoinRequest, getMyJoinRequests } from "../services/clubService";
 import CampaignCard from "./CampaignCard";
 import type { Campaign } from '../types';
 import { FooterContent } from "../sections/Footer/components/FooterContent";
 import SEO from "./SEO";
+import { useAuth } from "../context/AuthContext";
 
 export default function ClubDetails() {
   const { slug } = useParams();
+  const { user } = useAuth();
   const [club, setClub] = useState<any>(null);
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [joinStatus, setJoinStatus] = useState<string>('LOADING');
 
   const fetchClub = async () => {
     if (!slug) return;
@@ -27,6 +30,58 @@ export default function ClubDetails() {
   };
 
   useEffect(() => { fetchClub(); }, [slug, page]);
+
+  useEffect(() => {
+    const checkJoinStatus = async () => {
+      if (!user) {
+        setJoinStatus('JOIN');
+        return;
+      }
+      if (user.clubIds?.includes(club?.id)) {
+        setJoinStatus('MEMBER');
+        return;
+      }
+      
+      try {
+        const res = await getMyJoinRequests();
+        const myRequests = res.data || [];
+        const request = myRequests.find((r: any) => r.clubId === club?.id);
+        
+        if (request) {
+            setJoinStatus(request.status); // 'PENDING' | 'APPROVED' | 'REJECTED'
+        } else {
+            setJoinStatus('JOIN');
+        }
+      } catch (err) {
+        setJoinStatus('JOIN');
+      }
+    };
+
+    if (club) {
+        checkJoinStatus();
+    }
+  }, [club, user]);
+
+  const handleJoinClub = async () => {
+    if (!user) {
+      alert("Please log in as a student to join a club.");
+      return;
+    }
+    try {
+      setJoinStatus('LOADING');
+      const res = await sendJoinRequest(club.id);
+      if (res.success) {
+        alert("Join request sent successfully!");
+        setJoinStatus('PENDING');
+      } else {
+        alert("Failed to send join request.");
+        setJoinStatus('JOIN');
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to send join request.");
+      setJoinStatus('JOIN');
+    }
+  };
 
   /* ── Loading ── */
   if (loading) return (
@@ -195,6 +250,29 @@ export default function ClubDetails() {
                 {club.description}
               </p>
             )}
+
+            {/* JOIN CLUB BUTTON */}
+            <div className="mt-6 flex items-center gap-4">
+              <button
+                disabled={joinStatus !== 'JOIN' && joinStatus !== 'REJECTED'}
+                onClick={handleJoinClub}
+                className={`px-8 py-3 text-sm font-black uppercase tracking-widest transition-all ${
+                  joinStatus === 'JOIN' || joinStatus === 'REJECTED'
+                    ? 'bg-[#FF7F00] text-[#003366] hover:scale-105 shadow-[4px_4px_0_#fff]'
+                    : joinStatus === 'LOADING'
+                    ? 'bg-gray-400 text-white cursor-not-allowed border-2 border-white'
+                    : 'bg-[#0B9C2C] text-white shadow-[4px_4px_0_#fff]'
+                }`}
+                style={{ border: '3px solid #fff' }}
+              >
+                {joinStatus === 'LOADING' && 'Checking...'}
+                {joinStatus === 'JOIN' && 'Join Club'}
+                {joinStatus === 'PENDING' && 'Request Pending'}
+                {joinStatus === 'MEMBER' && 'Already a Member'}
+                {joinStatus === 'REJECTED' && 'Request Rejected (Apply Again)'}
+                {joinStatus === 'APPROVED' && 'Already a Member'}
+              </button>
+            </div>
           </div>
         </section>
 

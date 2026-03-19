@@ -13,7 +13,7 @@ const {
   changeClubPresident,
   getMyClubs,
   getAllPublicClubs,
-  getPublicClubBySlug
+  getPublicClubById
 } = require('./club.controller');
 
 const {
@@ -67,6 +67,11 @@ router.get(
   getClubMembers
 );
 
+// Get all public clubs
+router.get('/public', getAllPublicClubs);
+// Get public club by id
+router.get('/public/:id', getPublicClubById);
+
 // Remove a member
 router.delete(
   '/:clubId/members/:memberId',
@@ -106,9 +111,6 @@ router.get(
   protect,
   getRejectedClubCampaigns
 );
-
-router.get('/public', getAllPublicClubs);
-router.get('/public/:slug', getPublicClubBySlug);
 
 
 module.exports = router;

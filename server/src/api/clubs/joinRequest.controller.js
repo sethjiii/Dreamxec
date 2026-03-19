@@ -11,7 +11,7 @@ exports.createJoinRequest = async (req, res) => {
     // Check if club exists
     const club = await prisma.club.findUnique({
       where: { id: clubId },
-      include: { presidents: { select: { email: true, name: true } } }
+      include: { presidentUser: { select: { email: true, name: true } } }
     });
 
     if (!club) {
@@ -55,7 +55,7 @@ exports.createJoinRequest = async (req, res) => {
         });
 
         // Send Email to President
-        this.notifyPresident(club, updatedReq.user);
+        notifyPresident(club, updatedReq.user);
         return res.status(200).json({ success: true, message: 'Join request sent successfully re-submitted', data: updatedReq });
       }
     }
@@ -71,7 +71,7 @@ exports.createJoinRequest = async (req, res) => {
     });
 
     // Send Email to President
-    this.notifyPresident(club, newReq.user);
+    notifyPresident(club, newReq.user);
 
     return res.status(201).json({ success: true, message: 'Join request sent successfully', data: newReq });
   } catch (error) {
@@ -81,32 +81,32 @@ exports.createJoinRequest = async (req, res) => {
 };
 
 // Internal function to notify President
-exports.notifyPresident = async (club, user) => {
+async function notifyPresident(club, user) {
   try {
-    for (const president of club.presidents) {
-      const htmlMsg = `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-          <h2 style="color: #003366;">New Club Join Request</h2>
-          <p>Hi ${president.name || 'President'},</p>
-          <p>You have a new join request for <strong>${club.name}</strong> from <strong>${user.name}</strong>.</p>
-          <p>Please log in to your DreamXec President Dashboard to review this request.</p>
-          <br>
-          <p>Best Regards,</p>
-          <p>The DreamXec Team</p>
-        </div>
-      `;
-      // Send email
-      await sendEmail({
-        email: president.email,
-        subject: `New Join Request for ${club.name}`,
-        html: htmlMsg,
-        message: `You have a new join request for ${club.name} from ${user.name}. Please review it on your dashboard.`
-      });
-    }
+    const president = club.presidentUser;
+    if (!president || !president.email) return;
+
+    const htmlMsg = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+        <h2 style="color: #003366;">New Club Join Request</h2>
+        <p>Hi ${president.name || 'President'},</p>
+        <p>You have a new join request for <strong>${club.name}</strong> from <strong>${user.name}</strong>.</p>
+        <p>Please log in to your DreamXec President Dashboard to review this request.</p>
+        <br>
+        <p>Best Regards,</p>
+        <p>The DreamXec Team</p>
+      </div>
+    `;
+    await sendEmail({
+      email: president.email,
+      subject: `New Join Request for ${club.name}`,
+      html: htmlMsg,
+      message: `You have a new join request for ${club.name} from ${user.name}. Please review it on your dashboard.`
+    });
   } catch (err) {
     console.error('Failed to send president notification email:', err);
   }
-};
+}
 
 // 2. Get Pending Join Requests for President
 exports.getPendingJoinRequestsForPresident = async (req, res) => {
@@ -133,10 +133,10 @@ exports.getPendingJoinRequestsForPresident = async (req, res) => {
           select: {
             id: true,
             name: true,
-            collegeName: true,
+            email: true,
+            college: true,
             bio: true,
-            skills: true,
-            clubs: { select: { name: true } }
+            skills: true
           }
         },
         club: { select: { id: true, name: true } }
@@ -144,12 +144,11 @@ exports.getPendingJoinRequestsForPresident = async (req, res) => {
       orderBy: { createdAt: 'desc' }
     });
 
-    // Formatting User's College property (fallback to collegeName as it's legacy)
     const formattedReqs = pendingRequests.map(req => ({
       ...req,
       user: {
         ...req.user,
-        college: req.user.collegeName || 'N/A'
+        college: req.user.college || 'N/A'
       }
     }));
 
@@ -193,7 +192,7 @@ exports.reviewJoinRequest = async (req, res) => {
         data: { status: 'APPROVED' }
       });
 
-      // 2. Add to club members list and update user
+      // 2. Connect user to club (m2m arrays)
       await prisma.club.update({
         where: { id: joinReq.clubId },
         data: { userIds: { push: joinReq.userId } }
@@ -202,7 +201,27 @@ exports.reviewJoinRequest = async (req, res) => {
         where: { id: joinReq.userId },
         data: { 
           clubIds: { push: joinReq.clubId },
-          isClubMember: true
+          isClubMember: true,
+          clubVerified: true
+        }
+      });
+
+      // 3. Create ClubMember record so student shows in members list
+      const studentUser = await prisma.user.findUnique({ where: { id: joinReq.userId } });
+      await prisma.clubMember.upsert({
+        where: {
+          clubId_email: { clubId: joinReq.clubId, email: studentUser.email }
+        },
+        update: {
+          userId: joinReq.userId,
+          isUserRegistered: true
+        },
+        create: {
+          clubId: joinReq.clubId,
+          email: studentUser.email,
+          name: studentUser.name || '',
+          userId: joinReq.userId,
+          isUserRegistered: true
         }
       });
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getPublicClubBySlug, sendJoinRequest, getMyJoinRequests } from "../services/clubService";
+import { getPublicClubById, sendJoinRequest, getMyJoinRequests } from "../services/clubService";
 import CampaignCard from "./CampaignCard";
 import type { Campaign } from '../types';
 import { FooterContent } from "../sections/Footer/components/FooterContent";
@@ -8,7 +8,7 @@ import SEO from "./SEO";
 import { useAuth } from "../context/AuthContext";
 
 export default function ClubDetails() {
-  const { slug } = useParams();
+  const { id } = useParams();
   const { user } = useAuth();
   const [club, setClub] = useState<any>(null);
   const [page, setPage] = useState(1);
@@ -17,10 +17,10 @@ export default function ClubDetails() {
   const [joinStatus, setJoinStatus] = useState<string>('LOADING');
 
   const fetchClub = async () => {
-    if (!slug) return;
+    if (!id) return;
     try {
       setLoading(true);
-      const res = await getPublicClubBySlug(slug, { page, limit: 6 });
+      const res = await getPublicClubById(id, { page, limit: 6 });
       if (res.success) { setClub(res.data ?? null); setMeta(res.meta ?? null); }
     } catch (err) {
       console.error("Club fetch error:", err);
@@ -29,7 +29,7 @@ export default function ClubDetails() {
     }
   };
 
-  useEffect(() => { fetchClub(); }, [slug, page]);
+  useEffect(() => { fetchClub(); }, [id, page]);
 
   useEffect(() => {
     const checkJoinStatus = async () => {

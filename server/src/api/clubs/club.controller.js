@@ -455,9 +455,37 @@ exports.getClubMembers = async (req, res, next) => {
   try {
     const { clubId } = req.params;
 
-    const members = await prisma.clubMember.findMany({
-      where: { clubId }
+    const club = await prisma.club.findUnique({
+      where: { id: clubId },
+      select: { userIds: true }
     });
+
+    if (!club) return next(new AppError('Club not found', 404));
+
+    // Fetch all users who are in the club's userIds array
+    const users = await prisma.user.findMany({
+      where: { id: { in: club.userIds || [] } },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true
+      }
+    });
+
+    // Map to the shape the frontend expects (ClubMember-like)
+    const members = users.map(u => ({
+      id: u.id,
+      clubId,
+      email: u.email,
+      name: u.name,
+      phone: u.phone,
+      isUserRegistered: true,
+      userId: u.id,
+      isVerified: true,
+      createdAt: new Date().toISOString()
+    }));
+    console.log(members, club)
 
     res.json({
       status: 'success',
@@ -768,15 +796,15 @@ exports.getAllPublicClubs = async (req, res) => {
   });
 };
 
-exports.getPublicClubBySlug = async (req, res) => {
-  const { slug } = req.params;
+exports.getPublicClubById = async (req, res) => {
+  const { id } = req.params;
   const { page = 1, limit = 6 } = req.query;
 
   const pageNumber = Number(page);
   const pageSize = Number(limit);
 
   const club = await prisma.club.findUnique({
-    where: { slug }
+    where: { id }
   });
 
   if (!club) {

@@ -1478,7 +1478,7 @@ function AppContent() {
                               />
 
                               <Route
-                                path="/clubs/:slug"
+                                path="/clubs/:id"
                                 element={
                                   <>
                                     <Header

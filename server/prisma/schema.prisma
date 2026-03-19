@@ -160,6 +160,7 @@ model User {
 
   // reverse relation (ClubMember.user)
   clubMembers ClubMember[] // optional helper
+  joinRequests JoinRequest[]
 
   //admin feature
   adminNotes AdminNote[] @relation("AdminNoteAuthor")
@@ -523,8 +524,31 @@ model Club {
   updatedAt       DateTime      @updatedAt
   adminNotes      AdminNote[]
 
+  joinRequests    JoinRequest[]
+
   @@index([presidentEmail])
   @@index([college])
+}
+
+// -----------------------------
+// JOIN REQUEST MODEL
+// -----------------------------
+model JoinRequest {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  status    String   @default("PENDING") // PENDING, APPROVED, REJECTED
+
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  clubId    String   @db.ObjectId
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, clubId])
+  @@index([clubId, status])
+  @@index([userId])
 }
 
 // -----------------------------

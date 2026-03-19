@@ -242,12 +242,12 @@ export const getPublicClubs = async (
 };
 
 
-export const getPublicClubBySlug = async (
-  slug: string,
+export const getPublicClubById = async (
+  id: string,
   params?: { page?: number; limit?: number }
 ): Promise<ApiResponse<PublicSingleClub>> => {
   return apiRequest<PublicSingleClub>(
-    `/clubs/public/${slug}`,
+    `/clubs/public/${id}`,
     {
       method: "GET",
       params,

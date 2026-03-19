@@ -61,7 +61,7 @@ function ClubCard({ club, index }: { club: any; index: number }) {
 
   return (
     <Link
-      to={`/clubs/${club.slug}`}
+      to={`/clubs/${club.id}`}
       className="group relative flex flex-col bg-white transition-all duration-200 hover:translate-x-[-3px] hover:translate-y-[-3px]"
       style={{
         border: '3px solid #003366',

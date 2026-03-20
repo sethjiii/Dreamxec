@@ -672,7 +672,7 @@ const CSS = `
   .stamp-block { position:relative; display:inline-block; margin-bottom:0.75rem; }
   .stamp-shadow { position:absolute; inset:0; }
   .stamp-h1 { position:relative; z-index:1; display:inline-block; padding:0.4rem 1.2rem; font-weight:900; color:#fff; text-transform:uppercase; letter-spacing:-0.5px; line-height:1; border:4px solid #003262; font-size:clamp(1.3rem,4vw,3rem); }
-  .nb-hero-sub { margin-top:1.5rem; font-size:clamp(1rem,2vw,1.2rem); font-weight:700; color:rgba(0,50,98,.65); max-width:620px; line-height:1.75; text-align:justify; }
+  .nb-hero-sub { margin-top:1.5rem; font-size:clamp(1rem,2vw,1.2rem); font-weight:700; color:rgba(0,50,98,.65); max-width:620px; line-height:1.75; text-align:center; }
   .pill-row { display:flex; flex-wrap:wrap; justify-content:center; gap:0.75rem; margin-top:2rem; }
   .pill { padding:0.5rem 1.1rem; font-size:0.7rem; font-weight:900; text-transform:uppercase; letter-spacing:3px; color:#fff; border:2px solid #003262; }
 
@@ -836,7 +836,7 @@ const BecomeMentor: FC = () => {
             <h2 className="nb-title">
               Any Expert. <span className="hl-orange">Any Domain.</span>
             </h2>
-            <p style={{ marginTop:"0.75rem",fontWeight:700,color:"rgba(0,50,98,.6)",fontSize:"clamp(0.95rem,1.8vw,1.1rem)",maxWidth:600,lineHeight:1.75,textAlign:"justify" }}>
+            <p style={{ marginTop:"0.75rem",fontWeight:700,color:"rgba(0,50,98,.6)",fontSize:"clamp(0.95rem,1.8vw,1.1rem)",maxWidth:600,lineHeight:1.75,textAlign:"center" }}>
               No specific credentials required — just genuine interest in helping students
               grow, the ability to give 1 hour/week, and willingness to share your
               real-world learnings.

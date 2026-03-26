@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProfile, updateProfile } from '../services/profileService';
 import { useAuth } from '../context/AuthContext';
+import { VerificationModal } from './VerificationModal';
+import { RestrictionModal } from './RestictionModal';
 
 /* ─────────────────────────────────────────
    TYPES
@@ -213,6 +215,9 @@ export default function ProfileSetup() {
     const [dCategories, setDCategories] = useState<string[]>([]);
     const [dAnonymous, setDAnonymous] = useState(false);
 
+    const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(role !== 'DONOR' && !user?.studentVerified);
+    const [isPresidentRestrictionOpen, setIsPresidentRestrictionOpen] = useState(false);
+
     // ── Load current profile (enrich with saved data) ──
     useEffect(() => {
         (async () => {
@@ -275,6 +280,12 @@ export default function ProfileSetup() {
         })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // useEffect(() => {
+    //     if(role !== 'DONOR' && !user.studentVerified) {
+    //       setIsVerificationModalOpen(true);
+    //     }
+    //   })
 
     // ── Validation helpers ──
     const validatePhone = (p: string) => /^[0-9]{10}$/.test(p.trim());
@@ -379,6 +390,8 @@ export default function ProfileSetup() {
             </div>
         );
     }
+
+    
 
     return (
         <div className="min-h-screen bg-[#FFFBF3] flex items-center justify-center py-8 px-4">
@@ -532,6 +545,8 @@ export default function ProfileSetup() {
                             </div>
                         )}
 
+                        
+
                         {/* ── DONOR STEPS ── */}
                         {role === 'DONOR' && (
                             <div className="space-y-5">
@@ -682,7 +697,17 @@ export default function ProfileSetup() {
                         </div>
                     </div>
                 </div>
+
+                
             </div>
+
+             {/* Modals */}
+                  <VerificationModal isOpen={isVerificationModalOpen} onClose={() => setIsVerificationModalOpen(false)} />
+                  <RestrictionModal
+                    isOpen={isPresidentRestrictionOpen}
+                    onClose={() => setIsPresidentRestrictionOpen(false)}
+                    onVerify={() => { setIsPresidentRestrictionOpen(false); setIsVerificationModalOpen(true); }}
+                  />
         </div>
     );
 }

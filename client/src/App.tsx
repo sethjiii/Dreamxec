@@ -108,6 +108,8 @@ function AppContent() {
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
+  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+
   useEffect(() => {
     const initialize = async () => {
       setTimeout(() => {
@@ -1687,7 +1689,9 @@ function AppContent() {
             </span>
           </div>
         </div >
+        
       </div >
+      
     </div >
   );
 }

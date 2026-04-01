@@ -15,6 +15,7 @@ exports.uploadFiles = catchAsync(async (req, res, next) => {
     }
 
     let folder = `dreamxec/campaigns/${campaignId}/others`; // Fallback
+    let resourceType = 'auto';
     
     if (file.mimetype.startsWith('image/')) {
       folder = `dreamxec/campaigns/${campaignId}/images`;
@@ -24,7 +25,7 @@ exports.uploadFiles = catchAsync(async (req, res, next) => {
        folder = `dreamxec/campaigns/${campaignId}/videos`;
     }
 
-    const url = await uploadToCloudinary(file.path, folder);
+    const url = await uploadToCloudinary(file.path, folder, resourceType);
     return {
       originalName: file.originalname,
       mimeType: file.mimetype,

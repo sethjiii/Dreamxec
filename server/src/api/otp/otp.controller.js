@@ -119,11 +119,10 @@ const generateOtp = async (req, res) => {
     /* 📧 EMAIL OTP */
     if (email) {
       const otp = await generateAndStoreOtp("email", email);
-      await publishEvent({
+      await publishEvent(events.EMAIL_OTP_REQUEST,{
         email,
-        subject: "DreamXec - Your Verification OTP",
-        message: `Your DreamXec OTP is ${otp}. Valid for 5 minutes.`,
-      });
+otp:otp      });
+
     }
 
     /* 📱 WHATSAPP OTP */

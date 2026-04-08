@@ -41,7 +41,7 @@ import {
 
 
 // Import API services
-import { login, register, logout as apiLogout, getCurrentUser, initiateGoogleAuth, handleGoogleCallback, initiateLinkedInAuth, handleLinkedInCallback } from './services/authService';
+import { login, register, logout as apiLogout, getCurrentUser, initiateGoogleAuth, handleGoogleCallback, initiateLinkedInAuth, handleLinkedInCallback, forgotPassword } from './services/authService';
 import { getPublicUserProjects, createUserProject, updateUserProject } from './services/userProjectService';
 import { getPublicDonorProjects, createDonorProject, getMyDonorProjects } from './services/donorProjectService';
 import { getAllProjects, verifyUserProject, verifyDonorProject } from './services/adminService';
@@ -700,8 +700,7 @@ function AppContent() {
 
   const handleForgotPassword = async (email: string) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log(`✅ Password reset link sent to ${email}`);
+      await forgotPassword(email)
     } catch (error) {
       console.error('Forgot password error:', error);
       throw new Error('Failed to send password reset email');

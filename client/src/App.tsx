@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import FloatingDoodles from './components/FloatingDoodles';
 import { Header } from './sections/Header';
 import { Main } from './components/Main';
@@ -572,7 +572,7 @@ function AppContent() {
 
         // If profile is incomplete, redirect to profile setup first
         const profileComplete = (response.data.user as any).profileComplete;
-        if (profileComplete === false) {
+        if (userData.role === 'donor' && profileComplete === false) {
           navigate('/profile/setup');
           return;
         }
@@ -640,7 +640,7 @@ function AppContent() {
 
         // If profile is incomplete, redirect to profile setup first
         const profileComplete = (response.data.user as any).profileComplete;
-        if (profileComplete === false) {
+        if (userData.role === 'donor' && profileComplete === false) {
           navigate('/profile/setup');
           return;
         }
@@ -1339,16 +1339,20 @@ function AppContent() {
                               <Route
                                 path="/auth"
                                 element={
-                                  <AuthPage
-                                    onLogin={handleLogin}
-                                    onSignup={handleSignup}
-                                    onGoogleAuth={handleGoogleAuth}
-                                    onLinkedInAuth={handleLinkedInAuth}
-                                    onForgotPassword={handleForgotPassword}
-                                    currentUser={user}
-                                    onHeaderLogin={handleLoginClick}
-                                    onLogout={handleLogout}
-                                  />
+                                  !user ? (
+                                    <AuthPage
+                                      onLogin={handleLogin}
+                                      onSignup={handleSignup}
+                                      onGoogleAuth={handleGoogleAuth}
+                                      onLinkedInAuth={handleLinkedInAuth}
+                                      onForgotPassword={handleForgotPassword}
+                                      currentUser={user}
+                                      onHeaderLogin={handleLoginClick}
+                                      onLogout={handleLogout}
+                                    />
+                                  ) : (
+                                    <Navigate to="/" />
+                                  )
                                 }
                               />
 
@@ -1619,15 +1623,12 @@ function AppContent() {
                               } />
 
                               {/* President Dashboard */}
-                              <Route path="/president" element={<PresidentLayout><PresidentDashboard /></PresidentLayout>} />
-                              <Route path="/president/members" element={<PresidentLayout><PresidentMembers clubId={user?.clubIds?.[0] || ''} currentUserId={user?.id || ''} /></PresidentLayout>} />
-                              <Route path="/president/campaigns" element={<PresidentLayout><PresidentCampaigns clubId={user?.clubIds?.[0] || ''} /></PresidentLayout>} />
-                              <Route path="/president/upload-members" element={<PresidentLayout><UploadMembers /></PresidentLayout>} />
-                              <Route path="/president/add-member" element={<PresidentLayout><AddMemberManually clubId={user?.clubIds?.[0] || ''} /></PresidentLayout>} />
-                            </Routes>
-
-                            {/* Footer / content page routes */}
-                            <Routes>
+                              <Route path="/president" element={<><Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} /><PresidentLayout><PresidentDashboard /></PresidentLayout></>} />
+                              <Route path="/president/members" element={<><Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} /><PresidentLayout><PresidentMembers clubId={user?.clubIds?.[0] || ''} currentUserId={user?.id || ''} /></PresidentLayout></>} />
+                              <Route path="/president/campaigns" element={<><Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} /><PresidentLayout><PresidentCampaigns clubId={user?.clubIds?.[0] || ''} /></PresidentLayout></>} />
+                              <Route path="/president/upload-members" element={<><Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} /><PresidentLayout><UploadMembers /></PresidentLayout></>} />
+                              <Route path="/president/add-member" element={<><Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} /><PresidentLayout><AddMemberManually clubId={user?.clubIds?.[0] || ''} /></PresidentLayout></>} />
+                              {/* Footer / content page routes */}
                               <Route path="/start-project" element={<StartAProject />} />
                               <Route path="/how-it-works/students" element={<HowItWorksStudents />} />
                               <Route path="/eligibility" element={<ProjectEligibility />} />

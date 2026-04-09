@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setToken } from '../services/api';
-import { getCurrentUser } from '../services/authService';
 import { mapBackendRole } from '../services/mappers';
+import { getProfile } from '@/services/profileService';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -24,19 +24,19 @@ export default function AuthCallback() {
         setToken(token);
 
         // 3. Fetch the current user using the stored token
-        const response = await getCurrentUser();
+        const response = await getProfile();
 
-        if (!response.data?.user) {
+        if (!response.data) {
           console.error('AuthCallback: Could not fetch user');
           navigate('/auth');
           return;
         }
 
-        const user = response.data.user;
-        const frontendRole = mapBackendRole(user.role);
+        const user = response.data.profile;
+        const frontendRole = mapBackendRole(response.data.role.toUpperCase() as 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT');
 
-        // 4. Check profile completion — redirect to setup if incomplete
-        const profileComplete = (user as any).profileComplete;
+        const profileComplete = user.profileComplete;
+        console.log(user, frontendRole)
         if (profileComplete === false) {
           navigate('/profile/setup');
           return;

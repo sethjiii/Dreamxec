@@ -24,7 +24,7 @@ export default function PresidentLayout({ children }: { children: React.ReactNod
     { label: "Dashboard", path: "/president", icon: <Icons.Dashboard /> },
     { label: "Members", path: "/president/members", icon: <Icons.Users /> },
     { label: "Campaigns", path: "/president/campaigns", icon: <Icons.Campaigns /> },
-    { label: "Upload CSV", path: "/president/upload", icon: <Icons.Upload /> },
+    { label: "Upload CSV", path: "/president/upload-members", icon: <Icons.Upload /> },
     { label: "Add Member", path: "/president/add-member", icon: <Icons.UserAdd /> },
   ];
 

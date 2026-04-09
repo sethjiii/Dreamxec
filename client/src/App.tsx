@@ -142,6 +142,7 @@ function AppContent() {
             name: response.data.user.name,
             studentVerified: response.data.user?.studentVerified,
             accountStatus: response.data.user?.accountStatus || 'ACTIVE',
+            profileComplete: response.data.user?.profileComplete ?? false,
           };
           setUser(userData);
         }
@@ -566,13 +567,14 @@ function AppContent() {
           name: response.data.user.name,
           studentVerified: response.data.user?.studentVerified,
           accountStatus: response.data.user?.accountStatus || 'ACTIVE',
+          profileComplete: response.data.user?.profileComplete ?? false,
         };
 
         setUser(userData);
 
         // If profile is incomplete, redirect to profile setup first
-        const profileComplete = (response.data.user as any).profileComplete;
-        if (userData.role === 'donor' && profileComplete === false) {
+        const profileComplete = userData.profileComplete;
+        if (profileComplete === false) {
           navigate('/profile/setup');
           return;
         }
@@ -634,12 +636,13 @@ function AppContent() {
           name: response.data.user.name,
           studentVerified: response.data.user?.studentVerified,
           accountStatus: response.data.user?.accountStatus || 'ACTIVE',
+          profileComplete: response.data.user?.profileComplete ?? false,
         };
 
         setUser(userData);
 
         // If profile is incomplete, redirect to profile setup first
-        const profileComplete = (response.data.user as any).profileComplete;
+        const profileComplete = userData.profileComplete;
         if (userData.role === 'donor' && profileComplete === false) {
           navigate('/profile/setup');
           return;
@@ -723,6 +726,7 @@ function AppContent() {
       name: backendUser.name,
       studentVerified: backendUser?.studentVerified,
       accountStatus: backendUser?.accountStatus || 'ACTIVE',
+      profileComplete: backendUser?.profileComplete ?? false,
     };
     setUser(userData);
   };

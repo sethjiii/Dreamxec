@@ -477,19 +477,21 @@ const DonorDashboardInner: React.FC<DonorDashboardProps> = ({ donorName, project
             </div>
           </div>
           {/* Profile completion bar */}
-          <button
-            onClick={() => navigate('/profile/setup')}
-            className="w-full text-left mt-1"
-          >
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-[10px] font-black text-orange-300 uppercase tracking-widest">Profile</span>
-              <span className="text-[10px] font-black text-white">{profileComplete ? '✓ Complete' : '⚠ Incomplete'}</span>
-            </div>
-            <div className="w-full h-2 overflow-hidden" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,127,0,0.4)' }}>
-              <div className="h-full transition-all duration-500"
-                style={{ width: profileComplete ? '100%' : '20%', background: profileComplete ? '#0B9C2C' : '#FF7F00' }} />
-            </div>
-          </button>
+          {profileComplete !== true && (
+            <button
+              onClick={() => navigate('/profile/setup')}
+              className="w-full text-left mt-1"
+            >
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-[10px] font-black text-orange-300 uppercase tracking-widest">Profile</span>
+                <span className="text-[10px] font-black text-white">⚠ Incomplete</span>
+              </div>
+              <div className="w-full h-2 overflow-hidden" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,127,0,0.4)' }}>
+                <div className="h-full transition-all duration-500"
+                  style={{ width: '20%', background: '#FF7F00' }} />
+              </div>
+            </button>
+          )}
         </div>
 
         {/* Nav */}

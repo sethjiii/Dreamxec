@@ -325,7 +325,7 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
     return () => { cancelled = true; };
   }, [currentUser?.role]);
 
-  console.log(currentUser);
+  // console.log(currentUser);
 
   // Helper to check if user is a student type (regular or president)
   // Presidents also get the clickable profile button
@@ -392,9 +392,9 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
                       </span>
                       <span
                         className="text-xs font-bold font-sans"
-                        style={{ color: completionPct !== null && completionPct < 100 ? (completionPct >= 80 ? '#0B9C2C' : '#FF7F00') : undefined, opacity: completionPct !== null && completionPct < 100 ? 1 : 0.7 }}
+                        style={{ color: (completionPct !== null && completionPct < 100) ? (completionPct >= 80 ? '#0B9C2C' : '#FF7F00') : undefined, opacity: (completionPct !== null && completionPct < 100) ? 1 : 0.7 }}
                       >
-                        {completionPct !== null && completionPct < 100
+                        {(completionPct !== null && completionPct < 100)
                           ? `${completionPct >= 80 ? '✅' : '⚠️'} Profile ${completionPct}%`
                           : currentUser.role === 'STUDENT_PRESIDENT' ? 'President' : 'Student'}
                       </span>
@@ -430,11 +430,11 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
                       <span
                         className="text-xs font-bold font-sans"
                         style={{
-                          color: (completionPct !== null && currentUser.role === 'donor' && completionPct < 100) ? (completionPct >= 80 ? '#0B9C2C' : '#FF7F00') : undefined,
-                          opacity: (completionPct !== null && currentUser.role === 'donor' && completionPct < 100) ? 1 : 0.7
+                          color: (completionPct !== null && currentUser.role === 'donor') ? (completionPct >= 80 ? '#0B9C2C' : '#FF7F00') : undefined,
+                          opacity: (completionPct !== null && currentUser.role === 'donor') ? 1 : 0.7
                         }}
                       >
-                        {(completionPct !== null && currentUser.role === 'donor' && completionPct < 100)
+                        {(completionPct !== null && currentUser.role === 'donor' && completionPct !== 100)
                           ? `${completionPct >= 80 ? '✅' : '⚠️'} Profile ${completionPct}%`
                           : currentUser.role === 'donor' ? 'Donor' : 'Admin'}
                       </span>

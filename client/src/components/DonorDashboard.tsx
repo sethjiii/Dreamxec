@@ -477,7 +477,7 @@ const DonorDashboardInner: React.FC<DonorDashboardProps> = ({ donorName, project
             </div>
           </div>
           {/* Profile completion bar */}
-          {profileComplete !== true && (
+          {!profileComplete && (
             <button
               onClick={() => navigate('/profile/setup')}
               className="w-full text-left mt-1"

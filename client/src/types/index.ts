@@ -61,7 +61,7 @@ export interface User {
   role: UserRole;
 
   accountStatus: AccountStatus;
-
+  profileComplete: boolean;
   emailVerified: boolean;
   studentVerified: boolean;
 

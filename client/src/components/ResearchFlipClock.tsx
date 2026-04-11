@@ -329,7 +329,17 @@ export const ResearchFlipClock = () => {
       </div>
 
       {/* Data source attribution */}
-      <div style={{ width: '100%', display: 'flex', justifyContent: 'center', paddingTop: 4, paddingX: 8 }}>
+    
+        <div
+  style={{
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    paddingTop: 4,
+    paddingLeft: 8,
+    paddingRight: 8
+  }}
+>
         <a
           href="https://data.worldbank.org/indicator/SP.POP.SCIE.RD.P6"
           target="_blank"

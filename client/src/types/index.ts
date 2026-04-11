@@ -54,7 +54,6 @@ export type UserRole =
   | "DONOR"
   | "STUDENT_PRESIDENT";
 
-export interface User {
   id: string;
   email: string;
   name: string;
@@ -73,6 +72,8 @@ export interface User {
 
   createdAt: string;
   updatedAt: string;
+  // --- NEW FACULTY RELATION ---
+  approvedCampaigns?: Campaign[];
 }
 
 /* =========================================================
@@ -139,7 +140,6 @@ export interface Milestone {
   submissions?: MilestoneSubmission[];
 }
 
-export interface Campaign {
   id: string;
   title: string;
   clubId: string | null;
@@ -180,7 +180,13 @@ export interface Campaign {
   userId?: string;
   slug?: string;
 
-
+  // --- NEW FACULTY FIELDS ---
+  facultyApproved?: boolean;
+  facultyId?: string;
+  facultyApprovedAt?: string;
+  faculty?: {
+    name: string;
+  };
 
   // ✅ Milestone-based timeline
   milestones?: Milestone[];

@@ -23,6 +23,7 @@ interface BackendUser {
   isClubPresident?: boolean;
   isClubMember?: boolean;
   clubVerified?: boolean;
+  profileComplete?: boolean;
   name?: string;
   studentVerified?: boolean;
   accountStatus?: 'ACTIVE' | 'BLOCKED' | 'SUSPENDED' | 'UNDER_REVIEW';
@@ -61,6 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     role: mapBackendRole(backendUser.role),
     emailVerified: backendUser.emailVerified || false,
     clubIds: backendUser?.clubIds || [],
+    profileComplete: backendUser.profileComplete,
     createdAt: backendUser.createdAt || new Date().toISOString(),
     updatedAt: backendUser.updatedAt || new Date().toISOString(),
     isClubPresident: backendUser?.isClubPresident || false,

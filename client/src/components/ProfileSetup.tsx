@@ -273,7 +273,7 @@ export default function ProfileSetup() {
                 setLoading(false);
             }
         })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // ── Validation helpers ──
@@ -285,7 +285,7 @@ export default function ProfileSetup() {
         const ageMs = Date.now() - dob.getTime();
         return ageMs / (1000 * 60 * 60 * 24 * 365.25) >= 13;
     };
-
+    console.log(user)
     // ── Step config ──
     const studentSteps = ['Basic Info', 'Academic', 'Social & Bio', 'Address & Links'];
     const donorSteps = ['Personal', 'PAN & Tax', 'Other Details', 'Social & Bio'];

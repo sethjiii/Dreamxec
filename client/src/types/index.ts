@@ -51,6 +51,29 @@ export type UserRole =
   | "DONOR"
   | "STUDENT_PRESIDENT";
 
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+
+  accountStatus: AccountStatus;
+  profileComplete: boolean;
+  emailVerified: boolean;
+  studentVerified: boolean;
+
+  isClubPresident: boolean;
+  isClubMember: boolean;
+  clubVerified: boolean;
+
+  clubIds: string[];
+
+  createdAt: string;
+  updatedAt: string;
+}
+
+/* =========================================================
+   Campaign Types (User Projects)
 /* =========================================================
    Campaign Sub-Types
 ========================================================= */

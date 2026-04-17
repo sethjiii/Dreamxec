@@ -1,3 +1,16 @@
+const prisma = require('../../config/prisma');
+const catchAsync = require('../../utils/catchAsync');
+const AppError = require('../../utils/AppError');
+const uploadToCloudinary = require('../../utils/uploadToCloudinary');
+const { publishEvent } = require('../../services/eventPublisher.service');
+const EVENTS = require('../../config/events');
+const generateUniqueSlug = require("../../utils/generateSlug");
+const { getCache, setCache, delCache } = require('../../utils/cache');
+const isBot = require('../../utils/isBot');
+
+const PUBLIC_PROJECTS_TTL = 60;   // seconds
+const PROJECT_DETAIL_TTL  = 120;  // seconds
+
 // Faculty Approval Controller
 exports.approveByFaculty = catchAsync(async (req, res, next) => {
   const campaignId = req.params.id;
@@ -34,20 +47,6 @@ exports.approveByFaculty = catchAsync(async (req, res, next) => {
     },
   });
 });
-const prisma = require('../../config/prisma');
-const catchAsync = require('../../utils/catchAsync');
-const AppError = require('../../utils/AppError');
-const uploadToCloudinary = require('../../utils/uploadToCloudinary');
-const { publishEvent } = require('../../services/eventPublisher.service');
-const EVENTS = require('../../config/events');
-const generateUniqueSlug = require("../../utils/generateSlug");
-const { getCache, setCache, delCache } = require('../../utils/cache');
-const isBot = require('../../utils/isBot');
-
-const PUBLIC_PROJECTS_TTL = 60;   // seconds
-const PROJECT_DETAIL_TTL  = 120;  // seconds
-
-
 
 /* ======================================================
    CREATE USER PROJECT (WITH MILESTONES)

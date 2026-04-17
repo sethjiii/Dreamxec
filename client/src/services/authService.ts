@@ -15,6 +15,7 @@ export interface User {
   organizationName?: string;
   studentVerified?: boolean;
   accountStatus?: 'ACTIVE' | 'BLOCKED' | 'SUSPENDED' | 'UNDER_REVIEW';
+  profileComplete: boolean;
 }
 
 export interface RegisterData {

@@ -38,9 +38,23 @@ exports.protect = catchAsync(async (req, res, next) => {
   // Find user or donor
   let currentUser = await prisma.user.findUnique({ where: { id: decoded.id } });
 
+  // ---------------------------------------------------------
+  // RBAC UPDATE 1: Normalize roles for both Users and Donors
+  // ---------------------------------------------------------
   if (!currentUser) {
     currentUser = await prisma.donor.findUnique({ where: { id: decoded.id } });
-    if (currentUser) currentUser.role = 'DONOR';
+    if (currentUser) {
+      // Assign the new roles array based on donor tier
+      const donorRole = currentUser.subscriptionStatus === 'PREMIUM' ? 'PREMIUM_DONOR' : 'DONOR';
+      currentUser.roles = [donorRole]; 
+    }
+  } else {
+    // Safely ensure standard Users have the array even if migration missed them
+    currentUser.roles = currentUser.roles?.length 
+      ? currentUser.roles 
+      : currentUser.role 
+        ? [currentUser.role] 
+        : ["USER"];
   }
 
   // Token valid but user deleted (use AppError — real error)
@@ -55,9 +69,17 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
+// ---------------------------------------------------------
+// RBAC UPDATE 2: Patch legacy restrictTo middleware
+// ---------------------------------------------------------
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
+    const userRoles = req.user.roles || [];
+    
+    // Check if the user has ANY of the roles required by this route
+    const hasPermission = userRoles.some(role => roles.includes(role));
+
+    if (!hasPermission) {
       return next(
         new AppError('You do not have permission to perform this action.', 403)
       );

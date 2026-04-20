@@ -68,11 +68,16 @@ export const updateProfile = async (data: StudentProfileData | DonorProfileData)
     });
 };
 
+export interface ProfilePictureResponse {
+    profilePicture: string;
+    profile: ProfileResponse['profile'];
+}
+
 export const uploadProfilePicture = async (file: File) => {
     const formData = new FormData();
     formData.append('profileImage', file);
     
-    return apiRequest<ProfileResponse>('/profile/picture', {
+    return apiRequest<ProfilePictureResponse>('/profile/picture', {
         method: 'POST',
         body: formData,
     });

@@ -1,9 +1,9 @@
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const fs = require("fs/promises");
 const path = require("path");
-import axios from "axios"
+const axios = require("axios");
 const s3 = new S3Client({
-  region: process.env.AWS_REGION || "ap-south-2",
+  region: process.env.AWS_REGION || "ap-south-1",
   credentials: {
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     accessKeyId: process.env.AWS_ACCESS_KEY_ID
@@ -29,15 +29,15 @@ async function uploadToS3(file, folder) {
     await fs.unlink(file.path).catch(console.error);
 
     axios.post(process.env.LAMBDAAPI,{
-      imgUrl:`https://${process.env.CLOUDFROUNTURL}/${key}`,
+      imgUrl:`${process.env.CLOUDFROUNTURL}/${key}`,
       key:key
-    })
+    }).catch(console.error);
     
-    return `https://${process.env.CLOUDFROUNTURL}/${key}`;
+    return `${process.env.CLOUDFROUNTURL}/${key}`;
   } catch (err) {
     console.error("S3 Upload Error:", err);
     return null;
   }
 }
 
-module.exports = uploadToS3;
+module.exports = {uploadToS3};

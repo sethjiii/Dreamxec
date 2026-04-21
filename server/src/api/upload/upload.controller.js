@@ -1,4 +1,4 @@
-const uploadToCloudinary = require('../../utils/uploadToCloudinary');
+const uploadToS3 = require('../../utils/uploadToS3');
 const AppError = require('../../utils/AppError');
 const catchAsync = require('../../utils/catchAsync');
 
@@ -25,7 +25,7 @@ exports.uploadFiles = catchAsync(async (req, res, next) => {
        folder = `dreamxec/campaigns/${campaignId}/videos`;
     }
 
-    const url = await uploadToCloudinary(file.path, folder, resourceType);
+    const url = await uploadToS3(file, folder);
     return {
       originalName: file.originalname,
       mimeType: file.mimetype,

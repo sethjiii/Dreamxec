@@ -1,6 +1,7 @@
 const prisma = require('../../config/prisma');
 const catchAsync = require('../../utils/catchAsync');
 const AppError = require('../../utils/AppError');
+const uploadToS3 = require('../../utils/uploadToS3');
 
 // ─────────────────────────────────────────────────
 // HELPERS
@@ -271,5 +272,39 @@ exports.updateMyProfile = catchAsync(async (req, res, next) => {
   return res.status(200).json({
     status: 'success',
     data: { profile: updated, completionPct, role: updated.role },
+  });
+});
+
+// ─────────────────────────────────────────────────
+// POST /api/profile/picture
+// ─────────────────────────────────────────────────
+exports.updateProfilePicture = catchAsync(async (req, res, next) => {
+  const { id } = req.user;
+  const isDonor = req.user.role === 'DONOR';
+
+  if (!req.file) {
+    return next(new AppError('Please upload an image', 400));
+  }
+
+  const folder = `dreamxec/users/${id}/profile`;
+  const url = await uploadToS3(req.file, folder);
+
+  if (!url) {
+    return next(new AppError('Failed to upload image', 500));
+  }
+
+  let updated;
+  if (isDonor) {
+    updated = await prisma.donor.update({ where: { id }, data: { profilePicture: url } });
+  } else {
+    updated = await prisma.user.update({ where: { id }, data: { profilePicture: url } });
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      profilePicture: url,
+      profile: updated
+    }
   });
 });

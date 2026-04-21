@@ -71,6 +71,8 @@ export interface User {
 
   clubIds: string[];
 
+  profilePicture?: string;
+
   createdAt: string;
   updatedAt: string;
 }

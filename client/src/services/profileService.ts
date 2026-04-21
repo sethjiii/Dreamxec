@@ -67,3 +67,18 @@ export const updateProfile = async (data: StudentProfileData | DonorProfileData)
         body: JSON.stringify(data),
     });
 };
+
+export interface ProfilePictureResponse {
+    profilePicture: string;
+    profile: ProfileResponse['profile'];
+}
+
+export const uploadProfilePicture = async (file: File) => {
+    const formData = new FormData();
+    formData.append('profileImage', file);
+    
+    return apiRequest<ProfilePictureResponse>('/profile/picture', {
+        method: 'POST',
+        body: formData,
+    });
+};

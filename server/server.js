@@ -49,6 +49,7 @@ const seoRoutes = require("./src/api/seo/seo.routes");
 const profileRoutes = require("./src/api/profile/profile.routes");
 const mentorRoutes = require("./src/api/mentor/mentor.routes");
 
+
 // Passport config
 require("./src/config/passport");
 

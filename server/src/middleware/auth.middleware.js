@@ -68,22 +68,4 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = currentUser;
   next();
 });
-
-// ---------------------------------------------------------
-// RBAC UPDATE 2: Patch legacy restrictTo middleware
-// ---------------------------------------------------------
-exports.restrictTo = (...roles) => {
-  return (req, res, next) => {
-    const userRoles = req.user.roles || [];
-    
-    // Check if the user has ANY of the roles required by this route
-    const hasPermission = userRoles.some(role => roles.includes(role));
-
-    if (!hasPermission) {
-      return next(
-        new AppError('You do not have permission to perform this action.', 403)
-      );
-    }
-    next();
-  };
-};
+

@@ -7,6 +7,7 @@ const catchAsync = require('../../utils/catchAsync');
 const AppError = require('../../utils/AppError');
 const sendEmail = require('../../services/email.service');
 const { publishEvent } = require('../../services/eventPublisher.service');
+const { Roles } = require('../../rbac');
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -37,6 +38,27 @@ const createAndSendToken = (user, statusCode, res) => {
     data: {
       user,
     },
+  });
+};
+
+const linkDonorToUser = async (donorId) => {
+  const donor = await prisma.donor.findUnique({ where: { id: donorId } });
+  if (!donor) return;
+ 
+  const user = await prisma.user.findUnique({ where: { email: donor.email } });
+  if (!user) return;
+ 
+  const roleToAdd = donor.subscriptionStatus === 'PREMIUM'
+    ? Roles.PREMIUM_DONOR : Roles.DONOR;
+ 
+  await prisma.donor.update({
+    where: { id: donorId },
+    data: { linkedUserId: user.id }
+  });
+ 
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { roles: { push: roleToAdd } }
   });
 };
 
@@ -83,7 +105,7 @@ exports.register = catchAsync(async (req, res, next) => {
         name,
         email,
         password: hashedPassword,
-        role: role || 'USER',
+        roles: [role || 'USER'],
         verificationToken,
         verificationTokenExpiry,
       },
@@ -104,6 +126,14 @@ await prisma.donation.updateMany({
   }
 });
 
+if (accountType === 'DONOR') {
+  await linkDonorToUser(newAccount.id);
+} else {
+  const existingDonorRecord = await prisma.donor.findUnique({ where: { email } });
+  if (existingDonorRecord) {
+    await linkDonorToUser(existingDonorRecord.id);
+  }
+}
 
   // Send verification email
   try {
@@ -243,7 +273,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // Add role to account for consistency
   if (accountType === 'donor') {
-    account.role = 'DONOR';
+    account.roles = ['DONOR'];
   }
 
   createAndSendToken(account, 200, res);
@@ -332,10 +362,16 @@ exports.linkedinCallback = catchAsync(async (req, res, next) => {
       // Create donor profile attached to this user
       await createDonorProfile(req.user.id);
       console.log('LinkedIn callback: created DONOR profile for user', req.user.id);
+      
+      const donorProfile = await prisma.donor.findUnique({ where: { email: req.user.email } });
+      if (donorProfile) await linkDonorToUser(donorProfile.id);
     } else {
       // Create student profile (default)
       await createStudentProfile(req.user.id);
       console.log('LinkedIn callback: created STUDENT profile for user', req.user.id);
+      
+      const donorProfile = await prisma.donor.findUnique({ where: { email: req.user.email } });
+      if (donorProfile) await linkDonorToUser(donorProfile.id);
     }
 
     const token = signToken(req.user.id);

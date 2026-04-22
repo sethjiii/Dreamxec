@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProfile, updateProfile } from '../services/profileService';
 import { useAuth } from '../context/AuthContext';
+import { can } from '../rbac/engine';
+import { Permissions } from '../rbac/permissions';
+import { Roles } from '../rbac/roles';
 
 /* ─────────────────────────────────────────
    TYPES
@@ -155,12 +158,10 @@ export default function ProfileSetup() {
     const navigate = useNavigate();
     const { user } = useAuth();
 
-    // ── Derive initial role from AuthContext immediately (no API wait) ──
     const getInitialRole = (): Role => {
         if (!user) return 'USER';
-        // AuthContext stores the frontend-mapped role ('donor', 'student', etc.)
-        if (user.role === 'donor') return 'DONOR';
-        if (user.role === 'STUDENT_PRESIDENT') return 'STUDENT_PRESIDENT';
+        if (can(user.roles || [], Permissions.DASHBOARD_DONOR_VIEW)) return 'DONOR';
+        if (can(user.roles || [], Permissions.CLUB_MANAGE)) return 'STUDENT_PRESIDENT';
         return 'USER';
     };
 

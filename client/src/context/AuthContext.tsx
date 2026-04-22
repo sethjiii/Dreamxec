@@ -15,7 +15,8 @@ type BackendRoleType = 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT';
 interface BackendUser {
   id: string;
   email: string;
-  role: BackendRoleType;
+  role?: BackendRoleType;
+  roles?: string[];
   emailVerified?: boolean;
   clubIds?: string[];
   createdAt?: string;
@@ -58,7 +59,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const createUserData = (backendUser: BackendUser): User => ({
     id: backendUser.id,
     email: backendUser.email,
-    role: mapBackendRole(backendUser.role),
+    role: mapBackendRole(backendUser.roles),
+    roles: backendUser.roles || [],
     emailVerified: backendUser.emailVerified || false,
     clubIds: backendUser?.clubIds || [],
     createdAt: backendUser.createdAt || new Date().toISOString(),

@@ -1,13 +1,14 @@
 const express = require('express');
 const adminController = require('./admin.controller');
-const { protect, restrictTo } = require('../../middleware/auth.middleware');
+const { protect } = require('../../middleware/auth.middleware');
+const { requirePermission, Permissions } = require('../../rbac');
 const upload = require('../../middleware/upload.middleware');
 const studentVerificationController = require('../../api/studentVerification/studentverfication.controller')
 
 const router = express.Router();
 
 router.use(protect);
-router.use(restrictTo('ADMIN'));
+router.use(requirePermission(Permissions.ALL));
 
 // --- DASHBOARD STATS ---
 router.get('/stats', adminController.getDashboardStats); // Make sure controller has this!
@@ -17,9 +18,9 @@ router.get('/projects', adminController.getAllProjects);
 router.patch('/projects/user/:id/verify', adminController.verifyUserProject);
 router.patch('/projects/donor/:id/verify', adminController.verifyDonorProject);
 
-// --- USERS & GOVERNANCE ---
 router.get('/users', adminController.getAllUsers);
 router.patch('/users/:id/status', adminController.manageUserStatus); // <--- NEW
+router.post('/faculty-role', adminController.assignFacultyRole);
 
 router.get('/donors', adminController.getAllDonors);
 

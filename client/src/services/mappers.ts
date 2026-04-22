@@ -32,19 +32,12 @@ export const PROJECT_STATUS = {
 
 // Backend → Frontend
 export const mapBackendRole = (
-  backendRole: 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'
+  backendRoles: string[] = []
 ): UserRole => {
-  const roleMap: Record<
-    'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT',
-    UserRole
-  > = {
-    USER: 'student',
-    DONOR: 'donor',
-    ADMIN: 'admin',
-    STUDENT_PRESIDENT: 'STUDENT_PRESIDENT',
-  };
-
-  return roleMap[backendRole] ?? 'student';
+  if (backendRoles.includes('ADMIN')) return 'admin';
+  if (backendRoles.includes('STUDENT_PRESIDENT')) return 'STUDENT_PRESIDENT';
+  if (backendRoles.includes('PREMIUM_DONOR') || backendRoles.includes('DONOR')) return 'donor';
+  return 'student'; // Fallback mapping for USER
 };
 
 // Frontend → Backend

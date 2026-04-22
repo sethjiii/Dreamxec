@@ -47,6 +47,9 @@ import { getPublicDonorProjects, createDonorProject, getMyDonorProjects } from '
 import { getAllProjects, verifyUserProject, verifyDonorProject } from './services/adminService';
 import { applyToProject, getMyApplications } from './services/applicationService';
 import { mapBackendRole, mapFrontendRole, mapUserProjectToCampaign, mapDonorProjectToProject } from './services/mappers';
+import { can } from './rbac/engine';
+import { Permissions } from './rbac/permissions';
+import { Roles } from './rbac/roles';
 import StartAProject from './sections/Pages/innovators/StartAProject';
 import HowItWorksStudents from './sections/Pages/innovators/HowItWorks';
 import ProjectEligibility from './sections/Pages/innovators/ProjectEligibility';
@@ -131,7 +134,7 @@ function AppContent() {
           const userData: User = {
             id: response.data.user.id,
             email: response.data.user.email,
-            role: mapBackendRole(response.data.user.role),
+            roles: response.data.user.roles || ['USER'],
             emailVerified: response.data.user.emailVerified || false,
             clubIds: response.data.user?.clubIds || [],
             createdAt: response.data.user.createdAt || new Date().toISOString(),
@@ -189,7 +192,7 @@ function AppContent() {
   // Load ALL projects for admin users
   useEffect(() => {
     const loadAdminData = async () => {
-      if (user?.role === 'admin') {
+      if (can(user?.roles || [], Permissions.USER_MANAGE)) {
         try {
           console.log('📊 Loading all projects for admin...');
           const response = await getAllProjects();
@@ -209,12 +212,12 @@ function AppContent() {
     };
 
     loadAdminData();
-  }, [user?.role]);
+  }, [user?.roles]);
 
   // Load user-specific data for donors only
   useEffect(() => {
     const loadUserData = async () => {
-      if (user?.role === 'donor') {
+      if (can(user?.roles || [], Permissions.DASHBOARD_DONOR_VIEW)) {
         try {
           console.log('💼 Loading donor projects...');
           const response = await getMyDonorProjects();
@@ -229,12 +232,12 @@ function AppContent() {
     };
 
     loadUserData();
-  }, [user?.role, user?.id]);
+  }, [user?.roles, user?.id]);
 
   // Load user applications for students
   useEffect(() => {
     const loadUserApplications = async () => {
-      if (user?.role === 'student') {
+      if (can(user?.roles || [], Permissions.DASHBOARD_STUDENT_VIEW)) {
         try {
           console.log('📝 Loading user applications for student:', user.name);
           const response = await getMyApplications();
@@ -254,7 +257,7 @@ function AppContent() {
     };
 
     loadUserApplications();
-  }, [user?.role, user?.id]);
+  }, [user?.roles, user?.id]);
 
   // ✅ Campaign filters (STATUS SAFE + CREATEDBY SAFE)
 
@@ -555,7 +558,7 @@ function AppContent() {
         const userData: User = {
           id: response.data.user.id,
           email: response.data.user.email,
-          role: mapBackendRole(response.data.user.role),
+          roles: response.data.user.roles || ['USER'],
           emailVerified: response.data.user?.emailVerified || false,
           clubIds: response.data.user?.clubIds || [],
           createdAt: response.data.user.createdAt || new Date().toISOString(),
@@ -577,13 +580,13 @@ function AppContent() {
           return;
         }
 
-        if (userData.role === 'student') {
+        if (can(userData.roles || [], Permissions.DASHBOARD_STUDENT_VIEW)) {
           navigate('/dashboard');
-        } else if (userData.role === 'donor') {
+        } else if (can(userData.roles || [], Permissions.DASHBOARD_DONOR_VIEW)) {
           navigate('/donor/dashboard');
-        } else if (userData.role === 'admin') {
+        } else if (can(userData.roles || [], Permissions.USER_MANAGE)) {
           navigate('/admin');
-        } else if (userData.role === 'STUDENT_PRESIDENT') {
+        } else if (can(userData.roles || [], Permissions.CLUB_MANAGE)) {
           navigate('/president');
         }
       }
@@ -623,7 +626,7 @@ function AppContent() {
         const userData: User = {
           id: response.data.user.id,
           email: response.data.user.email,
-          role: mapBackendRole(response.data.user.role),
+          role: mapBackendRole(response.data.user.roles),
           emailVerified: response.data.user.emailVerified || false,
           clubIds: response.data.user?.clubIds || [],
           createdAt: response.data.user.createdAt || new Date().toISOString(),
@@ -651,11 +654,11 @@ function AppContent() {
           return;
         }
 
-        if (userData.role === 'student') {
+        if (can(userData.roles || [], Permissions.DASHBOARD_STUDENT_VIEW)) {
           navigate('/dashboard');
-        } else if (userData.role === 'donor') {
+        } else if (can(userData.roles || [], Permissions.DASHBOARD_DONOR_VIEW)) {
           navigate('/donor/dashboard');
-        } else if (userData.role === 'admin') {
+        } else if (can(userData.roles || [], Permissions.USER_MANAGE)) {
           navigate('/admin');
         }
       }
@@ -713,7 +716,7 @@ function AppContent() {
     const userData: User = {
       id: backendUser.id,
       email: backendUser.email,
-      role: mapBackendRole(backendUser.role),
+      role: mapBackendRole(backendUser.roles),
       emailVerified: backendUser.emailVerified || false,
       clubIds: backendUser?.clubIds || [],
       createdAt: backendUser.createdAt || new Date().toISOString(),
@@ -983,57 +986,11 @@ function AppContent() {
                                 }
                               />
                               <Route path="/refer-club" element={<ReferClub />} />
-                              {/* Student Dashboard */}
-                              {/* <Route
-                                path="/dashboard"
-                                element={
-                                  (user?.role === 'student' || user?.role === 'STUDENT_PRESIDENT') ? (
-                                    <>
-                                      <Header
-                                        currentUser={user}
-                                        onLogin={handleLoginClick}
-                                        onLogout={handleLogout}
-                                      />
-                                      <StudentDashboard
-                                        studentName={user.name || 'User'}
-                                        campaigns={userCampaigns}
-                                        user={user}
-                                        studentVerified={user.studentVerified}
-                                        onCreateCampaign={() => navigate('/create')}
-                                        onViewCampaign={(id) => navigate(`/campaign/${id}`)}
-                                        isClubPresident={user.role === 'STUDENT_PRESIDENT'}
-                                        isClubMember={false}
-                                        clubVerified={user.role === 'STUDENT_PRESIDENT'}
-                                      />
 
-                                    </>
-                                  ) : (
-                                    <div className="min-h-screen flex items-center justify-center bg-dreamxec-cream">
-                                      <div className="card-pastel-offwhite rounded-xl border-5 border-dreamxec-navy shadow-pastel-card p-12 text-center max-w-md">
-                                        <div className="card-tricolor-tag"></div>
-                                        <p className="text-dreamxec-navy text-xl font-sans mt-4">
-                                          <p className="text-dreamxec-navy text-xl font-sans mt-4">
-                                            Every journey begins with the right role.
-                                            <br />
-                                            Log in as a student to access your DreamXec dashboard.
-                                          </p>
-                                          <button
-                                            onClick={() => navigate("/auth")}
-                                            className="mt-8 px-8 py-3 bg-dreamxec-orange text-white font-bold rounded-xl
-                     hover:bg-dreamxec-saffron transition-colors shadow-lg"
-                                          >
-                                            Log in
-                                          </button>
-                                        </p>
-                                      </div>
-                                    </div>
-                                  )
-                                }
-                              /> */}
                               <Route
                                 path="/dashboard"
                                 element={
-                                  (user?.role === 'student' || user?.role === 'STUDENT_PRESIDENT') ? (
+                                  can(user?.roles || [], Permissions.DASHBOARD_STUDENT_VIEW) ? (
                                     <>
                                       <Header
                                         currentUser={user}
@@ -1045,9 +1002,9 @@ function AppContent() {
                                         campaigns={userCampaigns}
                                         onCreateCampaign={() => navigate('/create')}
                                         onViewCampaign={(id) => navigate(`/campaign/${id}`)}
-                                        isClubPresident={user?.role === 'STUDENT_PRESIDENT'}
+                                        isClubPresident={user?.roles?.includes(Roles.STUDENT_PRESIDENT)}
                                         isClubMember={user.isClubMember}
-                                        clubVerified={user?.role === 'STUDENT_PRESIDENT'}
+                                        clubVerified={user?.roles?.includes(Roles.STUDENT_PRESIDENT)}
                                         user={user}
                                         studentVerified={user.studentVerified}
                                       />
@@ -1081,7 +1038,7 @@ function AppContent() {
                               <Route
                                 path="/create"
                                 element={
-                                  user?.role === 'student' || user?.role === 'STUDENT_PRESIDENT' ? (
+                                  can(user?.roles || [], Permissions.CAMPAIGN_CREATE) ? (
                                     <>
                                       <Header
                                         currentUser={user}
@@ -1129,7 +1086,7 @@ function AppContent() {
                               <Route
                                 path="/admin"
                                 element={
-                                  user?.role === 'admin' ? (
+                                  can(user?.roles || [], Permissions.USER_MANAGE) ? (
                                     <>
                                       <Header
                                         currentUser={user}
@@ -1155,7 +1112,7 @@ function AppContent() {
                               <Route
                                 path="/admin/referrals"
                                 element={
-                                  user?.role === 'admin' ? (
+                                  can(user?.roles || [], Permissions.USER_MANAGE) ? (
                                     <>
                                       <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
                                       <AdminClubReferrals />
@@ -1170,7 +1127,7 @@ function AppContent() {
                               <Route
                                 path="/admin/club-referrals"
                                 element={
-                                  user?.role === 'admin' ? (
+                                  can(user?.roles || [], Permissions.USER_MANAGE) ? (
                                     <>
                                       <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
                                       <AdminClubReferrals />
@@ -1186,7 +1143,7 @@ function AppContent() {
                               <Route
                                 path="/admin/verifications"
                                 element={
-                                  user?.role === 'admin' ? (
+                                  can(user?.roles || [], Permissions.USER_MANAGE) ? (
                                     <>
                                       <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
                                       <AdminClubVerifications />
@@ -1201,7 +1158,7 @@ function AppContent() {
                               <Route
                                 path="/admin/club-verifications"
                                 element={
-                                  user?.role === 'admin' ? (
+                                  can(user?.roles || [], Permissions.USER_MANAGE) ? (
                                     <>
                                       <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
                                       <AdminClubVerifications />
@@ -1216,7 +1173,7 @@ function AppContent() {
                               <Route
                                 path="/admin/financials"
                                 element={
-                                  user?.role === 'admin' ? (
+                                  can(user?.roles || [], Permissions.USER_MANAGE) ? (
                                     <>
                                       <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
                                       <AdminFinancials />
@@ -1229,7 +1186,7 @@ function AppContent() {
                                 }
                               />
                               <Route path="/admin/milestones" element={
-                                user?.role === 'admin' ? (
+                                can(user?.roles || [], Permissions.USER_MANAGE) ? (
                                   <>
                                     <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
                                     <AdminMilestones />
@@ -1241,7 +1198,7 @@ function AppContent() {
                                 )
                               } />
                               <Route path="/admin/student-verifications" element={
-                                user?.role === 'admin' ? (
+                                can(user?.roles || [], Permissions.USER_MANAGE) ? (
                                   <>
                                     <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
                                     <AdminStudentVerifications />
@@ -1253,7 +1210,7 @@ function AppContent() {
                                 )
                               } />
                               <Route path="/admin/audit-logs" element={
-                                user?.role === 'admin' ? (
+                                can(user?.roles || [], Permissions.USER_MANAGE) ? (
                                   <>
                                     <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
                                     <AdminAuditLogs />
@@ -1265,7 +1222,7 @@ function AppContent() {
                                 )
                               } />
                               <Route path="/admin/donors" element={
-                                user?.role === 'admin' ? (
+                                can(user?.roles || [], Permissions.USER_MANAGE) ? (
                                   <>
                                     <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
                                     <AdminDonors />
@@ -1277,7 +1234,7 @@ function AppContent() {
                                 )
                               } />
                               <Route path="/admin/applications" element={
-                                user?.role === 'admin' ? (
+                                can(user?.roles || [], Permissions.USER_MANAGE) ? (
                                   <>
                                     <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
                                     <AdminApplications />
@@ -1290,7 +1247,7 @@ function AppContent() {
                               } />
 
                               <Route path="/admin/campaigns" element={
-                                user?.role === 'admin' ? (
+                                can(user?.roles || [], Permissions.USER_MANAGE) ? (
                                   <>
                                     <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
                                     <AdminCampaigns />
@@ -1306,7 +1263,7 @@ function AppContent() {
                               <Route
                                 path="/admin/users"
                                 element={
-                                  user?.role === 'admin' ? (
+                                  can(user?.roles || [], Permissions.USER_MANAGE) ? (
                                     <>
                                       <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
                                       <AdminUsers />
@@ -1323,7 +1280,7 @@ function AppContent() {
                               <Route
                                 path="/admin/clubs"
                                 element={
-                                  user?.role === 'admin' ? (
+                                  can(user?.roles || [], Permissions.USER_MANAGE) ? (
                                     <>
                                       <Header currentUser={user} onLogin={handleLoginClick} onLogout={handleLogout} />
                                       <AdminClubs />
@@ -1433,7 +1390,7 @@ function AppContent() {
                               <Route
                                 path="/donor/dashboard"
                                 element={
-                                  user?.role === 'donor' ? (
+                                  can(user?.roles || [], Permissions.DASHBOARD_DONOR_VIEW) ? (
                                     <>
                                       <Header
                                         currentUser={user}
@@ -1495,7 +1452,7 @@ function AppContent() {
                               <Route
                                 path="/donor/create"
                                 element={
-                                  user?.role === 'donor' ? (
+                                  can(user?.roles || [], Permissions.DONOR_PROJECT_CREATE) ? (
                                     <>
                                       <Header
                                         currentUser={user}
@@ -1524,7 +1481,7 @@ function AppContent() {
                               <Route
                                 path="/donor/projects"
                                 element={
-                                  user?.role === 'donor' ? (
+                                  can(user?.roles || [], Permissions.DONOR_PROJECT_CREATE) ? (
                                     <>
                                       <Header
                                         currentUser={user}
@@ -1556,7 +1513,7 @@ function AppContent() {
                               <Route
                                 path="/projects"
                                 element={
-                                  user?.role === 'student' || user?.role === 'STUDENT_PRESIDENT' ? (
+                                  can(user?.roles || [], Permissions.DONOR_PROJECT_APPLY) ? (
                                     <>
                                       <Header
                                         currentUser={user}
@@ -1566,7 +1523,6 @@ function AppContent() {
                                       <BrowseProjects
                                         projects={approvedProjects}
                                         currentUserId={user?.id}
-                                        role={user?.role}
                                         onApply={handleApplyToProject}
                                         userApplications={userApplications}
                                       />

@@ -1,4 +1,9 @@
-const Permissions = {
+export const Permissions = {
+  // Views
+  DASHBOARD_STUDENT_VIEW:     "dashboard:student:view",
+  DASHBOARD_ADMIN_VIEW:       "dashboard:admin:view",
+  DASHBOARD_DONOR_VIEW:       "dashboard:donor:view",
+
   // Campaign
   CAMPAIGN_VIEW:              "campaign:view",
   CAMPAIGN_CREATE:            "campaign:create",
@@ -44,5 +49,3 @@ const Permissions = {
  
   ALL:                        "*",
 };
- 
-module.exports = { Permissions };

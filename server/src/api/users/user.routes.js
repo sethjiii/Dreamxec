@@ -1,6 +1,7 @@
 const express = require('express');
 const userController = require('./user.controller');
-const { protect, restrictTo } = require('../../middleware/auth.middleware');
+const { protect } = require('../../middleware/auth.middleware');
+const { requirePermission, Permissions } = require('../../rbac');
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ router.use(protect);
 router.get('/me', userController.getMe);
 
 // ADMIN routes
-router.use(restrictTo('ADMIN'));
+router.use(requirePermission(Permissions.USER_MANAGE));
 
 router.get('/', userController.getAllUsers);
 router.patch('/:id/suspend', userController.suspendUser); // Example admin action

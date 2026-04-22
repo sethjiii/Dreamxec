@@ -1,13 +1,15 @@
-const { Roles } = require("./roles");
-const { Permissions } = require("./permissions");
+import { Roles } from "./roles";
+import { Permissions } from "./permissions";
 
-const ROLE_GRANTS = {
+export const ROLE_GRANTS: Record<string, string[]> = {
     [Roles.USER] : [
         Permissions.CAMPAIGN_VIEW,
+        Permissions.DASHBOARD_STUDENT_VIEW,
     ],
 
     [Roles.STUDENT] : [
         Permissions.CAMPAIGN_VIEW,
+        Permissions.DASHBOARD_STUDENT_VIEW,
         Permissions.CAMPAIGN_CREATE,
         Permissions.CAMPAIGN_OWN_EDIT,
         Permissions.MILESTONE_SUBMIT,
@@ -36,6 +38,7 @@ const ROLE_GRANTS = {
 
     [Roles.DONOR] : [
         Permissions.CAMPAIGN_VIEW,
+        Permissions.DASHBOARD_DONOR_VIEW,
         Permissions.DONATION_MAKE,
         Permissions.DONOR_PROJECT_CREATE,
         Permissions.DONOR_PROJECT_APPS_VIEW,
@@ -49,7 +52,6 @@ const ROLE_GRANTS = {
     [Roles.FACULTY] : [
         Permissions.CAMPAIGN_VIEW,
         Permissions.CAMPAIGN_REVIEW,
-        // campaign:approve is ADMIN only — see spec Section 13.1
         Permissions.MILESTONE_APPROVE,
         Permissions.MILESTONE_REJECT,
         Permissions.CLUB_VERIFY,
@@ -73,5 +75,3 @@ const ROLE_GRANTS = {
         Permissions.ALL, 
     ],
 };
-
-module.exports = { ROLE_GRANTS };

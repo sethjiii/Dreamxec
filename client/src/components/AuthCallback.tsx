@@ -33,7 +33,7 @@ export default function AuthCallback() {
         }
 
         const user = response.data.user;
-        const frontendRole = mapBackendRole(user.role);
+        const frontendRole = mapBackendRole(user.roles || []);
 
         // 4. Check profile completion — redirect to setup if incomplete
         const profileComplete = (user as any).profileComplete;

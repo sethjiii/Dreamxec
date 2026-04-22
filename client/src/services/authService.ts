@@ -11,7 +11,8 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'; // Added STUDENT_PRESIDENT
+  role?: 'USER' | 'DONOR' | 'ADMIN' | 'STUDENT_PRESIDENT'; // Added STUDENT_PRESIDENT
+  roles?: string[];
   organizationName?: string;
   studentVerified?: boolean;
   accountStatus?: 'ACTIVE' | 'BLOCKED' | 'SUSPENDED' | 'UNDER_REVIEW';

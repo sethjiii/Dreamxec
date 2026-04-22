@@ -39,7 +39,7 @@ function calcDonorCompletion(d) {
 // ─────────────────────────────────────────────────
 exports.getMyProfile = catchAsync(async (req, res, next) => {
   const { id } = req.user;
-  const isDonor = req.user.role === 'DONOR';
+  const isDonor = req.user.roles?.includes('DONOR') || req.user.roles?.includes('PREMIUM_DONOR');
 
   let profile;
 
@@ -91,7 +91,7 @@ exports.getMyProfile = catchAsync(async (req, res, next) => {
       id: true,
       name: true,
       email: true,
-      role: true,
+      roles: true,
       emailVerified: true,
       studentVerified: true,
       accountStatus: true,
@@ -124,7 +124,7 @@ exports.getMyProfile = catchAsync(async (req, res, next) => {
   const completionPct = calcStudentCompletion(profile);
   return res.status(200).json({
     status: 'success',
-    data: { profile, completionPct, role: profile.role },
+    data: { profile, completionPct, roles: profile.roles },
   });
 });
 
@@ -133,10 +133,10 @@ exports.getMyProfile = catchAsync(async (req, res, next) => {
 // ─────────────────────────────────────────────────
 exports.updateMyProfile = catchAsync(async (req, res, next) => {
   const { id } = req.user;
-  const isDonor = req.user.role === 'DONOR';
+  const isDonor = req.user.roles?.includes('DONOR') || req.user.roles?.includes('PREMIUM_DONOR');
 
   // Disallow role changes
-  if (req.body.role !== undefined || req.body.accountType !== undefined) {
+  if (req.body.roles !== undefined || req.body.role !== undefined || req.body.accountType !== undefined) {
     return next(new AppError('Role cannot be changed via this endpoint.', 400));
   }
 
@@ -270,6 +270,6 @@ exports.updateMyProfile = catchAsync(async (req, res, next) => {
 
   return res.status(200).json({
     status: 'success',
-    data: { profile: updated, completionPct, role: updated.role },
+    data: { profile: updated, completionPct, roles: updated.roles },
   });
 });

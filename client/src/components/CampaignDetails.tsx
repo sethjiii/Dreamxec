@@ -22,6 +22,8 @@ import CommentSection from "./comments/CommentSection";
 import { Resizable } from "re-resizable";
 import PublicMilestoneEcosystem from './milestones/PublicMilestoneEcosystem';
 import SEO from "../components/SEO";
+import { can } from "../rbac/engine";
+import { Permissions } from "../rbac/permissions";
 
 interface CampaignDetailsProps {
   currentUser: User | null;
@@ -236,7 +238,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
 
   useEffect(() => {
     const checkWishlistStatus = async () => {
-      const isDonorUser = currentUser?.role === 'donor' || currentUser?.role === 'DONOR';
+      const isDonorUser = can(currentUser?.roles || [], Permissions.DASHBOARD_DONOR_VIEW);
       if (!isDonorUser || !id) return;
       try {
         const token = localStorage.getItem('token');
@@ -290,7 +292,7 @@ export default function CampaignDetails({ currentUser, campaigns, onLogin, onLog
 
   const progressPercentage = Math.min((campaign.currentAmount / campaign.goalAmount) * 100, 100);
   const remainingAmount = campaign.goalAmount - campaign.currentAmount;
-  const isDonor = currentUser?.role === 'donor' || currentUser?.role === 'DONOR';
+  const isDonor = can(currentUser?.roles || [], Permissions.DASHBOARD_DONOR_VIEW);
   const deckIframeHeight = isDesktop ? 700 : 320;
 
   const handleDonate = () => setShowDonateModal(true);

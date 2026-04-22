@@ -285,9 +285,12 @@ import { DesktopMenu } from "./DesktopMenu";
 import { NewsletterModal } from "../../../components/NewsletterModal";
 import type { UserRole } from "../../../types";
 import { getProfile } from "../../../services/profileService";
+import { can } from "../../../rbac/engine";
+import { Permissions } from "../../../rbac/permissions";
+import { Roles } from "../../../rbac/roles";
 
 interface NavbarProps {
-  currentUser?: { name: string; role: UserRole } | null;
+  currentUser?: any | null;
   onLogin?: () => void;
   onLogout?: () => void;
 }
@@ -305,9 +308,10 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
       return;
     }
     const showCompletion =
-      currentUser.role === 'donor' ||
-      currentUser.role === 'student' ||
-      currentUser.role === 'STUDENT_PRESIDENT';
+      currentUser.roles?.includes('DONOR') ||
+      currentUser.roles?.includes('STUDENT') ||
+      currentUser.roles?.includes('STUDENT_PRESIDENT') ||
+      currentUser.roles?.includes('USER');
     if (!showCompletion) {
       setCompletionPct(null);
       return;
@@ -323,13 +327,21 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
         if (!cancelled) setCompletionPct(null);
       });
     return () => { cancelled = true; };
-  }, [currentUser?.role]);
+  }, [currentUser?.roles]);
 
   console.log(currentUser);
 
   // Helper to check if user is a student type (regular or president)
   // Presidents also get the clickable profile button
-  const isStudentType = currentUser && (currentUser.role === 'student' || currentUser.role === 'STUDENT_PRESIDENT');
+  const isStudentType = currentUser && can(currentUser.roles || [], Permissions.DASHBOARD_STUDENT_VIEW);
+
+  const getUserTitle = () => {
+    if (!currentUser?.roles) return 'Student';
+    if (currentUser.roles.includes('ADMIN')) return 'Admin';
+    if (currentUser.roles.includes('STUDENT_PRESIDENT')) return 'President';
+    if (currentUser.roles.includes('DONOR') || currentUser.roles.includes('PREMIUM_DONOR')) return 'Donor';
+    return 'Student';
+  };
 
 
   return (
@@ -396,7 +408,7 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
                       >
                         {completionPct !== null
                           ? `${completionPct >= 80 ? '✅' : '⚠️'} Profile ${completionPct}%`
-                          : currentUser.role === 'STUDENT_PRESIDENT' ? 'President' : 'Student'}
+                          : getUserTitle()}
                       </span>
                     </div>
                   </button>
@@ -406,7 +418,7 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
                 {!isStudentType && (
                   <div
                     className="hidden md:flex items-center gap-2 bg-dreamxec-beige border-2 border-dreamxec-navy rounded-xl px-3 py-2 shadow-md cursor-pointer hover:bg-dreamxec-cream transition-all"
-                    onClick={() => currentUser.role === 'donor' ? navigate('/profile/setup') : undefined}
+                    onClick={() => can(currentUser.roles || [], Permissions.DASHBOARD_DONOR_VIEW) ? navigate('/profile/setup') : undefined}
                   >
                     <div className="relative w-8 h-8">
                       <div className="w-8 h-8 bg-dreamxec-orange border-2 border-dreamxec-navy rounded-full flex items-center justify-center">
@@ -414,7 +426,7 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
                           {currentUser.name.charAt(0).toUpperCase()}
                         </span>
                       </div>
-                      {completionPct !== null && currentUser.role === 'donor' && completionPct < 100 && (
+                      {completionPct !== null && can(currentUser.roles || [], Permissions.DASHBOARD_DONOR_VIEW) && completionPct < 100 && (
                         <span
                           className="absolute -bottom-1 -right-1 text-[9px] font-black text-white px-1 rounded-full border border-white leading-tight"
                           style={{ background: completionPct >= 80 ? '#0B9C2C' : '#FF7F00' }}
@@ -430,13 +442,13 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
                       <span
                         className="text-xs font-bold font-sans"
                         style={{
-                          color: (completionPct !== null && currentUser.role === 'donor') ? (completionPct >= 80 ? '#0B9C2C' : '#FF7F00') : undefined,
-                          opacity: (completionPct !== null && currentUser.role === 'donor') ? 1 : 0.7
+                          color: (completionPct !== null && can(currentUser.roles || [], Permissions.DASHBOARD_DONOR_VIEW)) ? (completionPct >= 80 ? '#0B9C2C' : '#FF7F00') : undefined,
+                          opacity: (completionPct !== null && can(currentUser.roles || [], Permissions.DASHBOARD_DONOR_VIEW)) ? 1 : 0.7
                         }}
                       >
-                        {(completionPct !== null && currentUser.role === 'donor')
+                        {(completionPct !== null && can(currentUser.roles || [], Permissions.DASHBOARD_DONOR_VIEW))
                           ? `${completionPct >= 80 ? '✅' : '⚠️'} Profile ${completionPct}%`
-                          : currentUser.role === 'donor' ? 'Donor' : 'Admin'}
+                          : getUserTitle()}
                       </span>
                     </div>
                   </div>
@@ -485,7 +497,7 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
                           {currentUser.name}
                         </span>
                         <span className="text-dreamxec-navy text-xs opacity-70 font-sans">
-                          {currentUser.role === 'STUDENT_PRESIDENT' ? 'President' : 'Student'}
+                          {getUserTitle()}
                         </span>
                       </div>
                     </div>
@@ -506,7 +518,7 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
                           {currentUser.name}
                         </span>
                         <span className="text-dreamxec-navy text-xs opacity-70 font-sans">
-                          {currentUser.role === 'donor' ? 'Donor' : 'Admin'}
+                          {getUserTitle()}
                         </span>
                       </div>
                     </div>
@@ -514,7 +526,7 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
                 )}
 
                 {/* Student Links */}
-                {currentUser.role === 'student' && (
+                {can(currentUser.roles || [], Permissions.DASHBOARD_STUDENT_VIEW) && !can(currentUser.roles || [], Permissions.CLUB_MANAGE) && (
                   <>
                     <a
                       href="/dashboard"
@@ -545,7 +557,7 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
                 )}
 
                 {/* STUDENT PRESIDENT Links */}
-                {currentUser.role === 'STUDENT_PRESIDENT' && (
+                {can(currentUser.roles || [], Permissions.CLUB_MANAGE) && (
                   <>
                     <a
                       href="/dashboard"
@@ -575,7 +587,7 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
                 )}
 
                 {/* Admin Links */}
-                {currentUser.role === 'admin' && (
+                {can(currentUser.roles || [], Permissions.USER_MANAGE) && (
                   <>
                     <a
                       href="/admin"
@@ -593,7 +605,7 @@ export const Navbar = ({ currentUser, onLogin, onLogout }: NavbarProps) => {
                 )}
 
                 {/* Donor Links */}
-                {currentUser.role === 'donor' && (
+                {can(currentUser.roles || [], Permissions.DASHBOARD_DONOR_VIEW) && (
                   <>
                     <a
                       href="/donor/dashboard"

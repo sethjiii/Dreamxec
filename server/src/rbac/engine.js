@@ -24,13 +24,12 @@ function resolveRole(role, visited = new Set()){
     return effective;
 }
 
-function resolveUserPermissions( userRoles = []){
-    const effective = new Set();
-    for(const role of userRoles){
-        resolveRole(role.forEach(p => effective.add(p)));
-    }
-
-    return effective;
+function resolveUserPermissions(userRoles = []) {
+  const effective = new Set();
+  for (const role of userRoles) {
+    resolveRole(role).forEach(p => effective.add(p));
+  }
+  return effective;
 }
 
 function can(userRoles, permission) {

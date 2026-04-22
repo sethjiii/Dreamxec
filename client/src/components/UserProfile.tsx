@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { StarDecoration } from './icons/StarDecoration';
 import { Header } from '../sections/Header';
 import type { User } from '../types';
+import { can } from '../rbac/engine';
+import { Permissions } from '../rbac/permissions';
 
 const BankIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -177,10 +179,10 @@ export default function UserProfile({ user, onBack, onUpdateBankDetails, onLogou
               </p>
               <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-dreamxec-beige border-2 border-dreamxec-navy rounded-lg">
                 <span className="text-dreamxec-navy font-bold text-sm font-display">
-                  {user.role === 'student' && '🎓 Student'}
-                  {user.role === 'STUDENT_PRESIDENT' && '🎓 Student President'}
-                  {user.role === 'admin' && '🛡️ Admin'}
-                  {user.role === 'donor' && '❤️ Donor'}
+                  {user.roles?.includes('ADMIN') ? '🛡️ Admin' :
+                   user.roles?.includes('STUDENT_PRESIDENT') ? '🎓 Student President' :
+                   user.roles?.includes('DONOR') || user.roles?.includes('PREMIUM_DONOR') ? '❤️ Donor' :
+                   '🎓 Student'}
                 </span>
               </div>
             </div>

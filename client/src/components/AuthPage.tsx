@@ -7,7 +7,7 @@ import imageCopyIcon from "../assets/imagecopy.png";
 import { UserRole } from "../types";
 import { FooterContent } from "../sections/Footer/components/FooterContent";
 
-const INDIAN_COLLEGES_API_BASE = "/api/colleges";
+const INDIAN_COLLEGES_API_BASE = "https://indian-colleges-list.vercel.app/api/institutions";
 const OTHER_COLLEGE_LABEL = "Other";
 
 interface CollegeOption {

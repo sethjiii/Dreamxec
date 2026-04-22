@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import FloatingDoodles from './components/FloatingDoodles';
@@ -78,7 +78,7 @@ import AdminStudentVerifications from './components/admin/AdminStudentVerificati
 import AdminAuditLogs from './components/admin/AdminAuditLogs';
 import AdminDonors from './components/admin/AdminDonors';
 import AdminApplications from './components/admin/AdminApplications';
-import apiRequest from './services/api';
+import apiRequest, { getToken } from './services/api';
 import AdminCampaigns from './components/admin/AdminCampaigns';
 
 type UserProjectsResponse = {
@@ -107,6 +107,7 @@ function AppContent() {
   const location = useLocation();
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const hasLoadedUserRef = useRef(false);
 
   useEffect(() => {
     const initialize = async () => {
@@ -123,7 +124,19 @@ function AppContent() {
 
   // Load user from token on mount
   useEffect(() => {
+    if (hasLoadedUserRef.current) {
+      return;
+    }
+
+    hasLoadedUserRef.current = true;
+
     const loadUser = async () => {
+      if (!getToken()) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await getCurrentUser();
         if (response.data?.user) {

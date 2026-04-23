@@ -283,7 +283,7 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed   inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-xl border-2 border-dreamxec-navy overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
 
                 {/* Header */}
@@ -296,14 +296,16 @@ export const VerificationModal = ({ isOpen, onClose }: VerificationModalProps) =
                             Verify your identity to unlock student benefits.
                         </p>
                     </div>
-                    <button
+
+                    {/* Close button */}
+                    {/* <button
                         onClick={onClose}
                         className="text-dreamxec-navy/50 hover:text-dreamxec-orange transition-colors"
                     >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                    </button>
+                    </button> */}
                 </div>
 
                 {/* Scrollable Content */}

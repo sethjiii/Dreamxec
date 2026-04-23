@@ -301,6 +301,13 @@ export default function StudentDashboard({
     if (selectedTab === 'president' && !isClubPresident) setSelectedTab('overview');
   }, [selectedTab, isClubPresident]);
 
+  useEffect(() => {
+    if(user && user.role == 'student' && !user.studentVerified) {
+      setIsVerificationModalOpen(true);
+    }
+  },[user])
+
+
   const filteredCampaigns = campaigns.filter(c => {
     const matchesSearch =
       !searchQuery ||

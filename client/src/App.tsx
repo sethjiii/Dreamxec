@@ -83,6 +83,7 @@ import AdminDonors from './components/admin/AdminDonors';
 import AdminApplications from './components/admin/AdminApplications';
 import apiRequest from './services/api';
 import AdminCampaigns from './components/admin/AdminCampaigns';
+import AcceptFacultyInvite from './components/profile/AcceptFacultyInvite';
 
 type UserProjectsResponse = {
   userProjects: any;
@@ -1356,6 +1357,9 @@ function AppContent() {
                                   />
                                 }
                               />
+                              
+                              {/* Accept Faculty Invite */}
+                              <Route path="/join/faculty" element={<AcceptFacultyInvite />} />
 
                               {/* User Profile - Bank Details */}
                               <Route

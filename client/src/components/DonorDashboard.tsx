@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useContext, createContext } fr
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DonorAnalyticsChart from "./DonorAnalyticsChart";
+import InviteFacultyCard from './profile/InviteFacultyCard';
 import DonationHeatmap from './CalendarHeatmap';
 import { ApiResponse } from '../services/api';
 
@@ -679,6 +680,10 @@ const DonorDashboardInner: React.FC<DonorDashboardProps> = ({ donorName, project
                     <p className="text-xs font-medium text-[#003366]/60 mt-1">Manage existing projects and applications</p>
                   </div>
                 </button>
+              </div>
+
+              <div className="mt-8">
+                <InviteFacultyCard />
               </div>
             </>
           )}

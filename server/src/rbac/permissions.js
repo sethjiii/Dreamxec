@@ -38,6 +38,7 @@ const Permissions = {
   ACADEMIC_MANAGE:            "academic:manage",
   WELFARE_MANAGE:             "student:welfare:manage",
   FACULTY_MANAGE:             "faculty:manage",
+  FACULTY_APPROVE:            "faculty:approve",
   USER_MANAGE:                "user:manage",
   ROLE_ASSIGN:                "role:assign",
   AUDIT_VIEW:                 "audit:view",

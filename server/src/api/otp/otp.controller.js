@@ -3,6 +3,8 @@ const crypto = require("crypto");
 const { sendWhatsAppMessage } = require("../../services/whatsapp.service");
 const sendEmail = require("../../services/email.service");
 const redis = require("../../services/redis.service");
+const { publishEvent } = require("../../services/eventPublisher.service");
+const EVENTS = require("../../config/events");
 
 /* ───────────────── CONSTANTS ───────────────── */
 const OTP_EXPIRY = 300;              // 5 minutes
@@ -74,7 +76,7 @@ const generateOtp = async (req, res) => {
       // Suspicious Activity Event (Rate Limit Hit)
       if (await redis.get(rateLimitKey) >= MAX_REQUESTS && !await redis.get(`suspicious:${value}`)) {
          await redis.set(`suspicious:${value}`, "1", "EX", 3600); // 1 hour debounce
-         await publishEvent(events.SUSPICIOUS_ACTIVITY, {
+         await publishEvent(EVENTS.SUSPICIOUS_ACTIVITY, {
             type: 'OTP_RATE_LIMIT',
             value: value,
             reason: 'Max OTP generation requests exceeded'
@@ -186,7 +188,7 @@ const verifyOtp = async (req, res) => {
         .exec();
 
         // Publish Suspicious Activity
-        await publishEvent(events.SUSPICIOUS_ACTIVITY, {
+        await publishEvent(EVENTS.SUSPICIOUS_ACTIVITY, {
             type: 'OTP_VERIFY_LOCK',
             value: value,
             reason: 'Max OTP verification attempts exceeded - Account Locked'

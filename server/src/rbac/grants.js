@@ -25,6 +25,7 @@ const ROLE_GRANTS = {
         Permissions.CLUB_MEMBER_MANAGE,
         Permissions.CAMPAIGN_TRANSFER_APPROVE,
         Permissions.CAMPAIGN_TRANSFER_INITIATE,
+        Permissions.FACULTY_APPROVE,
     ],
 
     [Roles.MENTOR] : [
@@ -40,6 +41,7 @@ const ROLE_GRANTS = {
         Permissions.DONOR_PROJECT_CREATE,
         Permissions.DONOR_PROJECT_APPS_VIEW,
         Permissions.WISHLIST_MANAGE,
+        Permissions.FACULTY_APPROVE,
     ],
 
     [Roles.PREMIUM_DONOR] : [

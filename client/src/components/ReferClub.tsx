@@ -188,9 +188,7 @@ export default function ReferClub() {
                   <CollegeAutocomplete
                     value={form.collegeName}
                     onChange={(val) =>
-                      handleChange({
-                        target: { name: "collegeName", value: val },
-                      })
+                      setForm((prev) => ({ ...prev, collegeName: val }))
                     }
                     onSelect={(selection) => {
                       setSelectedCollege(selection);
